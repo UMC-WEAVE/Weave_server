@@ -25,9 +25,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	//Spring Data JPA
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	//runtimeOnly 'mysql:mysql-connector-java' //mysql8
+	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+	//Database
+	//runtimeOnly 'mysql:mysql-connector-java'
 
 	//Lombok
 	compileOnly 'org.projectlombok:lombok'
