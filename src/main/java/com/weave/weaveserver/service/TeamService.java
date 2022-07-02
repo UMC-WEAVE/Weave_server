@@ -41,20 +41,25 @@ public class TeamService {
         belongRepository.save(belong);
     }
 
-    public void addMember(int teamIdx, TeamRequest.addMemberReq req) {
+    public int addMember(int teamIdx, TeamRequest.addMemberReq req) {
         //userfind equal ...
-        //User email = userRepository.findByEmail(req.getEmail());
+        User findUser = userRepository.findByEmail(req.getEmail());
+        if(findUser != null){
+            System.out.println("is not null");
+            int userIdx = findUser.getUserIdx();
+            User user = userRepository.getReferenceById(userIdx);
+            Team team = teamRepository.getReferenceById(teamIdx);
+            Belong belong = Belong.builder()
+                    .user(user)
+                    .team(team)
+                    .build();
 
-        Team team = teamRepository.getReferenceById(teamIdx);
-        String email = req.getEmail();
-        int userIdx = 2;
-        User user = userRepository.getReferenceById(userIdx);
-        Belong belong = Belong.builder()
-                .user(user)
-                .team(team)
-                .build();
-
-        belongRepository.save(belong);
+            belongRepository.save(belong);
+            return 1;
+        } else {
+            System.out.println("is null");
+            return 0;
+        }
 
     }
 
