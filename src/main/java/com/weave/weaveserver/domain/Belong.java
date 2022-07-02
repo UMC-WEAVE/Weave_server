@@ -21,6 +21,9 @@ public class Belong {
     @JoinColumn(name = "user_idx")
     private User user;
 
+//    @Column(name = "user_idx")
+//    private int userIdx;
+
     @ManyToOne
     @JoinColumn(name = "team_idx")
     private Team team;
