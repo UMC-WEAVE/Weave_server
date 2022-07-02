@@ -1,8 +1,10 @@
 package com.weave.weaveserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,7 +12,9 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @Table(name = "plan")
 public class Plan {
 
@@ -20,17 +24,14 @@ public class Plan {
     @Column(name = "plan_idx")
     private int planIdx;
 
-    @ManyToOne
-    @JoinColumn(name = "team_idx")
-    private Team team;
+    @Column(name = "team_idx")
+    private int teamIdx;
 
     @ManyToOne
     @JoinColumn(name = "recent_user_idx")
     private User user;
 
     private String title;
-
-    private String content;
 
     private LocalDateTime date;
 
