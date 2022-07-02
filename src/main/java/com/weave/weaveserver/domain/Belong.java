@@ -14,11 +14,14 @@ import javax.persistence.*;
 public class Belong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "belong_idx")
     private int belongIdx;
 
-    @OneToMany
+    @ManyToOne
     @JoinColumn(name = "user_idx")
     private User user;
 
-    private int team;
+    @ManyToOne
+    @JoinColumn(name = "team_idx")
+    private Team team;
 }
