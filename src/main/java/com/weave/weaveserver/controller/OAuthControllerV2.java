@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weave.weaveserver.config.SecurityProperties;
 import com.weave.weaveserver.config.oauth.provider.KakaoProfile;
 import com.weave.weaveserver.config.oauth.provider.OAuthToken;
+import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.dto.JsonResponse;
+import com.weave.weaveserver.dto.UserRequest;
+import com.weave.weaveserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,9 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Objects;
@@ -23,9 +25,10 @@ import java.util.Objects;
 @RestController
 public class OAuthControllerV2 {
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
-    @PostMapping ("/auth/login/kakao")
-    public KakaoProfile KakaoLogin(@RequestParam String code) {
+    @PostMapping("/auth")
+    public ResponseEntity<?> KakaoLogin(@RequestParam String code) {
         System.out.println("kakaoStart");
 
         // 3, 4 : 인증 코드를 받은 후, 위의 파라미터들을 모두 포함해 Access 토큰 요청을 보내고 응답을 받는 코드
@@ -41,7 +44,7 @@ public class OAuthControllerV2 {
 
         // HttpHeader와 HttpBody를 하나의 오브젝트에 담기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headersForAccessToken);
-        System.out.println("kakaoTokenRequest"+kakaoTokenRequest);
+        System.out.println("kakaoTokenRequest" + kakaoTokenRequest);
         //POST방식으로 key-value 데이터를 요청(카카오쪽으로)
         RestTemplate rt = new RestTemplate(); //http 요청을 간단하게 해줄 수 있는 클래스
 
@@ -60,7 +63,7 @@ public class OAuthControllerV2 {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        System.out.println("oauthToken"+oauthToken);
+        System.out.println("oauthToken" + oauthToken);
 
         // 토큰 전달 받기 완료
 
@@ -78,8 +81,6 @@ public class OAuthControllerV2 {
                 kakaoResourceProfileRequest,
                 String.class
         );
-        System.out.println(kakaoResourceProfileRequest.getBody());
-
 
         KakaoProfile profile = null;
         try {
@@ -87,7 +88,23 @@ public class OAuthControllerV2 {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        System.out.println(profile);
-        return profile;
+        User getUser = userService.getUserByEmail(profile.getKakao_account().getEmail());
+        if(getUser==null){
+            UserRequest.join joinUser = new UserRequest.join(profile.getKakao_account().getEmail(), profile.getProperties().getNickname(), "kakao");
+            userService.joinUser(joinUser);
+            return ResponseEntity.ok(new JsonResponse(200,"kakaoLogin","join success"));
+        }else{
+            UserRequest.login loginUser = new UserRequest.login(getUser.getEmail(),getUser.getName(),getUser.getLoginId());
+            return ResponseEntity.ok(new JsonResponse(200,"kakaoLogin",loginUser));
+        }
+
+
     }
+
+    @DeleteMapping("/auth")
+    public ResponseEntity<?> deleteUser(@RequestParam String email){
+        userService.deleteUser(email);
+        return ResponseEntity.ok(new JsonResponse(200,"deleteUser",null));
+    }
+
 }
