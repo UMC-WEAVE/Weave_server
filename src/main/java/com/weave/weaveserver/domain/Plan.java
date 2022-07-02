@@ -13,10 +13,16 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "plan")
 public class Plan {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "plan_idx")
     private int planIdx;
-    private int teamIdx;
+
+    @ManyToOne
+    @JoinColumn(name = "team_idx")
+    private Team team;
 
     @ManyToOne
     @JoinColumn(name = "recent_user_idx")
@@ -28,15 +34,17 @@ public class Plan {
 
     private LocalDateTime date;
 
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
     private String location;
 
     private float latitude;
 
-    private float longtitude;
+    private float longitude;
 
     private int cost;
 }

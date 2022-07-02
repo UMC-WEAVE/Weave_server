@@ -12,11 +12,14 @@ import javax.persistence.*;
 @Entity
 @Table(name = "team")
 public class Team {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "team_idx")
     private int teamIdx;
 
     private String title;
 
+    @Column(name = "is_empty")
     private boolean isEmpty;
 }
