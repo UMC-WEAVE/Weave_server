@@ -75,4 +75,16 @@ public class PlanService {
         return list;
     }
 
+    public void deletePlan(int planIdx){
+        planRepository.deleteById(planIdx);
+    }
+
+    public void updatePlan(int planIdx, PlanRequest.createReq req){
+        Plan plan = planRepository.getReferenceById(planIdx);
+        User user = userRepository.getReferenceById(req.getUserIdx());
+        plan.updatePlan(user, req.getTitle(), req.getStart_time(), req.getEnd_time(), req.getLocation(), req.getCost());
+        planRepository.save(plan);
+
+    }
+
 }
