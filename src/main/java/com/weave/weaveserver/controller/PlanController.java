@@ -29,9 +29,9 @@ public class PlanController {
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", dto));
     }
 
-    @GetMapping("/plan")
-    public ResponseEntity<?> getPlanList(@RequestBody PlanRequest.getPlanList res){
-        List<PlanResponse.planRes> planList = planService.getPlanList(res.getTeamIdx());
+    @GetMapping("/team/{teamIdx}/plan")
+    public ResponseEntity<?> getPlanList(@PathVariable int teamIdx){
+        List<PlanResponse.planRes> planList = planService.getPlanList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", planList));
     }
 
