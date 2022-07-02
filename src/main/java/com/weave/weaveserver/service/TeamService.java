@@ -56,6 +56,7 @@ public class TeamService {
 
             belongRepository.save(belong);
             return 1;
+            
         } else {
             System.out.println("is null");
             return 0;
