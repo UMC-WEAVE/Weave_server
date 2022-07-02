@@ -18,5 +18,6 @@ public class PlanRequest {
         private LocalDateTime end_time;
         private String location;
         private int userIdx;
+        private int cost;
     }
 }
