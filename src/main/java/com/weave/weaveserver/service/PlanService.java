@@ -44,26 +44,32 @@ public class PlanService {
         Plan plan = planRepository.getReferenceById(planIdx);
         PlanResponse.planRes dto = new PlanResponse.planRes(
                 plan.getPlanIdx(),
+                plan.getTeamIdx(),
                 plan.getDate(),
                 plan.getTitle(),
                 plan.getStartTime(),
                 plan.getEndTime(),
                 plan.getLocation(),
+                plan.getCost(),
                 plan.getUser().getUserIdx()
         );
 
         return dto;
     }
 
-    public List<PlanResponse.planListRes> getPlanList(int teamIdx){
+    public List<PlanResponse.planRes> getPlanList(int teamIdx){
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
-        List<PlanResponse.planListRes> list = planList.stream().map(plan -> new PlanResponse.planListRes(
+        List<PlanResponse.planRes> list = planList.stream().map(plan -> new PlanResponse.planRes(
                 plan.getPlanIdx(),
                 1,
-                plan.getUser().getUserIdx(),
+                plan.getDate(),
                 plan.getTitle(),
-                plan.getDate())
+                plan.getStartTime(),
+                plan.getEndTime(),
+                plan.getLocation(),
+                plan.getCost(),
+                plan.getUser().getUserIdx())
         ).collect(Collectors.toList());
 
         return list;

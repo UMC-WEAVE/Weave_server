@@ -31,7 +31,7 @@ public class PlanController {
 
     @GetMapping("/plan")
     public ResponseEntity<?> getPlanList(@RequestBody PlanRequest.getPlanList res){
-        List<PlanResponse.planListRes> planList = planService.getPlanList(res.getTeamIdx());
+        List<PlanResponse.planRes> planList = planService.getPlanList(res.getTeamIdx());
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", planList));
     }
 
