@@ -1,18 +1,16 @@
 package com.weave.weaveserver.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Builder
 @Table(name = "user")
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,5 +27,6 @@ public class User {
     @Column(name = "login_id")
     private String loginId;
 
+    private String role;
 
 }
