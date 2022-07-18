@@ -28,7 +28,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
+	//security + oauth
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
+
+	//swagger
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
 	//Database
 	runtimeOnly 'mysql:mysql-connector-java'

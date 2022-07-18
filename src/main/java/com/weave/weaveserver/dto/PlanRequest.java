@@ -18,12 +18,6 @@ public class PlanRequest {
         private LocalDateTime end_time;
         private String location;
         private int userIdx;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class getPlanList{
-        private int teamIdx;
+        private int cost;
     }
 }
