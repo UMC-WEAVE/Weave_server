@@ -1,33 +1,24 @@
 package com.weave.weaveserver.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 //@DynamicUpdate //?
-@Table(name = "Archive")
+@Table(name = "archive")
 public class Archive {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "archive_idx")
     private int archiveIdx;
-
-    @JoinColumn(name = "user_idx")
-    private int userIdx;
-
-    //    @JoinColumn(name = "team_idx") //지금은 아직 없으니까 일단 일반 컬럼으로..
-    @Column(name = "team_idx")
-    private int teamIdx;
 
     private String title;
 
@@ -42,7 +33,16 @@ public class Archive {
     private boolean isPinned;
 
 //    @JoinColumn(name = "category_idx") //지금은 아직 없으니까 일단 일반 컬럼으로..
+//    @ManyToOne //외래키
     @Column(name = "category_idx")
     private int categoryIdx;
 
+    @JoinColumn(name = "user_idx")
+    @ManyToOne //외래키
+    private User user;
+
+    @JoinColumn(name = "team_idx") //지금은 아직 없으니까 일단 일반 컬럼으로..
+//    @Column(name = "team_idx")
+    @ManyToOne //외래키
+    private Team team;
 }
