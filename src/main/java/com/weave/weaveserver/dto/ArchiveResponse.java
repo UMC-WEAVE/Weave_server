@@ -10,6 +10,7 @@ public class ArchiveResponse {
     @AllArgsConstructor
     @Data
     public static class listResponse{
+        private int categoryIdx; //임시
 
     }
 
@@ -17,6 +18,7 @@ public class ArchiveResponse {
     @AllArgsConstructor
     @Data
     public static class detailResponse{
+        private int archiveIdx; //임시
 
     }
 

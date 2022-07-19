@@ -10,12 +10,12 @@ public class ArchiveRequest {
     @AllArgsConstructor
     @Data
     public static class createRequest{
-        private int userIdx;
-        private int teamIdx;
+//        private int userIdx;
+//        private int teamIdx;
         private String title;
         private String content;
         private String url;
-        private String imgUrl;
+        private String imageUrl;
         private int categoryIdx;
     }
 }
