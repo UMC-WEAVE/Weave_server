@@ -12,9 +12,9 @@ public class PlanResponse {
     @AllArgsConstructor
     @Data
     public static class planRes{
-        private int planIdx;
+        private Long planIdx;
         private int teamIdx;
-        private LocalDateTime date;
+        private LocalDate date;
         private String title;
         private LocalDateTime start_time;
         private LocalDateTime end_time;

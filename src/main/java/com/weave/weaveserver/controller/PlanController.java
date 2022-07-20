@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
 
@@ -17,6 +18,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlanController {
     private final PlanService planService;
+
+    @GetMapping("/plan/hello")
+    public String hello(){
+        return "hello";
+    }
+
 
     //일정 추가
     @PostMapping("/plan")
@@ -27,7 +34,7 @@ public class PlanController {
 
     //일정 상세 조회
     @GetMapping("/plan/{planIdx}")
-    public ResponseEntity<?> getPlan(@PathVariable int planIdx){
+    public ResponseEntity<?> getPlan(@PathVariable Long planIdx){
         PlanResponse.planRes dto = planService.getPlan(planIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", dto));
     }
@@ -41,13 +48,13 @@ public class PlanController {
 
     //일정 삭제
     @DeleteMapping("/plan/{planIdx}")
-    public ResponseEntity<?> deletePlan(@PathVariable int planIdx){
+    public ResponseEntity<?> deletePlan(@PathVariable Long planIdx){
         planService.deletePlan(planIdx);
         return ResponseEntity.ok(new JsonResponse(200, "deletePlan", null));
     }
 
     @PatchMapping("/plan/{planIdx}")
-    public ResponseEntity<?> updatePlan(@PathVariable int planIdx, @RequestBody PlanRequest.createReq req){
+    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.createReq req){
         planService.updatePlan(planIdx, req);
 
         return ResponseEntity.ok(new JsonResponse(200, "updatePlan", null));
