@@ -21,11 +21,11 @@ import java.time.LocalDateTime;
 public class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "PlanSequence")
-    private int planIdx;
+    @Column(unique=true)
+    private Long planIdx;
 
     @ManyToOne
     @JoinColumn(name = "team_idx")
-    @Column(unique=true)
     private Team team;
 
     @ManyToOne
@@ -41,20 +41,23 @@ public class Plan {
     @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime endTime;
 
-    @Column(nullable = false)
+    @Column
     private String location;
 
-    @Column(nullable = false)
+    @Column
     private double latitude;
 
-    @Column(nullable = false)
+    @Column
     private double longitude;
 
     @Column(nullable = false)
     private int cost;
+
+    @Column
+    private boolean isModified;
 
     public void updatePlan(User user, String title, LocalDateTime startTime, LocalDateTime endTime, String location, int cost ) {
         this.user = user;
