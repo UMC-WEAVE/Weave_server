@@ -29,7 +29,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
         return new Docket(DocumentationType.SWAGGER_2)
                 .useDefaultResponseMessages(false)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("shop.wave-weave"))
+                .apis(RequestHandlerSelectors.basePackage("com.weave.weaveserver"))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(metaData());
