@@ -18,26 +18,26 @@ public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_idx")
     private int teamIdx;
 
-    private String title;
-
     @ManyToOne
-    @JoinColumn(name = "user_idx")
+    @JoinColumn(name = "user_idx") //leader_idx
     private User user;
 
-    @Column(name = "start_date")
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date")
+    @Column(nullable = false)
     private LocalDate endDate;
 
-    private String location;
 
-    @Column(name = "img_url")
-    private String imgUrl;
+    @OneToOne
+    @JoinColumn(name = "image_idx")
+    private Image img;
 
-    @Column(name = "is_empty")
-    private boolean isEmpty;
+    private boolean isEmpty; //boolean 은 bit(1)로 저장
+
 }

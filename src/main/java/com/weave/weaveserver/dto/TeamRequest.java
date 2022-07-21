@@ -16,7 +16,6 @@ public class TeamRequest {
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
-        private String location;
         private String imgUrl;
     }
 
