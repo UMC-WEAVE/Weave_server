@@ -1,6 +1,9 @@
 package com.weave.weaveserver.config.oauth;
 
-import lombok.extern.slf4j.Slf4j;
+
+import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -10,35 +13,48 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.Collections;
 
-@Slf4j
+@RequiredArgsConstructor
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+    private final UserRepository userRepository;
+    private final HttpSession httpSession;
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        System.out.println("CustomOAuth2UserService 접근");
-        //  1번
-        OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
+        OAuth2UserService delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        //	2번
-        OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
-
-        //	3번
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-        log.info("registrationId = {}", registrationId);
-        log.info("userNameAttributeName = {}", userNameAttributeName);
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
 
-        // 4번
-        OAuth2Attribute oAuth2Attribute =
-                OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        var memberAttribute = oAuth2Attribute.convertToMap();
+        User user = saveOrUpdate(attributes);
 
+        User findTestUser = userRepository.findUserByEmail(attributes.getEmail());
+        System.out.println(findTestUser.getUserIdx()+"   "+findTestUser.getEmail());
+//        httpSession.setAttribute("user", new SessionUser(user));
+        System.out.println("loadUser http");
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                memberAttribute, "email");
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
+                attributes.getAttributes(),
+                attributes.getNameAttributeKey());
+    }
+
+    private User saveOrUpdate(OAuthAttributes attributes){
+        System.out.println("saveOrUpdate 탐!!" + attributes.getEmail());
+        User user = userRepository.findUserByEmail(attributes.getEmail());
+        System.out.println("saveOrUpdate findByEmail");
+        if(user==null){
+            user = new User();
+        }
+        user.setLogin(attributes.getName(), attributes.getEmail(), attributes.getLoginId());
+        userRepository.save(user);
+        System.out.println("saveOrUpdate 탐!!" + user);
+        return user;
     }
 }

@@ -1,41 +1,40 @@
 package com.weave.weaveserver.config;
 
-import com.weave.weaveserver.config.jwt.JwtAuthFilter;
-import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.config.oauth.CustomOAuth2UserService;
-import com.weave.weaveserver.config.oauth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 //http://localhost:8080/oauth2/authorization/kakao
+
 @RequiredArgsConstructor
-@Configuration
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final CustomOAuth2UserService oAuth2UserService;
-    private final OAuth2SuccessHandler successHandler;
-    private final TokenService tokenService;
+
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic().disable()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        http.csrf().disable()
+                .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/token/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/android").permitAll()
+                .anyRequest().permitAll()
                 .and()
-//                .addFilterBefore(new JwtAuthFilter(tokenService), UsernamePasswordAuthenticationFilter.class)
-                .logout().logoutSuccessUrl("/")
+                .logout()
+                .logoutSuccessUrl("/")
                 .and()
                 .oauth2Login()
-//                .successHandler(successHandler)
-                .userInfoEndpoint().userService(oAuth2UserService);
-
-//        http.addFilterBefore(new JwtAuthFilter(tokenService), UsernamePasswordAuthenticationFilter.class);
+                .authorizationEndpoint()
+                .baseUri("/oauth2/authorize")
+//                .authorizationRequestRepository(cookieAuthRepositories())
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/oauth/login/oauth2/code/**")
+                .and()
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService);
     }
 }

@@ -1,32 +1,32 @@
 package com.weave.weaveserver.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 @RestController
+@RequestMapping("/oauth")
 public class OAuth2Controller {
 
-    @GetMapping("/auth/kakao")
-    public String kakaoRedirect(){
-        return "redirect:http://localhost:8080/oauth2/authorization/kakao";
+    @GetMapping("/google")
+    public void kakaoLogin(HttpServletResponse response)throws IOException {
+        String redirect_uri="http://localhost:8080/oauth2/authorization/google";
+        response.sendRedirect(redirect_uri);
     }
 
-    @GetMapping("/oauth/login/oauth2/code/kakao")
-    public String kakao(){
-        return "/oauth/login/oauth2/code/kakao";
+    @GetMapping("/kakao")
+    public void googleLogin(HttpServletResponse response)throws IOException {
+        String redirect_uri="http://localhost:8080/oauth2/authorization/kakao";
+        response.sendRedirect(redirect_uri);
     }
-//
-//    @GetMapping("/oauth/loginInfo")
-//    @ResponseBody
-//    public String oauthLoginInfo(Authentication authentication, @AuthenticationPrincipal OAuth2User oAuth2UserPrincipal){
-//        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-//        Map<String, Object> attributes = oAuth2User.getAttributes();
-//        System.out.println(attributes);
-//        // PrincipalOauth2UserService의 getAttributes내용과 같음
-//
-//        Map<String, Object> attributes1 = oAuth2UserPrincipal.getAttributes();
-//        // attributes == attributes1
-//
-//        return attributes.toString();     //세션에 담긴 user가져올 수 있음음
-//    }
+
+    @GetMapping("/naver")
+    public void naverLogin(HttpServletResponse response)throws IOException {
+        String redirect_uri="http://localhost:8080/oauth2/authorization/naver";
+        response.sendRedirect(redirect_uri);
+    }
+
 }

@@ -12,8 +12,8 @@ public class WeaveServerApplication {
 		SpringApplication.run(WeaveServerApplication.class, args);
 	}
 
-	@Bean
-	public BCryptPasswordEncoder encodePwd() {
-		return new BCryptPasswordEncoder();
-	}
+//	@Bean
+//	public BCryptPasswordEncoder encodePwd() {
+//		return new BCryptPasswordEncoder();
+//	}
 }
