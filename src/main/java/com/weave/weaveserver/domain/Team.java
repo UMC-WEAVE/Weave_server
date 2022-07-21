@@ -18,7 +18,7 @@ public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int teamIdx;
+    private Long teamIdx;
 
     @ManyToOne
     @JoinColumn(name = "user_idx") //leader_idx
