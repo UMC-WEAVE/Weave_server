@@ -15,7 +15,16 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void joinUser(UserRequest.join joinUser) {
-        User user = User.builder().email(joinUser.getEmail()).name(joinUser.getName()).build();
+        User user = User.builder().email(joinUser.getEmail()).name(joinUser.getName()).loginId(joinUser.getLoginId()).build();
         userRepository.save(user);
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findUserByEmail(email);
+    }
+
+    public void deleteUser(String email) {
+        User user = getUserByEmail(email);
+        userRepository.delete(user);
     }
 }

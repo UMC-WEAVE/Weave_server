@@ -22,13 +22,22 @@ dependencies {
 
 	//Spring Boot Starter & Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	//Spring Data JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
+	//security + oauth
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
+	//junit : 테스트 코드 작성을 도와주는 프레임 워크
+	implementation 'junit:junit:4.13.1'
+	//swagger
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
 	//Database
 	runtimeOnly 'mysql:mysql-connector-java'
