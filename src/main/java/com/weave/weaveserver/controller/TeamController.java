@@ -21,7 +21,7 @@ public class TeamController {
     }
 
     @PostMapping("/{teamIdx}")
-    public ResponseEntity<?> addMember(@PathVariable int teamIdx, @RequestBody TeamRequest.addMemberReq req) {
+    public ResponseEntity<?> addMember(@PathVariable Long teamIdx, @RequestBody TeamRequest.addMemberReq req) {
         System.out.println(teamIdx);
         teamService.addMember(teamIdx, req);
         return ResponseEntity.ok(new JsonResponse(200, "addMember",null));

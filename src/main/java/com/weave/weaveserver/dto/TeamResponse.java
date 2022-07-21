@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class TeamResponse {
@@ -12,7 +13,7 @@ public class TeamResponse {
     @AllArgsConstructor
     @Data
     public static class createRes {
-        private int teamIdx;
+        private Long teamIdx;
         private String title;
     }
 
@@ -21,11 +22,10 @@ public class TeamResponse {
     @Data
     public static class getListRes {
         private String title;
-        private LocalDateTime startDate;
-        private LocalDateTime endDate;
-        private LocalDateTime date;
-        private String location;
-        private int recentUserIdx;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        //private LocalDateTime date;
+        //private int recentUserIdx;
 
     }
 

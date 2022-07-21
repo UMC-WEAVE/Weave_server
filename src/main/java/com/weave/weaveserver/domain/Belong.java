@@ -3,6 +3,7 @@ package com.weave.weaveserver.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -11,10 +12,11 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "belong")
+@NoArgsConstructor
 public class Belong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int belongIdx;
+    private Long belongIdx;
 
     @ManyToOne
     @JoinColumn(name = "user_idx")
