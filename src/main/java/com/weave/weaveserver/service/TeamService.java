@@ -27,8 +27,7 @@ public class TeamService {
                 .title(req.getTitle())
                 .startDate(req.getStartDate())
                 .endDate(req.getEndDate())
-                .location(req.getLocation())
-                .imgUrl(req.getImgUrl())
+//                .imageUrl(image)
                 .build();
 
         teamRepository.save(team);
