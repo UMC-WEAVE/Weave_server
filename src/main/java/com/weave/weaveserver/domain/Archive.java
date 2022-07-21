@@ -1,5 +1,6 @@
 package com.weave.weaveserver.domain;
 
+import com.sun.istack.NotNull;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -20,29 +21,35 @@ public class Archive {
     @Column(name = "archive_idx")
     private int archiveIdx;
 
+    @NotNull
+    @Column(length = 500)
     private String title;
 
+    @Column(length = 200)
     private String content;
 
+    @Column(length = 500)
     private String url;
 
     @Column(name = "image_url")
     private String imageUrl;
 
+    @NotNull
     @Column(name = "is_pinned")
     private boolean isPinned;
 
-//    @JoinColumn(name = "category_idx") //지금은 아직 없으니까 일단 일반 컬럼으로..
-//    @ManyToOne //외래키
-    @Column(name = "category_idx")
-    private int categoryIdx;
+    @NotNull
+    @JoinColumn(name = "category_idx")
+    @ManyToOne(fetch = FetchType.LAZY) //외래키
+    private Category categoryIdx;
 
+    @NotNull
     @JoinColumn(name = "user_idx")
-    @ManyToOne //외래키
+    @ManyToOne(fetch = FetchType.LAZY) //외래키
     private User user;
 
-    @JoinColumn(name = "team_idx") //지금은 아직 없으니까 일단 일반 컬럼으로..
-//    @Column(name = "team_idx")
-    @ManyToOne //외래키
+    @NotNull
+    @JoinColumn(name = "team_idx")
+    @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Team team;
 }
