@@ -19,7 +19,7 @@ public class Archive {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "archive_idx")
-    private int archiveIdx;
+    private Long archiveIdx;
 
     @NotNull
     @Column(length = 500)
@@ -41,7 +41,7 @@ public class Archive {
     @NotNull
     @JoinColumn(name = "category_idx")
     @ManyToOne(fetch = FetchType.LAZY) //외래키
-    private Category categoryIdx;
+    private Category category;
 
     @NotNull
     @JoinColumn(name = "user_idx")
