@@ -35,6 +35,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 
+	// AWS S3
+//	implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws', version: '2.2.1.RELEASE', ext: 'pom'
+	implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
+
 	//swagger
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 

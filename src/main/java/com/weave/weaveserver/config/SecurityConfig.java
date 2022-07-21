@@ -21,6 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/android").permitAll()
+                .antMatchers("/gallery").permitAll()
                 .anyRequest().permitAll()
                 .and()
                 .logout()
