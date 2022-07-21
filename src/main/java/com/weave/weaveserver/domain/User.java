@@ -1,18 +1,13 @@
 package com.weave.weaveserver.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
-@Builder
 @Table(name = "user")
+@NoArgsConstructor
+@Entity
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,12 +17,33 @@ public class User {
     @Column(name = "refresh_token")
     private String refreshToken;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String email;
 
-    @Column(name = "login_id")
+    @Column(name = "login_type",nullable = false)
     private String loginId;
 
+    private String role;
+
+
+    private int imageIdx;
+
+    @Builder
+    public User(String name, String email, String loginId) {
+        this.name = name;
+        this.email = email;
+        this.loginId = loginId;
+        this.role = "ROLE_USER";
+    }
+
+    public void setLogin(String name, String email, String loginId){
+        this.name=name;
+        this.email=email;
+        this.loginId=loginId;
+        this.role = "ROLE_USER";
+    }
 
 }
