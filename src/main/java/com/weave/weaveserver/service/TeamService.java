@@ -27,8 +27,7 @@ public class TeamService {
                 .title(req.getTitle())
                 .startDate(req.getStartDate())
                 .endDate(req.getEndDate())
-                .location(req.getLocation())
-                .imgUrl(req.getImgUrl())
+//                .imageUrl(image)
                 .build();
 
         teamRepository.save(team);
@@ -56,7 +55,7 @@ public class TeamService {
 
             belongRepository.save(belong);
             return 1;
-            
+
         } else {
             System.out.println("is null");
             return 0;

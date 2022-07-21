@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface PlanRepository extends JpaRepository<Plan, Integer> {
+
+public interface PlanRepository extends JpaRepository<Plan, Long> {
     @Query(value = "SELECT p "
             + "FROM Plan p "
-            + "WHERE p.teamIdx = ?1 ")
+            + "WHERE p.team.teamIdx = ?1 ")
     List<Plan> findAllByTeamIdx(int teamIdx);
 }
