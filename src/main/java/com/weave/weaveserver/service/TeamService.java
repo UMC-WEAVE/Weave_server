@@ -27,8 +27,7 @@ public class TeamService {
                 .title(req.getTitle())
                 .startDate(req.getStartDate())
                 .endDate(req.getEndDate())
-                .location(req.getLocation())
-                .imgUrl(req.getImgUrl())
+//                .imageUrl(image)
                 .build();
 
         teamRepository.save(team);
@@ -41,12 +40,12 @@ public class TeamService {
         belongRepository.save(belong);
     }
 
-    public int addMember(int teamIdx, TeamRequest.addMemberReq req) {
+    public int addMember(Long teamIdx, TeamRequest.addMemberReq req) {
         //userfind equal ...
         User findUser = userRepository.findByEmail(req.getEmail());
         if(findUser != null){
             System.out.println("is not null");
-            int userIdx = findUser.getUserIdx();
+            Long userIdx = findUser.getUserIdx();
             User user = userRepository.getReferenceById(userIdx);
             Team team = teamRepository.getReferenceById(teamIdx);
             Belong belong = Belong.builder()
@@ -56,7 +55,7 @@ public class TeamService {
 
             belongRepository.save(belong);
             return 1;
-            
+
         } else {
             System.out.println("is null");
             return 0;

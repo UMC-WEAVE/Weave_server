@@ -12,11 +12,10 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class createReq {
-        private int userIdx;
+        private Long userIdx;
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
-        private String location;
         private String imgUrl;
     }
 
@@ -24,15 +23,15 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class getReq {
-        private int userIdx;
-        private int teamIdx;
+        private Long userIdx;
+        private Long teamIdx;
     }
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
     public static class addMemberReq {
-        private int teamIdx;
+        private Long teamIdx;
         private String email;
     }
 
