@@ -28,7 +28,9 @@ public class User {
 
     private String role;
 
-    private int imageIdx;
+    @OneToOne
+    @JoinColumn(name = "image_idx")
+    private Image imageIdx;
 
     @Builder
     public User(String name, String email, String loginId) {

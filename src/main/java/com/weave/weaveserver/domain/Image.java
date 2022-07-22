@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "ImageSequence")
-    @Column(unique=true)
+    @Column(unique=true,name = "image_idx")
     private Long imageIdx;
 
     @Column(nullable = false)
