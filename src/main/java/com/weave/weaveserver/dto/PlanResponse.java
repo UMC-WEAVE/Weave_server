@@ -13,14 +13,14 @@ public class PlanResponse {
     @Data
     public static class planRes{
         private Long planIdx;
-        private int teamIdx;
+        private Long teamIdx;
         private LocalDate date;
         private String title;
         private LocalDateTime start_time;
         private LocalDateTime end_time;
         private String location;
         private int cost;
-        private int userIdx;
+        private Long userIdx;
     }
 
 }

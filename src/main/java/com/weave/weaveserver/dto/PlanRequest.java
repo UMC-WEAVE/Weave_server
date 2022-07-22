@@ -14,8 +14,8 @@ public class PlanRequest {
     @AllArgsConstructor
     @Data
     public static class createReq{
-        private int userIdx;
-        private int teamIdx;
+        private Long userIdx;
+        private Long teamIdx;
 
         private String title;
         private LocalDate date;
