@@ -23,10 +23,10 @@ public class User {
     @Column(nullable = false)
     private String email;
 
+    //google : 0, kakao : 1, naver : 2
     @Column(name = "login_type",nullable = false)
     private String loginId;
 
-    private String role;
 
     @OneToOne
     @JoinColumn(name = "image_idx")
@@ -36,15 +36,16 @@ public class User {
     public User(String name, String email, String loginId) {
         this.name = name;
         this.email = email;
-        this.loginId = loginId;
-        this.role = "ROLE_USER";
+        this.loginId=loginId;
     }
 
     public void setLogin(String name, String email, String loginId){
         this.name=name;
         this.email=email;
         this.loginId=loginId;
-        this.role = "ROLE_USER";
     }
 
+    public void setImageIdx(Image imageIdx) {
+        this.imageIdx = imageIdx;
+    }
 }
