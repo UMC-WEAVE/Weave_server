@@ -21,8 +21,8 @@ public class Archive {
     @Column(name = "archive_idx")
     private Long archiveIdx;
 
-    @NotNull
-    @Column(length = 500)
+    //@NotNull //?왜 DB에 notnull 적용이 안되는가...
+    @Column(length = 500, nullable = false)
     private String title;
 
     @Column(length = 200)
@@ -34,11 +34,11 @@ public class Archive {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @NotNull
-    @Column(name = "is_pinned")
+    //@NotNull
+    @Column(name = "is_pinned", nullable = false)
     private boolean isPinned;
 
-    @NotNull
+    //@NotNull
     @JoinColumn(name = "category_idx")
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Category category;
