@@ -6,6 +6,7 @@ import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
 import com.weave.weaveserver.dto.UserResponse;
+import com.weave.weaveserver.repository.ArchiveRepository;
 import com.weave.weaveserver.repository.PlanRepository;
 import com.weave.weaveserver.repository.TeamRepository;
 import com.weave.weaveserver.repository.UserRepository;
@@ -24,6 +25,7 @@ public class PlanService {
     public final UserRepository userRepository;
     public final TeamRepository teamRepository;
     public final PlanRepository planRepository;
+    public final ArchiveRepository archiveRepository;
 
     public Long addPlan(PlanRequest.createReq req){
         User user = userRepository.getReferenceById(req.getUserIdx());
@@ -41,7 +43,12 @@ public class PlanService {
                 .latitude(req.getLatitude())
                 .longitude(req.getLongitude())
                 .cost(req.getCost())
+                .isModified(false)
                 .build();
+
+        if (req.isArchive()){ //archive 필요
+
+        }
 
         return planRepository.save(plan).getTeam().getTeamIdx();
 
@@ -65,6 +72,7 @@ public class PlanService {
     }
 
     public List<PlanResponse.planRes> getPlanList(Long teamIdx){
+
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
         List<PlanResponse.planRes> list = planList.stream().map(plan -> new PlanResponse.planRes(

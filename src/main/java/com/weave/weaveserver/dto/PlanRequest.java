@@ -25,5 +25,7 @@ public class PlanRequest {
         private double latitude;
         private double longitude;
         private int cost;
+
+        private boolean isArchive;
     }
 }
