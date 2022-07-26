@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArchiveController {
     private final ArchiveService archiveService;
 
-    @PostMapping("/archive")
+    @PostMapping("/archives")
     public ResponseEntity<?> createArchive(@RequestBody ArchiveRequest.createRequest request){
         archiveService.addArchive(request);
-        return ResponseEntity.ok(new JsonResponse(200, "addArchive", null));
+        return ResponseEntity.ok(new JsonResponse(200, "success addArchive", null));
     }
 }
