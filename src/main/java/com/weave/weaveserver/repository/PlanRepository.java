@@ -11,5 +11,5 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     @Query(value = "SELECT p "
             + "FROM Plan p "
             + "WHERE p.team.teamIdx = ?1 ")
-    List<Plan> findAllByTeamIdx(int teamIdx);
+    List<Plan> findAllByTeamIdx(Long teamIdx);
 }

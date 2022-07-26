@@ -25,7 +25,7 @@ public class PlanService {
     public final TeamRepository teamRepository;
     public final PlanRepository planRepository;
 
-    public void addPlan(PlanRequest.createReq req){
+    public Long addPlan(PlanRequest.createReq req){
         User user = userRepository.getReferenceById(req.getUserIdx());
         Team team = teamRepository.getReferenceById(req.getTeamIdx());
         Plan plan = Plan.builder()
@@ -43,7 +43,8 @@ public class PlanService {
                 .cost(req.getCost())
                 .build();
 
-        planRepository.save(plan);
+        return planRepository.save(plan).getTeam().getTeamIdx();
+
     }
 
     public PlanResponse.planRes getPlan(Long planIdx){
@@ -63,7 +64,7 @@ public class PlanService {
         return dto;
     }
 
-    public List<PlanResponse.planRes> getPlanList(int teamIdx){
+    public List<PlanResponse.planRes> getPlanList(Long teamIdx){
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
         List<PlanResponse.planRes> list = planList.stream().map(plan -> new PlanResponse.planRes(
