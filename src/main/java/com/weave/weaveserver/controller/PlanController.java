@@ -27,9 +27,9 @@ public class PlanController {
 
     //일정 추가
     @PostMapping("/plan")
-    public ResponseEntity<?> createPlan(@RequestBody PlanRequest.createReq req){
-        planService.addPlan(req);
-        return ResponseEntity.ok(new JsonResponse(200, "addPlan",null));
+    public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req){
+        Long teamIdx = planService.addPlan(req);
+        return ResponseEntity.ok(new JsonResponse(200, "addPlan", teamIdx));
     }
 
     //일정 상세 조회
@@ -41,7 +41,7 @@ public class PlanController {
 
     //해당 팀의 일정 리스트 조회
     @GetMapping("/team/{teamIdx}/plan")
-    public ResponseEntity<?> getPlanList(@PathVariable int teamIdx){
+    public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
         List<PlanResponse.planRes> planList = planService.getPlanList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", planList));
     }
