@@ -13,14 +13,16 @@ public class OAuthAttributes {
     private String name;
     private String email;
     private String loginId;
+    private String image;
 
     @Builder
-    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String loginId) {
+    public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String loginId,String image) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
         this.name = name;
         this.email = email;
         this.loginId = loginId;
+        this.image=image;
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
@@ -33,12 +35,21 @@ public class OAuthAttributes {
     }
 
     private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+
+        Map<String, Object> response = (Map<String, Object>) attributes.get("kakao_account");
+
+        System.out.println(response);
+        Map<String, Object>  profile = (Map<String, Object>)response.get("profile");
+        String name = (String) profile.get("nickname");
+        String email = (String) response.get("email");
+        String imageUrl = (String) profile.get("thumbnail_image_url");
+
 
         return OAuthAttributes.builder()
-                .name((String) response.get("name"))
-                .email((String) response.get("email"))
+                .name(name)
+                .email(email)
                 .loginId("kakao")
+                .image(imageUrl)
                 .attributes(response)
                 .nameAttributeKey(userNameAttributeName)
                 .build();

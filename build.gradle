@@ -36,7 +36,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 	// AWS S3
-	//implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
+//	implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
+
 
 	//junit : 테스트 코드 작성을 도와주는 프레임 워크
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'

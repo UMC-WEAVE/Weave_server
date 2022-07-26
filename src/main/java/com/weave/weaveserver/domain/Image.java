@@ -16,13 +16,17 @@ import javax.persistence.*;
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "ImageSequence")
-    @Column(unique=true)
+    @Column(unique=true,name = "image_idx")
     private Long imageIdx;
 
     @Column(nullable = false)
     private String url;
 
     public void updateImage(String url) {
+        this.url = url;
+    }
+
+    public Image(String url) {
         this.url = url;
     }
 }
