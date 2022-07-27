@@ -9,16 +9,17 @@ public class ArchiveResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class listResponse{
-        private Long categoryIdx; //임시
-
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class detailResponse{
-        private Long archiveIdx; //임시
+    public static class archiveResponse{
+        private Long archiveIdx;
+        private Long category_idx;
+        private String category_name;
+        private Long team_idx;
+        private Long user_idx;
+        private String title;
+        private String content;
+        private String url;
+//        private String image_url;
+        private Boolean is_pinned;
 
     }
 
