@@ -18,7 +18,7 @@ public class ArchiveResponse {
         private String title;
         private String content;
         private String url;
-//        private String image_url;
+        private String image_url;
         private Boolean is_pinned;
 
     }

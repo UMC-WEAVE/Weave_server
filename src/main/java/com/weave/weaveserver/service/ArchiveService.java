@@ -1,15 +1,9 @@
 package com.weave.weaveserver.service;
 
-import com.weave.weaveserver.domain.Archive;
-import com.weave.weaveserver.domain.Category;
-import com.weave.weaveserver.domain.Team;
-import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.ArchiveRequest;
 import com.weave.weaveserver.dto.ArchiveResponse;
-import com.weave.weaveserver.repository.ArchiveRepository;
-import com.weave.weaveserver.repository.CategoryRepository;
-import com.weave.weaveserver.repository.TeamRepository;
-import com.weave.weaveserver.repository.UserRepository;
+import com.weave.weaveserver.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +18,8 @@ public class ArchiveService {
     public final TeamRepository teamRepository;
     public final CategoryRepository categoryRepository;
     public final ArchiveRepository archiveRepository;
+
+    public final ImageRepository imageRepository;
 
     public void addArchive(ArchiveRequest.createRequest request){
         User user = userRepository.getReferenceById(request.getUserIdx());
@@ -46,8 +42,9 @@ public class ArchiveService {
     public List<ArchiveResponse.archiveResponse> getArchiveList(Long teamIdx){
 //        List<ArchiveResponse.archiveResponse> archiveList = archiveRepository.findByTeamIdx(teamIdx);
         List<Archive> archiveList = archiveRepository.findByTeamIdx(teamIdx);
-        List<ArchiveResponse.archiveResponse> responseList = archiveList.stream().map(archive -> new ArchiveResponse.archiveResponse(
-            archive.getArchiveIdx(),
+        List<ArchiveResponse.archiveResponse> responseList = archiveList.stream().map(archive ->
+                new ArchiveResponse.archiveResponse(
+                archive.getArchiveIdx(),
                 archive.getCategory().getCategoryIdx(),
                 archive.getCategory().getCategoryName(),
                 archive.getTeam().getTeamIdx(),
@@ -55,11 +52,19 @@ public class ArchiveService {
                 archive.getTitle(),
                 archive.getContent(),
                 archive.getUrl(),
-//                archive.getImageUrl(),
+                archive.getImageUrl(),
+                //TODO : image를 리스트로 바꾸기
                 archive.isPinned())
         ).collect(Collectors.toList());
         return responseList;
 //        return archiveList;
+    }
+
+    @Transactional
+    public void deleteArchive(Long archiveIdx){
+        Archive archive = archiveRepository.getReferenceById(archiveIdx);
+        imageRepository.deleteByArchive(archive);
+        archiveRepository.deleteByArchiveIdx(archiveIdx);
     }
 
 }

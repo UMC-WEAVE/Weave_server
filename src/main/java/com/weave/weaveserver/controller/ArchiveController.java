@@ -26,4 +26,10 @@ public class ArchiveController {
         List<ArchiveResponse.archiveResponse> archiveList = archiveService.getArchiveList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveList));
     }
+
+    @DeleteMapping("/archives/{archiveIdx}")
+    public ResponseEntity<?> deleteArchive(@PathVariable Long archiveIdx){
+        archiveService.deleteArchive(archiveIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "success deleteArchive", null));
+    }
 }
