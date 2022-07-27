@@ -10,9 +10,11 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface ArchiveRepository extends JpaRepository<Archive, Long> {
+
+    Archive findByArchiveIdx(Long archiveIdx);
+
     @Query(value = "SELECT a from Archive a where a.team.teamIdx = :teamIdx")
     List<Archive> findByTeamIdx(@Param("teamIdx") Long teamIdx);
-//    List<ArchiveResponse.archiveResponse> findByTeamIdx(@Param("teamIdx") Long teamIdx);
 
     void deleteByArchiveIdx(Long archiveIdx);
 }

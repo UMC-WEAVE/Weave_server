@@ -39,11 +39,11 @@ public class ArchiveService {
     }
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
-    public List<ArchiveResponse.archiveResponse> getArchiveList(Long teamIdx){
-//        List<ArchiveResponse.archiveResponse> archiveList = archiveRepository.findByTeamIdx(teamIdx);
+    //TODO : image를 리스트로 바꾸기
+    public List<ArchiveResponse.archiveListResponse> getArchiveList(Long teamIdx){
         List<Archive> archiveList = archiveRepository.findByTeamIdx(teamIdx);
-        List<ArchiveResponse.archiveResponse> responseList = archiveList.stream().map(archive ->
-                new ArchiveResponse.archiveResponse(
+        List<ArchiveResponse.archiveListResponse> responseList = archiveList.stream().map(archive ->
+                new ArchiveResponse.archiveListResponse(
                 archive.getArchiveIdx(),
                 archive.getCategory().getCategoryIdx(),
                 archive.getCategory().getCategoryName(),
@@ -51,18 +51,40 @@ public class ArchiveService {
                 archive.getUser().getUserIdx(),
                 archive.getTitle(),
                 archive.getContent(),
-                archive.getUrl(),
                 archive.getImageUrl(),
-                //TODO : image를 리스트로 바꾸기
                 archive.isPinned())
         ).collect(Collectors.toList());
         return responseList;
-//        return archiveList;
+    }
+
+
+    @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
+    //TODO : image를 리스트로 바꾸기
+    public ArchiveResponse.archiveResponse getArchiveDetail(Long archiveIdx){
+        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
+        ArchiveResponse.archiveResponse response = new ArchiveResponse.archiveResponse(
+                        archive.getArchiveIdx(),
+                        archive.getCategory().getCategoryIdx(),
+                        archive.getCategory().getCategoryName(),
+                        archive.getTeam().getTeamIdx(),
+                        archive.getUser().getUserIdx(),
+                        archive.getTitle(),
+                        archive.getContent(),
+                        archive.getUrl(),
+                        archive.getImageUrl(),
+                        archive.isPinned());
+        return response;
+    }
+
+    public void updateArchive(Long archiveIdx){
+        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
+        archive.updateArchive(false);
+        archiveRepository.save(archive);
     }
 
     @Transactional
     public void deleteArchive(Long archiveIdx){
-        Archive archive = archiveRepository.getReferenceById(archiveIdx);
+        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
         imageRepository.deleteByArchive(archive);
         archiveRepository.deleteByArchiveIdx(archiveIdx);
     }
