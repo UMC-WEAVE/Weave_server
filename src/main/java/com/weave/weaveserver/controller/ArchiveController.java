@@ -33,6 +33,12 @@ public class ArchiveController {
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveDetail", archiveDetail));
     }
 
+    @PatchMapping("/archives/{archiveIdx}")
+    public ResponseEntity<?> updateArchive(@PathVariable Long archiveIdx){
+        archiveService.updateArchive(archiveIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "sucess updateArchive", null));
+    }
+
     @DeleteMapping("/archives/{archiveIdx}")
     public ResponseEntity<?> deleteArchive(@PathVariable Long archiveIdx){
         archiveService.deleteArchive(archiveIdx);

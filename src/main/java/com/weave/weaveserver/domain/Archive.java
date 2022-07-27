@@ -52,4 +52,8 @@ public class Archive {
     @JoinColumn(name = "team_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Team team;
+
+    public void updateArchive(boolean isPinned) {
+        this.isPinned = isPinned;
+    }
 }

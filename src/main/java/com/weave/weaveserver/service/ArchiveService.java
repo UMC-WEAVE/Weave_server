@@ -76,9 +76,15 @@ public class ArchiveService {
         return response;
     }
 
+    public void updateArchive(Long archiveIdx){
+        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
+        archive.updateArchive(false);
+        archiveRepository.save(archive);
+    }
+
     @Transactional
     public void deleteArchive(Long archiveIdx){
-        Archive archive = archiveRepository.getReferenceById(archiveIdx);
+        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
         imageRepository.deleteByArchive(archive);
         archiveRepository.deleteByArchiveIdx(archiveIdx);
     }
