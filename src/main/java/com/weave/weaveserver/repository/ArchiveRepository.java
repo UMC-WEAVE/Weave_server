@@ -12,7 +12,8 @@ import java.util.List;
 public interface ArchiveRepository extends JpaRepository<Archive, Long> {
     @Query(value = "SELECT a from Archive a where a.team.teamIdx = :teamIdx")
     List<Archive> findByTeamIdx(@Param("teamIdx") Long teamIdx);
-//    List<ArchiveResponse.archiveResponse> findByTeamIdx(@Param("teamIdx") Long teamIdx);
+
+    Archive findByArchiveIdx(Long archiveIdx);
 
     void deleteByArchiveIdx(Long archiveIdx);
 }

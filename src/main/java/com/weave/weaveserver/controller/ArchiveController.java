@@ -21,10 +21,16 @@ public class ArchiveController {
         return ResponseEntity.ok(new JsonResponse(200, "success addArchive", null));
     }
 
-    @GetMapping("/archives/{teamIdx}")
+    @GetMapping("/teams/{teamIdx}/archives")
     public ResponseEntity<?> getArchiveList(@PathVariable Long teamIdx){
-        List<ArchiveResponse.archiveResponse> archiveList = archiveService.getArchiveList(teamIdx);
+        List<ArchiveResponse.archiveListResponse> archiveList = archiveService.getArchiveList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveList));
+    }
+
+    @GetMapping("/archives/{archiveIdx}")
+    public ResponseEntity<?> getArchiveDetail(@PathVariable Long archiveIdx){
+        ArchiveResponse.archiveResponse archiveDetail = archiveService.getArchiveDetail(archiveIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "success getArchiveDetail", archiveDetail));
     }
 
     @DeleteMapping("/archives/{archiveIdx}")
@@ -32,4 +38,5 @@ public class ArchiveController {
         archiveService.deleteArchive(archiveIdx);
         return ResponseEntity.ok(new JsonResponse(200, "success deleteArchive", null));
     }
+
 }

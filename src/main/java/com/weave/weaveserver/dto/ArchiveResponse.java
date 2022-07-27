@@ -23,4 +23,20 @@ public class ArchiveResponse {
 
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class archiveListResponse{
+        private Long archiveIdx;
+        private Long category_idx;
+        private String category_name;
+        private Long team_idx;
+        private Long user_idx;
+        private String title;
+        private String content;
+        private String image_url;
+        private Boolean is_pinned;
+
+    }
+
 }
