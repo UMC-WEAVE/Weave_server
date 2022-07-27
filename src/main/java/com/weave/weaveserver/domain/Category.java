@@ -19,7 +19,7 @@ public class Category {
     @Column(name = "category_idx")
     private Long categoryIdx;
 
-    @NotNull
-    @Column(name = "category_name", length = 100)
+//    @NotNull
+    @Column(name = "category_name", length = 100, nullable = false)
     private String categoryName;
 }
