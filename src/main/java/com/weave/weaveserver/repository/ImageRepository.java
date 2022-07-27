@@ -13,4 +13,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
 //    @Query(value = "SELECT i from Image i where i.archive.archiveIdx = :archiveIdx")
 //    List<Archive> findByArchiveIdx(@Param("archiveIdx") Long archiveIdx);
+
+    void deleteByArchive(Archive archive);
 }

@@ -53,11 +53,18 @@ public class ArchiveService {
                 archive.getContent(),
                 archive.getUrl(),
                 archive.getImageUrl(),
-                //image를 리스트로 바꾸기
+                //TODO : image를 리스트로 바꾸기
                 archive.isPinned())
         ).collect(Collectors.toList());
         return responseList;
 //        return archiveList;
+    }
+
+    @Transactional
+    public void deleteArchive(Long archiveIdx){
+        Archive archive = archiveRepository.getReferenceById(archiveIdx);
+        imageRepository.deleteByArchive(archive);
+        archiveRepository.deleteByArchiveIdx(archiveIdx);
     }
 
 }

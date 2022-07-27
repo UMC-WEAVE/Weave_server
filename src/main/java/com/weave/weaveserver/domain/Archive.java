@@ -39,17 +39,17 @@ public class Archive {
     private boolean isPinned;
 
     //@NotNull
-    @JoinColumn(name = "category_idx")
+    @JoinColumn(name = "category_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Category category;
 
-    @NotNull
-    @JoinColumn(name = "user_idx")
+    //@NotNull
+    @JoinColumn(name = "user_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private User user;
 
-    @NotNull
-    @JoinColumn(name = "team_idx")
+    //@NotNull
+    @JoinColumn(name = "team_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Team team;
 }
