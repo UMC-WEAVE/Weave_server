@@ -16,7 +16,7 @@ public class ArchiveRequest {
         private String title;
         private String content;
         private String url;
-        private String imageUrl;
+        private String imageUrl; //일단 한 장으로 진행
         private Long categoryIdx;
     }
 }
