@@ -2,7 +2,6 @@ package com.weave.weaveserver.domain;
 
 import com.sun.istack.NotNull;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -52,4 +51,8 @@ public class Archive {
     @JoinColumn(name = "team_idx")
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Team team;
+
+    public void activatePin(){
+        this.isPinned = true;
+    }
 }

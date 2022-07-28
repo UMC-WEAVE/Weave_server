@@ -1,11 +1,11 @@
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Plan;
 import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
-import com.weave.weaveserver.dto.UserResponse;
 import com.weave.weaveserver.repository.ArchiveRepository;
 import com.weave.weaveserver.repository.PlanRepository;
 import com.weave.weaveserver.repository.TeamRepository;
@@ -13,8 +13,8 @@ import com.weave.weaveserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +27,7 @@ public class PlanService {
     public final PlanRepository planRepository;
     public final ArchiveRepository archiveRepository;
 
+    @Transactional
     public Long addPlan(PlanRequest.createReq req){
         User user = userRepository.getReferenceById(req.getUserIdx());
         Team team = teamRepository.getReferenceById(req.getTeamIdx());
@@ -44,19 +45,26 @@ public class PlanService {
                 .longitude(req.getLongitude())
                 .cost(req.getCost())
                 .isModified(false)
+
                 .build();
 
-        if (req.isArchive()){ //archive 필요
-
+        if (req.getIsArchive() == 1){ //archive 필요
+            System.out.println("isArchive!!");
+            //Archive table에 isPinned = true해주기
+            //Archive가져오려면 archiveIdx도 같이 줘야함
+            Archive archive = archiveRepository.getReferenceById(req.getArchiveIdx());
+            archive.activatePin();
         }
 
-        return planRepository.save(plan).getTeam().getTeamIdx();
+        return planRepository.save(plan).getPlanIdx();
 
     }
 
-    public PlanResponse.planRes getPlan(Long planIdx){
+    @Transactional
+    public PlanResponse.planDetailRes getPlanDetail(Long planIdx){
         Plan plan = planRepository.getReferenceById(planIdx);
-        PlanResponse.planRes dto = new PlanResponse.planRes(
+
+        PlanResponse.planDetailRes dto = new PlanResponse.planDetailRes(
                 plan.getPlanIdx(),
                 plan.getTeam().getTeamIdx(),
                 plan.getDate(),
@@ -65,17 +73,19 @@ public class PlanService {
                 plan.getEndTime(),
                 plan.getLocation(),
                 plan.getCost(),
-                plan.getUser().getUserIdx()
+                plan.getUser().getUserIdx(),
+                plan.isModified()
         );
 
         return dto;
     }
 
-    public List<PlanResponse.planRes> getPlanList(Long teamIdx){
+    @Transactional
+    public List<PlanResponse.planDetailRes> getPlanList(Long teamIdx){
 
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
-        List<PlanResponse.planRes> list = planList.stream().map(plan -> new PlanResponse.planRes(
+        List<PlanResponse.planDetailRes> list = planList.stream().map(plan -> new PlanResponse.planDetailRes(
                 plan.getPlanIdx(),
                 plan.getTeam().getTeamIdx(),
                 plan.getDate(),
@@ -84,16 +94,20 @@ public class PlanService {
                 plan.getEndTime(),
                 plan.getLocation(),
                 plan.getCost(),
-                plan.getUser().getUserIdx())
+                plan.getUser().getUserIdx(),
+                plan.isModified()
+                )
         ).collect(Collectors.toList());
 
         return list;
     }
 
-    public void deletePlan(Long planIdx){
-        planRepository.deleteById(planIdx);
+    @Transactional
+    public Long deletePlan(Long planIdx){
+        planRepository.deleteById(planIdx); return planIdx;
     }
 
+    @Transactional
     public void updatePlan(Long planIdx, PlanRequest.createReq req){
         Plan plan = planRepository.getReferenceById(planIdx);
         User user = userRepository.getReferenceById(req.getUserIdx());

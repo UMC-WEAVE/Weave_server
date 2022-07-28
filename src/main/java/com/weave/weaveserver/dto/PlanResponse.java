@@ -11,16 +11,36 @@ public class PlanResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class planRes{
+    public static class planDetailRes {
         private Long planIdx;
         private Long teamIdx;
+
         private LocalDate date;
         private String title;
-        private LocalDateTime start_time;
-        private LocalDateTime end_time;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
         private String location;
         private int cost;
-        private Long userIdx;
+
+        private Long recentUserIdx;
+        private boolean isModified;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class planListRes_and{
+        //PLAN
+        private Long planIdx;
+        private LocalDate date;
+        private String title;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private String location;
+        private int cost;
+
+        private Long recentUserIdx;
+        private boolean isModified;
     }
 
 }

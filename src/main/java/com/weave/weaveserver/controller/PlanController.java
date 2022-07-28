@@ -3,14 +3,10 @@ package com.weave.weaveserver.controller;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
-import com.weave.weaveserver.dto.UserRequest;
 import com.weave.weaveserver.service.PlanService;
-import com.weave.weaveserver.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
 
@@ -29,28 +25,33 @@ public class PlanController {
     @PostMapping("/plans")
     public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req){
         Long planIdx = planService.addPlan(req);
+        if(req.getIsArchive() == 1){
+            if(req.getArchiveIdx() == null){
+                return ResponseEntity.badRequest().body(new JsonResponse(4444, "archiveIdx가 꼭 있어야합니다!!", null));
+            }
+        }
         return ResponseEntity.ok(new JsonResponse(201, "addPlan", planIdx));
     }
 
-    //일정 상세 조회
-    @GetMapping("/plan/{planIdx}")
-    public ResponseEntity<?> getPlan(@PathVariable Long planIdx){
-        PlanResponse.planRes dto = planService.getPlan(planIdx);
-        return ResponseEntity.ok(new JsonResponse(200, "getPlan", dto));
+    //일정 상세 조회 (for Android)
+    @GetMapping("/plans/{planIdx}")
+    public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx){
+        PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "getPlan", res));
     }
 
-    //해당 팀의 일정 리스트 조회 (Android)
+    //해당 팀의 일정 리스트 조회 (Android & web)
     @GetMapping("/teams/{teamIdx}/plans")
     public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
-        List<PlanResponse.planRes> planList = planService.getPlanList(teamIdx);
+        List<PlanResponse.planDetailRes> planList = planService.getPlanList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", planList));
     }
 
     //일정 삭제
-    @DeleteMapping("/plan/{planIdx}")
-    public ResponseEntity<?> deletePlan(@PathVariable Long planIdx){
-        planService.deletePlan(planIdx);
-        return ResponseEntity.ok(new JsonResponse(200, "deletePlan", null));
+    @DeleteMapping("/plans/{planIdx}")
+    public ResponseEntity deletePlan(@PathVariable Long planIdx){
+        Long deletedPlanIdx = planService.deletePlan(planIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "deletePlan", deletedPlanIdx));
     }
 
     @PatchMapping("/plan/{planIdx}")

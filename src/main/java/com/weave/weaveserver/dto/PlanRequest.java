@@ -26,6 +26,7 @@ public class PlanRequest {
         private double longitude;
         private int cost;
 
-        private boolean isArchive;
+        private Long archiveIdx;
+        private int isArchive;
     }
 }
