@@ -1,5 +1,6 @@
 package com.weave.weaveserver.dto;
 
+import com.weave.weaveserver.domain.Category;
 import com.weave.weaveserver.domain.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,10 +13,28 @@ public class ArchiveResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
+    public static class archiveListResponse{
+        private Long archiveIdx;
+        private CategoryResponse.categoryResponse category;
+//        private Long categoryIdx;
+//        private String categoryName;
+        private Long teamIdx;
+        private Long userIdx;
+        private String title;
+        private String content;
+        private ImageResponse.imageResponse image;
+        private Boolean isPinned;
+
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
     public static class archiveResponse{
         private Long archiveIdx;
-        private Long categoryIdx;
-        private String categoryName;
+        private CategoryResponse.categoryResponse category;
+//        private Long categoryIdx;
+//        private String categoryName;
         private Long teamIdx;
         private Long userIdx;
         private String title;
@@ -23,22 +42,6 @@ public class ArchiveResponse {
         private String url;
         private List<ImageResponse.imageResponse> imageList;
         private Boolean is_pinned;
-
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class archiveListResponse{
-        private Long archiveIdx;
-        private Long categoryIdx;
-        private String categoryName;
-        private Long teamIdx;
-        private Long userIdx;
-        private String title;
-        private String content;
-        private ImageResponse.imageResponse image;
-        private Boolean isPinned;
 
     }
 
