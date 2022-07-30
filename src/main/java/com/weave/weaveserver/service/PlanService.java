@@ -91,17 +91,17 @@ public class PlanService {
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
         List<PlanResponse.planDetailRes> detailListDto = planList.stream().map(plan -> new PlanResponse.planDetailRes(
-                plan.getPlanIdx(),
-                plan.getTeam().getTeamIdx(),
-                plan.getDate(),
-                plan.dayOfDate(plan.getDate()),
-                plan.getTitle(),
-                plan.getStartTime(),
-                plan.getEndTime(),
-                plan.getLocation(),
-                plan.getCost(),
-                plan.getUser().getUserIdx(),
-                plan.isModified()
+                        plan.getPlanIdx(),
+                        plan.getTeam().getTeamIdx(),
+                        plan.getDate(),
+                        plan.dayOfDate(plan.getDate()),
+                        plan.getTitle(),
+                        plan.getStartTime(),
+                        plan.getEndTime(),
+                        plan.getLocation(),
+                        plan.getCost(),
+                        plan.getUser().getUserIdx(),
+                        plan.isModified()
                 )
         ).collect(Collectors.toList());
 

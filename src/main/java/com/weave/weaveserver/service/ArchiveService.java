@@ -49,7 +49,7 @@ public class ArchiveService {
                 team.getTitle(),
                 team.getStartDate(),
                 team.getEndDate(),
-                team.getImg()
+                team.getImgUrl()
         );
 
         //아카이브리스트를 돌면서 각 아카이브에 해당하는 이미지 한장씩 가져오기

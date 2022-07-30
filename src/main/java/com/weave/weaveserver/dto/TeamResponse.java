@@ -38,6 +38,18 @@ public class TeamResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
+    public static class getTeamListRes {
+        private String title;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        //private LocalDateTime date;
+        //private int recentUserIdx;
+
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
     public static class getMemberList {
         private Long userIdx;
         private String name;
@@ -54,7 +66,7 @@ public class TeamResponse {
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
-        private Image img;
+        private String imgUrl;
 //        private boolean isEmpty;
 
     }

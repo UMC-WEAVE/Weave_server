@@ -77,7 +77,7 @@ public class PlanControllerTest {
     @MockBean
     CustomOAuth2UserService customOAuth2UserService;
 
-//    @Autowired
+    //    @Autowired
     private ObjectMapper mapper = new ObjectMapper();
 
 

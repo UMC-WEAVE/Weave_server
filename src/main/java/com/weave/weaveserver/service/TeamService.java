@@ -1,3 +1,4 @@
+
 package com.weave.weaveserver.service;
 
 import com.weave.weaveserver.domain.Belong;
@@ -25,34 +26,47 @@ public class TeamService {
     private final UserRepository userRepository;
     private final BelongRepository belongRepository;
 
-    public void createTeam(TeamRequest.createReq req) {
-        User user = userRepository.getReferenceById(req.getUserIdx());
+    @Transactional
+    public void createTeam(Long leaderIdx, TeamRequest.createReq req) {
+        User leader = userRepository.getReferenceById(leaderIdx);
+
         Team team = Team.builder()
-                .user(user)
+                .leader(leader)
                 .title(req.getTitle())
                 .startDate(req.getStartDate())
                 .endDate(req.getEndDate())
-//                .imageUrl(image)
+                .imgUrl(req.getImgUrl())
+                .isEmpty(true)
                 .build();
-
         teamRepository.save(team);
 
         Belong belong = Belong.builder()
-                .user(user)
+                .user(leader)
                 .team(team)
                 .build();
-
         belongRepository.save(belong);
     }
 
+    @Transactional
     public int addMember(Long teamIdx, TeamRequest.addMemberReq req) {
-        //userfind equal ...
-        User findUser = userRepository.findByEmail(req.getEmail());
-        if(findUser != null){
-            System.out.println("is not null");
-            Long userIdx = findUser.getUserIdx();
+
+        // team creator == request user (생성하려는 사용자와 팀짱이 동일인인지 확인)
+        Team team = teamRepository.getReferenceById(teamIdx);
+//        User creator = team.getLeader();
+//
+//        if(!(creator.getUserIdx().equals(req.getLeaderIdx()))){
+//            System.out.println("생성자와 팀짱이 일치하지 않음");
+//            return 0;
+//        }
+
+        // find user (존재하는 사용자인지 확인)
+        User invitedUser = userRepository.findUserByEmail(req.getEmail());
+        if(invitedUser != null){
+            System.out.println("초대 팀원 존재 : "+ invitedUser.getEmail());
+
+            Long userIdx = invitedUser.getUserIdx();
             User user = userRepository.getReferenceById(userIdx);
-            Team team = teamRepository.getReferenceById(teamIdx);
+
             Belong belong = Belong.builder()
                     .user(user)
                     .team(team)
@@ -62,11 +76,11 @@ public class TeamService {
             return 1;
 
         } else {
-            System.out.println("is null");
+            System.out.println("초대 팀원이 존재하지 않음");
             return 0;
         }
-
     }
+
 
     @Transactional
     public List<TeamResponse.getMemberList> getMembers(Long teamIdx){
@@ -80,5 +94,6 @@ public class TeamService {
 
         return memberList;
     }
+
 
 }
