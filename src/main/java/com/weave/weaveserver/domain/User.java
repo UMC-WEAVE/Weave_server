@@ -23,14 +23,12 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    //google : 0, kakao : 1, naver : 2
     @Column(name = "login_type",nullable = false)
     private String loginId;
 
 
-    @OneToOne
-    @JoinColumn(name = "image_idx")
-    private Image imageIdx;
+    @Column(nullable = true)
+    private String image;
 
     @Builder
     public User(String name, String email, String loginId) {
@@ -45,7 +43,7 @@ public class User {
         this.loginId=loginId;
     }
 
-    public void setImageIdx(Image imageIdx) {
-        this.imageIdx = imageIdx;
+    public void setImage(String image) {
+        this.image = image;
     }
 }

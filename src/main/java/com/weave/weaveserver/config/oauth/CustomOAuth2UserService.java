@@ -1,7 +1,7 @@
 package com.weave.weaveserver.config.oauth;
 
 
-import com.weave.weaveserver.domain.Image;
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.repository.ImageRepository;
 import com.weave.weaveserver.repository.UserRepository;
@@ -40,13 +40,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         User user = saveOrUpdate(attributes);
 
-        User findTestUser = userRepository.findUserByEmail(attributes.getEmail());
-
-        System.out.println(findTestUser.getUserIdx()+"   "+findTestUser.getEmail());
-//        httpSession.setAttribute("user", new SessionUser(user));
-        System.out.println("loadUser http");
         return new DefaultOAuth2User(
-//                Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey());
@@ -58,22 +52,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         if(user==null){
             user = new User();
             user.setLogin(attributes.getName(), attributes.getEmail(), attributes.getLoginId());
-                Image image = new Image(attributes.getImage());
-                Image imageSeq = imageRepository.save(image);
-                System.out.println(image+"");
-                user.setImageIdx(imageSeq);
+            if(attributes.getImage()!=null){
+                user.setImage(attributes.getImage());
+            }
+            userRepository.save(user);
         }else{
             log.info("이미 등록된 유저입니다.");
-            if(user.getImageIdx()==null){
-                Image image = new Image(attributes.getImage());
-                Image imageSeq = imageRepository.save(image);
-                System.out.println(image+"");
-                user.setImageIdx(imageSeq);
-                userRepository.save(user);
-            }
-            throw new IllegalArgumentException("이미 등록된 유저입니다.");
+//            throw new BadRequestException("이미 등록된 유저입니다.");
         }
-        userRepository.save(user);
         System.out.println("saveOrUpdate 탐!!" + user);
         return user;
     }

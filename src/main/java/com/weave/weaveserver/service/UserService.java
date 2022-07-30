@@ -27,4 +27,5 @@ public class UserService {
         User user = getUserByEmail(email);
         userRepository.delete(user);
     }
+
 }
