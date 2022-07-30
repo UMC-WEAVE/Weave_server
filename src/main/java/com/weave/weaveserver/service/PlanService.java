@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,6 +69,7 @@ public class PlanService {
                 plan.getPlanIdx(),
                 plan.getTeam().getTeamIdx(),
                 plan.getDate(),
+                plan.dayOfDate(plan.getDate()),
                 plan.getTitle(),
                 plan.getStartTime(),
                 plan.getEndTime(),
@@ -81,14 +83,16 @@ public class PlanService {
     }
 
     @Transactional
-    public List<PlanResponse.planDetailRes> getPlanList(Long teamIdx){
+    public PlanResponse.planListRes getPlanList(Long teamIdx){
+        PlanResponse.planListRes planListRes = new PlanResponse.planListRes();
 
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
-        List<PlanResponse.planDetailRes> list = planList.stream().map(plan -> new PlanResponse.planDetailRes(
+        List<PlanResponse.planDetailRes> detailListDto = planList.stream().map(plan -> new PlanResponse.planDetailRes(
                 plan.getPlanIdx(),
                 plan.getTeam().getTeamIdx(),
                 plan.getDate(),
+                plan.dayOfDate(plan.getDate()),
                 plan.getTitle(),
                 plan.getStartTime(),
                 plan.getEndTime(),
@@ -99,7 +103,10 @@ public class PlanService {
                 )
         ).collect(Collectors.toList());
 
-        return list;
+        planListRes.setPlanDto(detailListDto);
+
+
+        return planListRes;
     }
 
     @Transactional
@@ -111,8 +118,19 @@ public class PlanService {
     public void updatePlan(Long planIdx, PlanRequest.createReq req){
         Plan plan = planRepository.getReferenceById(planIdx);
         User user = userRepository.getReferenceById(req.getUserIdx());
-        plan.updatePlan(user, req.getTitle(), req.getStartTime(), req.getEndTime(), req.getLocation(), req.getCost());
-        planRepository.save(plan);
+        plan.updatePlan(user,
+                req.getTitle(),
+                //req.getDate(),
+                LocalDate.now(),
+//                req.getStartTime(),
+                LocalDateTime.now(),
+//                req.getEndTime(),
+                LocalDateTime.now(),
+                req.getLocation(),
+                req.getLatitude(),
+                req.getLongitude(),
+                req.getCost());
+//        planRepository.save(plan);
 
     }
 

@@ -43,8 +43,8 @@ public class PlanController {
     //해당 팀의 일정 리스트 조회 (Android & web)
     @GetMapping("/teams/{teamIdx}/plans")
     public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
-        List<PlanResponse.planDetailRes> planList = planService.getPlanList(teamIdx);
-        return ResponseEntity.ok(new JsonResponse(200, "getPlanList", planList));
+        PlanResponse.planListRes res = planService.getPlanList(teamIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "getPlanList", res));
     }
 
     //일정 삭제
@@ -54,7 +54,8 @@ public class PlanController {
         return ResponseEntity.ok(new JsonResponse(200, "deletePlan", deletedPlanIdx));
     }
 
-    @PatchMapping("/plan/{planIdx}")
+    //일정 수정
+    @PatchMapping("/plans/{planIdx}")
     public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.createReq req){
         planService.updatePlan(planIdx, req);
 

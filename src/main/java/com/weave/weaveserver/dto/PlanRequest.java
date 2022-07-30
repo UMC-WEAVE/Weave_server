@@ -29,4 +29,21 @@ public class PlanRequest {
         private Long archiveIdx;
         private int isArchive;
     }
+
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class updateReq{
+        private Long userIdx;
+
+        private String title;
+        private LocalDate date;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+        private String location;
+        private double latitude;
+        private double longitude;
+        private int cost;
+    }
 }
