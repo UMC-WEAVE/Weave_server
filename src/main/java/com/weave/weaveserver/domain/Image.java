@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -21,6 +23,11 @@ public class Image {
 
     @Column(nullable = false)
     private String url;
+
+    @JoinColumn(name = "archive_idx", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY) //외래키
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Archive archive;
 
     public void updateImage(String url) {
         this.url = url;
