@@ -42,6 +42,7 @@ public class TeamResponse {
         private Long userIdx;
         private String name;
         private String url;
+    }
 
 
     @NoArgsConstructor
