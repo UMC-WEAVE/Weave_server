@@ -53,8 +53,10 @@ public class Archive {
     private Team team;
 
 
-    public void activatePin(){
+    public void activatePin() {
         this.isPinned = true;
+
+    }
 
     public void updateArchive(boolean isPinned) {
         this.isPinned = isPinned;
