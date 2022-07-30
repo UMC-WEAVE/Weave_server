@@ -14,13 +14,12 @@ public class TeamResponse {
     @Data
     public static class createRes {
         private Long teamIdx;
-        private String title;
     }
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class getListRes {
+    public static class getTeamListRes {
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
@@ -28,5 +27,18 @@ public class TeamResponse {
         //private int recentUserIdx;
 
     }
+
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class getMemberListRes {
+        //private Long teamIdx;
+        private Long userIdx;
+        private String userName;
+        private String userImg;
+    }
+
+
 
 }

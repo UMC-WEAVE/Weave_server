@@ -41,7 +41,7 @@ public class PlanController {
 
     //해당 팀의 일정 리스트 조회
     @GetMapping("/team/{teamIdx}/plan")
-    public ResponseEntity<?> getPlanList(@PathVariable int teamIdx){
+    public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
         List<PlanResponse.planRes> planList = planService.getPlanList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", planList));
     }

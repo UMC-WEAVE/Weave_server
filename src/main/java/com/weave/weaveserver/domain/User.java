@@ -12,7 +12,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_idx")
-    private int userIdx;
+    private Long userIdx;
 
     @Column(name = "refresh_token")
     private String refreshToken;
@@ -28,8 +28,6 @@ public class User {
 
     private String role;
 
-
-    private int imageIdx;
 
     @Builder
     public User(String name, String email, String loginId) {

@@ -63,7 +63,7 @@ public class PlanService {
         return dto;
     }
 
-    public List<PlanResponse.planRes> getPlanList(int teamIdx){
+    public List<PlanResponse.planRes> getPlanList(Long teamIdx){
         List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
 
         List<PlanResponse.planRes> list = planList.stream().map(plan -> new PlanResponse.planRes(

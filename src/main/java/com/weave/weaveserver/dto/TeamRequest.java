@@ -6,13 +6,15 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+
 public class TeamRequest {
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
+    // 팀 생성
     public static class createReq {
-        private Long userIdx;
+        private Long leaderIdx;
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
@@ -22,17 +24,20 @@ public class TeamRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class getReq {
-        private Long userIdx;
-        private Long teamIdx;
+    public static class addMemberReq {
+        private Long leaderIdx;
+        private String email;
     }
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class addMemberReq {
+    public static class getMemberReq {
+        private Long leaderIdx;
         private Long teamIdx;
-        private String email;
     }
+
+
+
 
 }
