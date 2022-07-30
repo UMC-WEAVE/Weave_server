@@ -26,30 +26,28 @@ public class OAuthAttributes {
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
-        if("naver".equals(registrationId)) {
-            return ofNaver("id", attributes);
-        }if("kakao".equals(registrationId)){
-            return ofKakao("id",attributes);
+        switch (registrationId){
+            case "naver" :
+                return ofNaver("id", attributes);
+            case "kakao":
+                return ofKakao("id",attributes);
+            case "google" :
+                return ofGoogle(userNameAttributeName, attributes);
+            default:
+                throw new RuntimeException();
         }
-        return ofGoogle(userNameAttributeName, attributes);
     }
 
     private static OAuthAttributes ofKakao(String userNameAttributeName, Map<String, Object> attributes) {
 
         Map<String, Object> response = (Map<String, Object>) attributes.get("kakao_account");
-
-        System.out.println(response);
         Map<String, Object>  profile = (Map<String, Object>)response.get("profile");
-        String name = (String) profile.get("nickname");
-        String email = (String) response.get("email");
-        String imageUrl = (String) profile.get("thumbnail_image_url");
-
 
         return OAuthAttributes.builder()
-                .name(name)
-                .email(email)
+                .name((String) profile.get("nickname"))
+                .email((String) response.get("email"))
                 .loginId("kakao")
-                .image(imageUrl)
+                .image((String) profile.get("thumbnail_image_url"))
                 .attributes(response)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
