@@ -1,3 +1,4 @@
+
 package com.weave.weaveserver.service;
 
 import com.weave.weaveserver.domain.Belong;
@@ -5,14 +6,17 @@ import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
+import com.weave.weaveserver.dto.UserResponse;
 import com.weave.weaveserver.repository.BelongRepository;
 import com.weave.weaveserver.repository.TeamRepository;
 import com.weave.weaveserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +81,19 @@ public class TeamService {
         }
     }
 
-    //팀원 조회
+
+    @Transactional
+    public List<TeamResponse.getMemberList> getMembers(Long teamIdx){
+        List<User> userList = belongRepository.findAllByTeamIdx(teamIdx);
+
+        List<TeamResponse.getMemberList> memberList = userList.stream().map(user -> new TeamResponse.getMemberList(
+                user.getUserIdx(),
+                user.getName(),
+                "user Image url"
+        )).collect(Collectors.toList());
+
+        return memberList;
+    }
+
 
 }

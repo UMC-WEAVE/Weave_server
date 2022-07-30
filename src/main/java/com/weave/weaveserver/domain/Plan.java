@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -59,12 +60,33 @@ public class Plan {
     @Column
     private boolean isModified;
 
-    public void updatePlan(User user, String title, LocalDateTime startTime, LocalDateTime endTime, String location, int cost ) {
-        this.user = user;
+    public void updatePlan(User user, String title, LocalDate date, LocalDateTime startTime, LocalDateTime endTime, String location, double latitude, double longitude, int cost ) {
+        if(this.user != user){ //user가 바뀌면
+            this.user = user;
+            this.isModified = true;
+        }
         this.title = title;
+        this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.location = location;
+        if(this.location.equals(location)){
+            updateLocation(location, latitude, longitude);
+        }
         this.cost = cost;
+    }
+
+    public void updateLocation(String location, double latitude, double longitude){
+        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public String dayOfDate(LocalDate date){
+        String[] days = {"일", "월", "화", "수", "목", "금", "토"};
+
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        int dayNum = dayOfWeek.getValue();
+
+        return days[dayNum];
     }
 }

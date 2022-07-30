@@ -23,7 +23,7 @@ dependencies {
 	//Spring Boot Starter & Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	//Spring Data JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -36,11 +36,15 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 	// AWS S3
-//	implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.6.RELEASE'
+//	implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.2.1.RELEASE'
 
 
 	//junit : 테스트 코드 작성을 도와주는 프레임 워크
-	implementation 'junit:junit:4.13.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+
 
 	//swagger
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
@@ -58,5 +62,8 @@ dependencies {
 }
 
 tasks.named('test') {
+	useJUnitPlatform()
+}
+test{
 	useJUnitPlatform()
 }

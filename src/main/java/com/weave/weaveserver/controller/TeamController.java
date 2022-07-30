@@ -1,3 +1,4 @@
+
 package com.weave.weaveserver.controller;
 
 import com.weave.weaveserver.dto.JsonResponse;
@@ -5,10 +6,8 @@ import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.service.TeamService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class TeamController {
     // SHOW TEAM MEMBER LIST
     @GetMapping("/teams/{teamIdx}/members")
     public ResponseEntity<?> getMember(@PathVariable("teamIdx") Long teamIdx){
-        List<?> memberList = teamService.getMemberList(teamIdx);
+        List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "Success", memberList));
     }
 }

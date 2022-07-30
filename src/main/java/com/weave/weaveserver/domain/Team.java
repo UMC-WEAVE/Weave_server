@@ -38,5 +38,4 @@ public class Team {
 
     private boolean isEmpty; //boolean 은 bit(1)로 저장, 1(true)는 속한 팀원이 없음 / 0(false)는 속한 팀원이 있음
 
-
 }
