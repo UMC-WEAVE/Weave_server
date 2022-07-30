@@ -1,10 +1,7 @@
 package com.weave.weaveserver.service;
 
 import com.weave.weaveserver.domain.*;
-import com.weave.weaveserver.dto.ArchiveRequest;
-import com.weave.weaveserver.dto.ArchiveResponse;
-import com.weave.weaveserver.dto.CategoryResponse;
-import com.weave.weaveserver.dto.ImageResponse;
+import com.weave.weaveserver.dto.*;
 import com.weave.weaveserver.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,7 +44,15 @@ public class ArchiveService {
         Team team = teamRepository.findByTeamIdx(teamIdx);
         List<Archive> archiveList = archiveRepository.findByTeam(team);
 
-        //아카이브리스트를 돌면서 각 아카이브에 해당하는 카테고리와 이미지 한장씩 가져오기
+        TeamResponse.teamResponse teamResponse = new TeamResponse.teamResponse(
+                team.getTeamIdx(),
+                team.getTitle(),
+                team.getStartDate(),
+                team.getEndDate(),
+                team.getImg()
+        );
+
+        //아카이브리스트를 돌면서 각 아카이브에 해당하는 이미지 한장씩 가져오기
         Map<Long, ImageResponse.imageResponse> imageList = new HashMap();
         for(Archive a : archiveList) {
             Image image = imageRepository.findTop1ByArchiveOrderByImageIdxAsc(a);
@@ -70,7 +75,8 @@ public class ArchiveService {
                 new CategoryResponse.categoryResponse(archive.getCategory().getCategoryIdx(), archive.getCategory().getCategoryName()),
 //                archive.getCategory().getCategoryIdx(),
 //                archive.getCategory().getCategoryName(),
-                archive.getTeam().getTeamIdx(),
+                teamResponse,
+//                archive.getTeam().getTeamIdx(),
                 archive.getUser().getUserIdx(),
                 archive.getTitle(),
                 archive.getContent(),
@@ -102,7 +108,7 @@ public class ArchiveService {
                         new CategoryResponse.categoryResponse(archive.getCategory().getCategoryIdx(), archive.getCategory().getCategoryName()),
 //                        archive.getCategory().getCategoryIdx(),
 //                        archive.getCategory().getCategoryName(),
-                        archive.getTeam().getTeamIdx(),
+//                        archive.getTeam().getTeamIdx(),
                         archive.getUser().getUserIdx(),
                         archive.getTitle(),
                         archive.getContent(),

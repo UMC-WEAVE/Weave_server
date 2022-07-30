@@ -18,7 +18,8 @@ public class ArchiveResponse {
         private CategoryResponse.categoryResponse category;
 //        private Long categoryIdx;
 //        private String categoryName;
-        private Long teamIdx;
+        private TeamResponse.teamResponse team;
+//        private Long teamIdx;
         private Long userIdx;
         private String title;
         private String content;
@@ -35,7 +36,8 @@ public class ArchiveResponse {
         private CategoryResponse.categoryResponse category;
 //        private Long categoryIdx;
 //        private String categoryName;
-        private Long teamIdx;
+//        private Long teamIdx;
+//        private TeamResponse.teamResponse team;
         private Long userIdx;
         private String title;
         private String content;
