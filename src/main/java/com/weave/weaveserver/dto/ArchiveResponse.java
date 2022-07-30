@@ -1,40 +1,48 @@
 package com.weave.weaveserver.dto;
 
+import com.weave.weaveserver.domain.Category;
+import com.weave.weaveserver.domain.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 public class ArchiveResponse {
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class archiveResponse{
+    public static class archiveListResponse{
         private Long archiveIdx;
-        private Long category_idx;
-        private String category_name;
-        private Long team_idx;
-        private Long user_idx;
+        private CategoryResponse.categoryResponse category;
+//        private Long categoryIdx;
+//        private String categoryName;
+        private TeamResponse.teamResponse team;
+//        private Long teamIdx;
+        private Long userIdx;
         private String title;
         private String content;
-        private String url;
-        private String image_url;
-        private Boolean is_pinned;
+        private ImageResponse.imageResponse image;
+        private Boolean isPinned;
 
     }
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class archiveListResponse{
+    public static class archiveResponse{
         private Long archiveIdx;
-        private Long category_idx;
-        private String category_name;
-        private Long team_idx;
-        private Long user_idx;
+        private CategoryResponse.categoryResponse category;
+//        private Long categoryIdx;
+//        private String categoryName;
+//        private Long teamIdx;
+//        private TeamResponse.teamResponse team;
+        private Long userIdx;
         private String title;
         private String content;
-        private String image_url;
+        private String url;
+        private List<ImageResponse.imageResponse> imageList;
         private Boolean is_pinned;
 
     }

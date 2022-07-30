@@ -12,6 +12,7 @@ public class ArchiveRequest {
     @Data
     public static class createRequest{
         private Long userIdx;
+//        private String userEmail;
         private Long teamIdx;
         private String title;
         private String content;
