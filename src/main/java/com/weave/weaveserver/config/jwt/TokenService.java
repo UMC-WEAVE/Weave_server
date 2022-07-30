@@ -49,5 +49,6 @@ public class TokenService{
             System.out.println("NullPointerException");
             return Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
         }
+
     }
 }

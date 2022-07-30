@@ -12,11 +12,12 @@ public class ArchiveRequest {
     @Data
     public static class createRequest{
         private Long userIdx;
+        private String userEmail;
         private Long teamIdx;
         private String title;
         private String content;
         private String url;
-        private String imageUrl;
+        private String imageUrl; //일단 한 장으로 진행
         private Long categoryIdx;
     }
 }

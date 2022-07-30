@@ -21,8 +21,8 @@ public class Team {
     private Long teamIdx;
 
     @ManyToOne
-    @JoinColumn(name = "user_idx") //leader_idx
-    private User user;
+    @JoinColumn(name = "leader_idx")
+    private User leader;
 
     @Column(nullable = false)
     private String title;
@@ -33,11 +33,9 @@ public class Team {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    @Column
+    private String imgUrl;
 
-    @OneToOne
-    @JoinColumn(name = "image_idx")
-    private Image img;
-
-    private boolean isEmpty; //boolean 은 bit(1)로 저장
+    private boolean isEmpty; //boolean 은 bit(1)로 저장, 1(true)는 속한 팀원이 없음 / 0(false)는 속한 팀원이 있음
 
 }

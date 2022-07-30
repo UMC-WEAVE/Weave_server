@@ -1,17 +1,20 @@
 package com.weave.weaveserver.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-public class UserResponse {
+import java.util.List;
+
+public class ImageResponse {
+
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class userRes{
-        private Long userIdx;
-        private String name;
+    public static class imageResponse{
+        private Long imageIdx;
+        private String url;
+        private Long archiveIdx;
     }
 
 }

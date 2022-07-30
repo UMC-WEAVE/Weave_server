@@ -2,7 +2,6 @@ package com.weave.weaveserver.domain;
 
 import com.sun.istack.NotNull;
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -21,8 +20,8 @@ public class Archive {
     @Column(name = "archive_idx")
     private Long archiveIdx;
 
-    @NotNull
-    @Column(length = 500)
+    //@NotNull //?왜 DB에 notnull 적용이 안되는가...
+    @Column(length = 500, nullable = false)
     private String title;
 
     @Column(length = 200)
@@ -34,22 +33,33 @@ public class Archive {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @NotNull
-    @Column(name = "is_pinned")
+    //@NotNull
+    @Column(name = "is_pinned", nullable = false)
     private boolean isPinned;
 
-    @NotNull
-    @JoinColumn(name = "category_idx")
+    //@NotNull
+    @JoinColumn(name = "category_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Category category;
 
-    @NotNull
-    @JoinColumn(name = "user_idx")
+    //@NotNull
+    @JoinColumn(name = "user_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private User user;
 
-    @NotNull
-    @JoinColumn(name = "team_idx")
+    //@NotNull
+    @JoinColumn(name = "team_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Team team;
+
+
+    public void activatePin() {
+        this.isPinned = true;
+
+    }
+
+    public void updateArchive(boolean isPinned) {
+        this.isPinned = isPinned;
+
+    }
 }
