@@ -29,4 +29,14 @@ public class TeamResponse {
 
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class getMemberList {
+        private Long userIdx;
+        private String name;
+        private String url;
+
+    }
+
 }

@@ -10,7 +10,7 @@ public class UserResponse {
     @AllArgsConstructor
     @Data
     public static class userRes{
-        private int userIdx;
+        private Long userIdx;
         private String name;
     }
 
