@@ -11,7 +11,6 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//@DynamicUpdate //?
 @Table(name = "archive")
 public class Archive {
 
@@ -33,21 +32,17 @@ public class Archive {
     @Column(name = "image_url")
     private String imageUrl;
 
-    //@NotNull
     @Column(name = "is_pinned", nullable = false)
     private boolean isPinned;
 
-    //@NotNull
     @JoinColumn(name = "category_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Category category;
 
-    //@NotNull
     @JoinColumn(name = "user_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private User user;
 
-    //@NotNull
     @JoinColumn(name = "team_idx", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Team team;

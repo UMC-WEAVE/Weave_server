@@ -1,7 +1,5 @@
 package com.weave.weaveserver.dto;
 
-import com.weave.weaveserver.domain.Category;
-import com.weave.weaveserver.domain.Image;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,11 +14,7 @@ public class ArchiveResponse {
     public static class archiveListResponse{
         private Long archiveIdx;
         private CategoryResponse.categoryResponse category;
-//        private Long categoryIdx;
-//        private String categoryName;
         private TeamResponse.teamResponse team;
-//        private Long teamIdx;
-//        private Long userIdx;
         private UserResponse.userResponse user;
         private String title;
         private String content;
@@ -35,11 +29,6 @@ public class ArchiveResponse {
     public static class archiveResponse{
         private Long archiveIdx;
         private CategoryResponse.categoryResponse category;
-//        private Long categoryIdx;
-//        private String categoryName;
-//        private Long teamIdx;
-//        private TeamResponse.teamResponse team;
-//        private Long userIdx;
         private UserResponse.userResponse user;
         private String title;
         private String content;

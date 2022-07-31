@@ -98,11 +98,7 @@ public class ArchiveService {
                 new ArchiveResponse.archiveListResponse(
                 archive.getArchiveIdx(),
                 new CategoryResponse.categoryResponse(archive.getCategory().getCategoryIdx(), archive.getCategory().getCategoryName()),
-//                archive.getCategory().getCategoryIdx(),
-//                archive.getCategory().getCategoryName(),
                 teamResponse,
-//                archive.getTeam().getTeamIdx(),
-//                archive.getUser().getUserIdx(),
                 userList.get(archive.getArchiveIdx()),
                 archive.getTitle(),
                 archive.getContent(),
@@ -141,10 +137,6 @@ public class ArchiveService {
         ArchiveResponse.archiveResponse response = new ArchiveResponse.archiveResponse(
                         archive.getArchiveIdx(),
                         new CategoryResponse.categoryResponse(archive.getCategory().getCategoryIdx(), archive.getCategory().getCategoryName()),
-//                        archive.getCategory().getCategoryIdx(),
-//                        archive.getCategory().getCategoryName(),
-//                        archive.getTeam().getTeamIdx(),
-//                        archive.getUser().getUserIdx(),
                         userResponse,
                         archive.getTitle(),
                         archive.getContent(),
@@ -164,7 +156,7 @@ public class ArchiveService {
     @Transactional
     public void deleteArchive(Long archiveIdx){
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
-        imageRepository.deleteByArchive(archive);
+//        imageRepository.deleteByArchive(archive);
         archiveRepository.deleteByArchiveIdx(archiveIdx);
     }
 
