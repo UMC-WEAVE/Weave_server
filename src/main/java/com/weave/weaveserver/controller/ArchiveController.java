@@ -15,7 +15,7 @@ import java.util.List;
 public class ArchiveController {
     private final ArchiveService archiveService;
 
-    @PostMapping("/archives")
+    @PostMapping("/archives") // TODO : 이후 ResponseEntity<Object> 로 수정해볼 것
     public ResponseEntity<?> createArchive(@RequestBody ArchiveRequest.createRequest request){
         archiveService.addArchive(request);
         return ResponseEntity.ok(new JsonResponse(200, "success addArchive", null));

@@ -9,9 +9,9 @@ public class UserResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class userRes{
-        private Long userIdx;
+    public static class userResponse{
         private String name;
+        private String email;
     }
 
 }
