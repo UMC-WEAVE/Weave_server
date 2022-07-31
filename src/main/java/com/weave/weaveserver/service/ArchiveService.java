@@ -30,14 +30,10 @@ public class ArchiveService {
     public final ImageRepository imageRepository;
 
 
-    public String getUserEmail(HttpServletRequest request){
-        String userEmail = tokenService.getUserEmail(request);
-        return userEmail;
-    }
+    public void addArchive(ArchiveRequest.createRequest request, HttpServletRequest servletRequest){
+        String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
+        User user = userRepository.findUserByEmail(userEmail);
 
-    public void addArchive(ArchiveRequest.createRequest request){
-//        User user = userRepository.findByEmail(request.getUserEmail()); //여기
-        User user = userRepository.getReferenceById(request.getUserIdx()); //여기
         Team team = teamRepository.getReferenceById(request.getTeamIdx());
         Category category = categoryRepository.getReferenceById(request.getCategoryIdx());
         Archive archive = Archive.builder()
