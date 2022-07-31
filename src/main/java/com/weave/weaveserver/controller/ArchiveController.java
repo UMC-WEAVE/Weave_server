@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -16,8 +17,8 @@ public class ArchiveController {
     private final ArchiveService archiveService;
 
     @PostMapping("/archives") // TODO : 이후 ResponseEntity<Object> 로 수정해볼 것
-    public ResponseEntity<?> createArchive(@RequestBody ArchiveRequest.createRequest request){
-        archiveService.addArchive(request);
+    public ResponseEntity<?> createArchive(@RequestBody ArchiveRequest.createRequest request, HttpServletRequest servletRequest){ //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
+        archiveService.addArchive(request, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success addArchive", null));
     }
 
