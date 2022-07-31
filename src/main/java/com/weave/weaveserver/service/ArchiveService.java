@@ -51,9 +51,8 @@ public class ArchiveService {
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
     public List<ArchiveResponse.archiveListResponse> getArchiveList(Long teamIdx){
+        //Team
         Team team = teamRepository.findByTeamIdx(teamIdx);
-        List<Archive> archiveList = archiveRepository.findByTeam(team);
-
         TeamResponse.teamResponse teamResponse = new TeamResponse.teamResponse(
                 team.getTeamIdx(),
                 team.getTitle(),
@@ -62,20 +61,25 @@ public class ArchiveService {
                 team.getImgUrl()
         );
 
-        //아카이브리스트를 돌면서 각 아카이브에 해당하는 이미지 한장씩 가져오기
+        //ArchiveList
+        List<Archive> archiveList = archiveRepository.findByTeam(team);
+
+        //ArchiveList를 돌면서 각 아카이브에 해당하는 이미지 하나씩 & 작성자user 가져오기
         Map<Long, ImageResponse.imageResponse> imageList = new HashMap();
         Map<Long, UserResponse.userResponse> userList = new HashMap();
         for(Archive a : archiveList) {
             Long archiveIdx = a.getArchiveIdx();
-            Image image = imageRepository.findTop1ByArchiveOrderByImageIdxAsc(a);
-            User user = userRepository.getReferenceById(archiveIdx);
 
+            //User
+            User user = a.getUser();
             UserResponse.userResponse userResponse = new UserResponse.userResponse(
                     user.getName(),
                     user.getEmail()
             );
             userList.put(archiveIdx, userResponse);
 
+            //Image
+            Image image = imageRepository.findTop1ByArchiveOrderByImageIdxAsc(a);
             if(image == null){
                 imageList.put(archiveIdx, null);
             }
@@ -114,12 +118,14 @@ public class ArchiveService {
     public ArchiveResponse.archiveResponse getArchiveDetail(Long archiveIdx){
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
 
-        User user = userRepository.getReferenceById(archive.getArchiveIdx());
+        //User
+        User user = archive.getUser();
         UserResponse.userResponse userResponse = new UserResponse.userResponse(
                 user.getName(),
                 user.getEmail()
         );
 
+        //ImageList
         List<Image> imageList = imageRepository.findByArchiveIdx(archiveIdx);
         List<ImageResponse.imageResponse> imageResponseList = new ArrayList();
         for(Image i : imageList){
@@ -131,6 +137,7 @@ public class ArchiveService {
             imageResponseList.add(imageResponse);
         }
 
+        //response 생성
         ArchiveResponse.archiveResponse response = new ArchiveResponse.archiveResponse(
                         archive.getArchiveIdx(),
                         new CategoryResponse.categoryResponse(archive.getCategory().getCategoryIdx(), archive.getCategory().getCategoryName()),
