@@ -11,7 +11,7 @@ public class ArchiveRequest {
     @AllArgsConstructor
     @Data
     public static class createRequest{
-        private Long userIdx;
+        private Long userIdx; //여기
         private String userEmail;
         private Long teamIdx;
         private String title;
