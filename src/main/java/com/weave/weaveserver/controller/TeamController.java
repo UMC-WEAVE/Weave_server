@@ -37,4 +37,33 @@ public class TeamController {
         List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "Success", memberList));
     }
+
+    // SHOW MY TEAMS
+    @GetMapping("/teams/{userIdx}")
+    public ResponseEntity<?> getTeam(@PathVariable("userIdx") Long userIdx){
+        List<TeamResponse.teamResponse> teamList = teamService.getMyTeams(userIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
+    }
+
+    // DELETE TEAM
+    @DeleteMapping("/teams/{teamIdx}")
+    public ResponseEntity<?> deleteTeam(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.deleteTeamReq req){
+        teamService.deleteTeam(teamIdx, req);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", null));
+    }
+
+
+    // DELETE TEAM MEMBER
+    @DeleteMapping("/teams/{teamIdx}/members")
+    public ResponseEntity<?> deleteMember(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.deleteMemberReq req){
+        teamService.deleteMember(teamIdx, req);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", null));
+    }
+
+    // MODIFY TEAM INFO
+    @PatchMapping("/teams/{teamIdx}/modify")
+    public ResponseEntity<?> updateTeam(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.updateTeamReq req){
+        teamService.updateTeam(teamIdx, req);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", null));
+    }
 }
