@@ -1,6 +1,7 @@
 package com.weave.weaveserver.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,14 +33,16 @@ public class PlanResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
+    @Builder
     public static class planListRes {
         //Team Dto
-        private TeamResponse.getListRes teamDetailDto = new TeamResponse.getListRes();
+        private TeamResponse.teamResponse teamDetailDto = new TeamResponse.teamResponse();
 
         //Team Member List Dto 필요함
+        private List<TeamResponse.getMemberList> teamMemberListDto = new ArrayList<>();
 
         //PLAN
-        private List<PlanResponse.planDetailRes> planDto = new ArrayList<>();
+        private List<List> planDto = new ArrayList<>();
 
     }
 
