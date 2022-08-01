@@ -12,4 +12,10 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
             + "FROM Plan p "
             + "WHERE p.team.teamIdx = ?1 ")
     List<Plan> findAllByTeamIdx(Long teamIdx);
+
+    @Query(value = "SELECT p "
+            + "FROM Plan p "
+            + "WHERE p.team.teamIdx = ?1 "
+            + "ORDER BY p.date, p.startTime")
+    List<Plan> findAllByTeamIdxOrderByDateAndStartTime(Long teamIdx);
 }

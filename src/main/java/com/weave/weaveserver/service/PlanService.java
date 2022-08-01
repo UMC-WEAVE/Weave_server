@@ -6,6 +6,7 @@ import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
+import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.repository.ArchiveRepository;
 import com.weave.weaveserver.repository.PlanRepository;
 import com.weave.weaveserver.repository.TeamRepository;
@@ -16,15 +17,15 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 
 @RequiredArgsConstructor
 public class PlanService {
+    public final TeamService teamService;
+
     public final UserRepository userRepository;
     public final TeamRepository teamRepository;
     public final PlanRepository planRepository;
@@ -32,6 +33,7 @@ public class PlanService {
 
     @Transactional
     public Long addPlan(PlanRequest.createReq req){
+
         User user = userRepository.getReferenceById(req.getUserIdx());
         Team team = teamRepository.getReferenceById(req.getTeamIdx());
         Plan plan = Plan.builder()
@@ -40,8 +42,8 @@ public class PlanService {
                 .title(req.getTitle())
 
                 .date(req.getDate())
-                .startTime(LocalDateTime.now())
-                .endTime(LocalDateTime.now())
+                .startTime(req.getStartTime())
+                .endTime(req.getEndTime())
 
                 .location(req.getLocation())
                 .latitude(req.getLatitude())
@@ -86,9 +88,21 @@ public class PlanService {
 
     @Transactional
     public PlanResponse.planListRes getPlanList(Long teamIdx){
-        PlanResponse.planListRes planListRes = new PlanResponse.planListRes();
+        //Team 정보 가져오기
+        Team team = teamRepository.getReferenceById(teamIdx);
+        TeamResponse.teamResponse teamDetail = new TeamResponse.teamResponse(
+                team.getTeamIdx(),
+                team.getTitle(),
+                team.getStartDate(),
+                team.getEndDate(),
+                team.getImg()
+        );
 
-        List<Plan> planList = planRepository.findAllByTeamIdx(teamIdx);
+        //Team Member List 가져오기
+        List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
+
+        //Plan List 가져오기
+        List<Plan> planList = planRepository.findAllByTeamIdxOrderByDateAndStartTime(teamIdx);
 
         List<PlanResponse.planDetailRes> detailListDto = planList.stream().map(plan -> new PlanResponse.planDetailRes(
                 plan.getPlanIdx(),
@@ -105,9 +119,22 @@ public class PlanService {
                 )
         ).collect(Collectors.toList());
 
-        planListRes.setPlanDto(detailListDto);
-
-
+        List<List> allPlanList = new ArrayList<>();
+        List<PlanResponse.planDetailRes> planListByDate = new ArrayList<>();
+        LocalDate currentDate = detailListDto.get(0).getDate();
+        for (int i = 0; i < detailListDto.size(); i++) {
+            if(detailListDto.get(i).getDate().equals(currentDate)){
+                planListByDate.add(detailListDto.get(i));
+            }else{
+                allPlanList.add(planListByDate);
+                currentDate = detailListDto.get(i).getDate();
+                planListByDate = new ArrayList<>();
+                planListByDate.add(detailListDto.get(i));
+            }
+        }
+        allPlanList.add(planListByDate);
+        
+        PlanResponse.planListRes planListRes = new PlanResponse.planListRes(teamDetail, memberList, allPlanList);
         return planListRes;
     }
 
@@ -122,17 +149,13 @@ public class PlanService {
         User user = userRepository.getReferenceById(req.getUserIdx());
         plan.updatePlan(user,
                 req.getTitle(),
-                //req.getDate(),
-                LocalDate.now(),
-//                req.getStartTime(),
-                LocalDateTime.now(),
-//                req.getEndTime(),
-                LocalDateTime.now(),
+                req.getDate(),
+                req.getStartTime(),
+                req.getEndTime(),
                 req.getLocation(),
                 req.getLatitude(),
                 req.getLongitude(),
                 req.getCost());
-//        planRepository.save(plan);
 
     }
 
