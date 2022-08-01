@@ -1,5 +1,6 @@
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Plan;
 import com.weave.weaveserver.domain.Team;
@@ -14,6 +15,7 @@ import com.weave.weaveserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlanService {
     public final TeamService teamService;
+    public final TokenService tokenService;
 
     public final UserRepository userRepository;
     public final TeamRepository teamRepository;
@@ -32,9 +35,9 @@ public class PlanService {
     public final ArchiveRepository archiveRepository;
 
     @Transactional
-    public Long addPlan(PlanRequest.createReq req){
-
-        User user = userRepository.getReferenceById(req.getUserIdx());
+    public Long addPlan(PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User user = userRepository.findUserByEmail(userEmail);
         Team team = teamRepository.getReferenceById(req.getTeamIdx());
         Plan plan = Plan.builder()
                 .team(team)
@@ -95,7 +98,7 @@ public class PlanService {
                 team.getTitle(),
                 team.getStartDate(),
                 team.getEndDate(),
-                team.getImg()
+                team.getImgUrl()
         );
 
         //Team Member List 가져오기
@@ -144,9 +147,10 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planIdx, PlanRequest.createReq req){
+    public void updatePlan(Long planIdx, PlanRequest.createReq req, HttpServletRequest httpServletRequest){
         Plan plan = planRepository.getReferenceById(planIdx);
-        User user = userRepository.getReferenceById(req.getUserIdx());
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User user = userRepository.findUserByEmail(userEmail);
         plan.updatePlan(user,
                 req.getTitle(),
                 req.getDate(),
