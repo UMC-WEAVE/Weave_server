@@ -54,7 +54,7 @@ public class TeamRequest {
     @NoArgsConstructor
     @Getter
     // 팀 정보 수정
-    public class updateTeamReq {
+    public static class updateTeamReq {
         private Long leaderIdx;
         private String title;
         private LocalDate startDate;

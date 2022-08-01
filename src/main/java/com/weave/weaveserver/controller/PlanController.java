@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -23,8 +24,8 @@ public class PlanController {
 
     //일정 추가
     @PostMapping("/plans")
-    public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req){
-        Long planIdx = planService.addPlan(req);
+    public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+        Long planIdx = planService.addPlan(req, httpServletRequest);
         if(req.getIsArchive() == 1){
             if(req.getArchiveIdx() == null){
                 return ResponseEntity.badRequest().body(new JsonResponse(4444, "archiveIdx가 꼭 있어야합니다!!", null));
@@ -56,8 +57,8 @@ public class PlanController {
 
     //일정 수정
     @PatchMapping("/plans/{planIdx}")
-    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.createReq req){
-        planService.updatePlan(planIdx, req);
+    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+        planService.updatePlan(planIdx, req, httpServletRequest);
 
         return ResponseEntity.ok(new JsonResponse(200, "updatePlan", null));
     }
