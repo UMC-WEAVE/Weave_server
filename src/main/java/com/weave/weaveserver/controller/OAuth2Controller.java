@@ -44,13 +44,20 @@ public class OAuth2Controller {
         return token;
     }
 
-    @GetMapping
-    public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request){
-        String email = tokenService.getUserEmail(request);
+    @GetMapping("/mypage/{email}")
+    public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request,@PathVariable String email){
+//        String email = tokenService.getUserEmail(request);
+
         UserResponse.myPage data = userService.loadMyPage(email);
         return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
     }
 
+    @DeleteMapping("/")
+    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
+        String email = tokenService.getUserEmail(request);
+        userService.deleteUser(email);
+        return ResponseEntity.ok(new JsonResponse(200, "deleteUser",null));
+    }
 
 
     ////throw error example

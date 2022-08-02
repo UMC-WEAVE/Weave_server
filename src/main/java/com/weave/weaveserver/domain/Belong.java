@@ -22,6 +22,7 @@ public class Belong {
 
     @ManyToOne
     @JoinColumn(name = "user_idx")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @ManyToOne
