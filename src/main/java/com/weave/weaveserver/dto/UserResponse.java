@@ -19,7 +19,7 @@ public class UserResponse {
         private String email;
         private String image;
         private String loginType;
-        private int countTeam;
+        private Long countTeam;
     }
 
 }

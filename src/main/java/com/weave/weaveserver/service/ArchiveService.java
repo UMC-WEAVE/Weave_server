@@ -1,5 +1,6 @@
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.*;
@@ -32,7 +33,7 @@ public class ArchiveService {
 
     public void addArchive(ArchiveRequest.createRequest request, HttpServletRequest servletRequest){
         String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
-        User user = userRepository.findUserByEmail(userEmail);
+        User user = userRepository.findUserByEmail(userEmail).orElseThrow(()->new BadRequestException("유저의 정보가 없음"));
 
         Team team = teamRepository.getReferenceById(request.getTeamIdx());
         Category category = categoryRepository.getReferenceById(request.getCategoryIdx());
