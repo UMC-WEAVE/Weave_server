@@ -14,6 +14,4 @@ public class ErrorResponse {
     private final boolean isSuccess;
     private final int status;
     private final String message;
-
-
 }

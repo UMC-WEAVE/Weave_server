@@ -1,8 +1,11 @@
 package com.weave.weaveserver.config.jwt;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +19,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Service
 public class TokenService{
+    private final UserService userService;
     private String secretKey = JwtProperties.SECRET;
+
 
     @PostConstruct
     protected void init() {
@@ -43,12 +48,19 @@ public class TokenService{
 
     public String getUserEmail(HttpServletRequest request){
         String token = request.getHeader(JwtProperties.ACCESS_HEADER_STRING);
+        String email;
         try{
-            return Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
+            email = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
         }catch (NullPointerException e){
             System.out.println("NullPointerException");
-            return Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
+            email = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
+        }catch (SignatureException e){
+            throw new BadRequestException("잘못된 토큰값");
         }
-
+        String findUser = userService.getUserByEmail(email).getEmail();
+        if(!findUser.equals(email)){
+            throw new BadRequestException("유저의 정보를 찾을 수 없음");
+        }
+        return email;
     }
 }

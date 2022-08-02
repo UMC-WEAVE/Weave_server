@@ -3,8 +3,10 @@ package com.weave.weaveserver.config.oauth;
 
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.dto.UserRequest;
 import com.weave.weaveserver.repository.ImageRepository;
 import com.weave.weaveserver.repository.UserRepository;
+import com.weave.weaveserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,8 +26,7 @@ import java.util.Collections;
 @Slf4j
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
-    private final HttpSession httpSession;
+    private final UserService userService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -38,7 +39,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        User user = saveOrUpdate(attributes);
+        saveOrUpdate(attributes);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
@@ -47,20 +48,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes){
-        User user = userRepository.findUserByEmail(attributes.getEmail());
+        User user = userRepository.findUserByEmail(attributes.getEmail()).orElseThrow(()-> new BadRequestException("잘못된 이메일"));
 
         if(user==null){
-            user = new User();
-            user.setLogin(attributes.getName(), attributes.getEmail(), attributes.getLoginId());
-            if(attributes.getImage()!=null){
-                user.setImage(attributes.getImage());
-            }
-            userRepository.save(user);
+            log.info(attributes.getLoginId()+" join : "+attributes.getEmail());
+            UserRequest.join joinUser = UserRequest.join.builder()
+                    .email(attributes.getEmail()).loginId(attributes.getLoginId()).name(attributes.getName()).image(attributes.getImage())
+                    .build();
+            userService.joinUser(joinUser);
         }else{
-            log.info("이미 등록된 유저입니다.");
-//            throw new BadRequestException("이미 등록된 유저입니다.");
+            log.info(attributes.getLoginId()+" login : "+attributes.getEmail());
         }
-        System.out.println("saveOrUpdate 탐!!" + user);
         return user;
     }
 }
