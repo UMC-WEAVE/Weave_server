@@ -1,6 +1,7 @@
 
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.Belong;
 import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
@@ -58,7 +59,7 @@ public class TeamService {
 //        }
 
         // find user (존재하는 사용자인지 확인)
-        User invitedUser = userRepository.findUserByEmail(req.getEmail());
+        User invitedUser = userRepository.findUserByEmail(req.getEmail()).orElseThrow(()->new BadRequestException("잘못된 이메일"));
         if(invitedUser != null){
             System.out.println("초대 팀원 존재 : "+ invitedUser.getEmail());
 

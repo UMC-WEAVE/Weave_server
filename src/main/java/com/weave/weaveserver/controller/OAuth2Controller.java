@@ -6,12 +6,14 @@ import com.weave.weaveserver.config.exception.MethodNotAllowedException;
 import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.JwtProperties;
 import com.weave.weaveserver.config.jwt.TokenService;
+import com.weave.weaveserver.dto.JsonResponse;
+import com.weave.weaveserver.dto.UserRequest;
+import com.weave.weaveserver.dto.UserResponse;
+import com.weave.weaveserver.service.UserService;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +27,9 @@ public class OAuth2Controller {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private UserService userService;
+
     //response없음 -> 로그인 처리 후에 사용자의 정보를 oauth로 반환
     @GetMapping("/{oauthId}")
     public void oauthLogin(@PathVariable String oauthId, HttpServletResponse response)throws IOException {
@@ -32,11 +37,23 @@ public class OAuth2Controller {
         response.sendRedirect(redirect_uri);
     }
 
+    //소셜 로그인 성공시 redirect uri -> token처리를 위해 만듬
     @GetMapping("/")
     public String home(@PathParam("token") String token){
 //        response.sendRedirect("http://localhost:8080/hello",);
         return token;
     }
+
+    @GetMapping
+    public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request){
+        String email = tokenService.getUserEmail(request);
+        UserResponse.myPage data = userService.loadMyPage(email);
+        return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
+    }
+
+
+
+    ////throw error example
 
     @GetMapping("/error/{errorCode}")
     public void errorTest(@PathVariable int errorCode){
@@ -49,9 +66,11 @@ public class OAuth2Controller {
         }
     }
 
+    ////resolve Token example
     @GetMapping("/getToken")
     public String getUserEmail(HttpServletRequest request){
             String userEmail = tokenService.getUserEmail(request);
             return userEmail;
     }
+
 }

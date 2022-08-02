@@ -15,15 +15,7 @@ public class UserRequest {
         private String email;
         private String name;
         private String loginId;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class login{
-        private String email;
-        private String name;
-        private String loginId;
+        private String image;
     }
 
 }
