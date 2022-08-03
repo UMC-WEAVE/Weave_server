@@ -61,15 +61,13 @@ public class Plan {
     private boolean isModified;
 
     public void updatePlan(User user, String title, LocalDate date, LocalDateTime startTime, LocalDateTime endTime, String location, double latitude, double longitude, int cost ) {
-        if(this.user != user){ //user가 바뀌면
-            this.user = user;
-            this.isModified = true;
-        }
+        this.isModified = true;
+        this.user = user;
         this.title = title;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        if(this.location.equals(location)){
+        if(!this.location.equals(location)){
             updateLocation(location, latitude, longitude);
         }
         this.cost = cost;

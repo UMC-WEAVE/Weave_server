@@ -147,7 +147,7 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planIdx, PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+    public void updatePlan(Long planIdx, PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         Plan plan = planRepository.getReferenceById(planIdx);
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);

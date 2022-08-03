@@ -57,7 +57,7 @@ public class PlanController {
 
     //일정 수정
     @PatchMapping("/plans/{planIdx}")
-    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         planService.updatePlan(planIdx, req, httpServletRequest);
 
         return ResponseEntity.ok(new JsonResponse(200, "updatePlan", null));
