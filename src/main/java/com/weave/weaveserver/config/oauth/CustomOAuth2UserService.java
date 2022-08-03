@@ -1,10 +1,8 @@
 package com.weave.weaveserver.config.oauth;
 
 
-import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.UserRequest;
-import com.weave.weaveserver.repository.ImageRepository;
 import com.weave.weaveserver.repository.UserRepository;
 import com.weave.weaveserver.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.Collections;
 
 @RequiredArgsConstructor
@@ -48,7 +45,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes){
-        User user = userRepository.findUserByEmail(attributes.getEmail()).orElseThrow(()-> new BadRequestException("잘못된 이메일"));
+        User user = userRepository.findUserByEmail(attributes.getEmail());
 
         if(user==null){
             log.info(attributes.getLoginId()+" join : "+attributes.getEmail());

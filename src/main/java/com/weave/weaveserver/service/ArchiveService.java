@@ -33,7 +33,7 @@ public class ArchiveService {
 
     public void addArchive(ArchiveRequest.createRequest request, HttpServletRequest servletRequest){
         String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
-        User user = userRepository.findUserByEmail(userEmail).orElseThrow(()->new BadRequestException("유저의 정보가 없음"));
+        User user = userRepository.findUserByEmail(userEmail);
 
         Team team = teamRepository.getReferenceById(request.getTeamIdx());
         Category category = categoryRepository.getReferenceById(request.getCategoryIdx());

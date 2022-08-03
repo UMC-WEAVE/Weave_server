@@ -38,7 +38,7 @@ public class PlanService {
     @Transactional
     public Long addPlan(PlanRequest.createReq req, HttpServletRequest httpServletRequest){
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User user = userRepository.findUserByEmail(userEmail).orElseThrow(()-> new BadRequestException("유저의 정보가 없음"));
+        User user = userRepository.findUserByEmail(userEmail);
         Team team = teamRepository.getReferenceById(req.getTeamIdx());
         Plan plan = Plan.builder()
                 .team(team)
@@ -151,7 +151,7 @@ public class PlanService {
     public void updatePlan(Long planIdx, PlanRequest.createReq req, HttpServletRequest httpServletRequest){
         Plan plan = planRepository.getReferenceById(planIdx);
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User user = userRepository.findUserByEmail(userEmail).orElseThrow(()-> new BadRequestException("유저의 정보가 없음"));
+        User user = userRepository.findUserByEmail(userEmail);
         plan.updatePlan(user,
                 req.getTitle(),
                 req.getDate(),
