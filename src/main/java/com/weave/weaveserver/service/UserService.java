@@ -30,18 +30,18 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findUserByEmail(email).orElseThrow(()->new BadRequestException("유저의 정보를 찾을 수 없음"));
+        return userRepository.findUserByEmail(email);
     }
 
     @Transactional
     public void deleteUser(String email) {
-        User user = userRepository.findUserByEmail(email).orElseThrow(()-> new BadRequestException("유저의 정보를 찾을 수 없음"));
+        User user = userRepository.findUserByEmail(email);
         userRepository.delete(user);
     }
 
     @Transactional
     public UserResponse.myPage loadMyPage(String email) {
-        User user = userRepository.findUserByEmail(email).orElseThrow(()-> new BadRequestException("유저의 정보를 찾을 수 없음"));
+        User user = userRepository.findUserByEmail(email);
         Long countTeam = belongRepository.countTeamByUser(user.getUserIdx());
         //countTeamIdx
         return UserResponse.myPage.builder()

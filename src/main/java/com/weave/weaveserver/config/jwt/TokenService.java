@@ -2,12 +2,13 @@ package com.weave.weaveserver.config.jwt;
 
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.service.UserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +21,8 @@ import java.util.Date;
 @Service
 public class TokenService{
     private final UserService userService;
+    private final UserDetailsService userDetailsService;
+
     private String secretKey = JwtProperties.SECRET;
 
 
@@ -63,4 +66,48 @@ public class TokenService{
         }
         return email;
     }
+
+    //jwt토큰에서 인증정보 조회
+    public Authentication getAuthentication(String token){
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
+        return new UsernamePasswordAuthenticationToken(userDetails,"",userDetails.getAuthorities());
+    }
+
+    //토큰에서 회원 정보 추출
+    public String getUserPk(String token){
+        try{
+            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        }catch (NullPointerException e){
+            log.info(e.getMessage());
+            return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        }
+    }
+
+    //Request의 Header에서 token값을 가져옵니다. "X-AUTH-TOKEN":"TOKEN값" =>refresh token은 DB에 저장
+    public String resolveToken(HttpServletRequest request){
+        return request.getHeader(JwtProperties.ACCESS_HEADER_STRING);
+    }
+
+    //토큰의 유효성 + 만료 일자 확인
+    public boolean validateToken(String jwtToken,HttpServletRequest request){
+        try{
+            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+            return !claims.getBody().getExpiration().before(new Date());
+        }catch (SecurityException e) {
+            log.info("Invalid JWT signature.");
+        } catch (MalformedJwtException e) {
+            log.info("Invalid JWT token.");
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT token. at validation Token");
+//            request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getCode());
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT token.");
+        } catch (IllegalArgumentException e) {
+            log.info("JWT token compact of handler are invalid.");
+        }catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
 }
