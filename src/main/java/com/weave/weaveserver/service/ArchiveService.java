@@ -1,6 +1,5 @@
 package com.weave.weaveserver.service;
 
-import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.*;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,13 +54,17 @@ public class ArchiveService {
     public List<ArchiveResponse.archiveListResponse> getArchiveList(Long teamIdx){
         //Team
         Team team = teamRepository.findByTeamIdx(teamIdx);
-        TeamResponse.teamResponse teamResponse = new TeamResponse.teamResponse(
+        List<LocalDate> dateList = team.getStartDate().datesUntil(team.getEndDate())
+                .collect(Collectors.toList());
+        TeamResponse.teamWithDateListResponse teamResponse = new TeamResponse.teamWithDateListResponse(
                 team.getTeamIdx(),
                 team.getTitle(),
                 team.getStartDate(),
                 team.getEndDate(),
+                dateList,
                 team.getImgUrl()
         );
+
 
         //ArchiveList
         List<Archive> archiveList = archiveRepository.findByTeam(team);

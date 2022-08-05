@@ -14,7 +14,7 @@ public class ArchiveResponse {
     public static class archiveListResponse{
         private Long archiveIdx;
         private CategoryResponse.categoryResponse category;
-        private TeamResponse.teamResponse team;
+        private TeamResponse.teamWithDateListResponse team;
         private UserResponse.userResponse user;
         private String title;
         private String content;
