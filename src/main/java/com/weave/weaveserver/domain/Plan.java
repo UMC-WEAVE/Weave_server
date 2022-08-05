@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.asm.Advice;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Builder
@@ -40,10 +42,10 @@ public class Plan {
     private LocalDate date;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Column
     private String location;
@@ -60,7 +62,7 @@ public class Plan {
     @Column
     private boolean isModified;
 
-    public void updatePlan(User user, String title, LocalDate date, LocalDateTime startTime, LocalDateTime endTime, String location, double latitude, double longitude, int cost ) {
+    public void updatePlan(User user, String title, LocalDate date, LocalTime startTime, LocalTime endTime, String location, double latitude, double longitude, int cost ) {
         this.isModified = true;
         this.user = user;
         this.title = title;

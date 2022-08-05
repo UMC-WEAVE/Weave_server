@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class PlanRequest {
     @Builder
@@ -19,8 +20,8 @@ public class PlanRequest {
 
         private String title;
         private LocalDate date;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalTime startTime;
+        private LocalTime endTime;
         private String location;
         private double latitude;
         private double longitude;
@@ -39,8 +40,8 @@ public class PlanRequest {
 
         private String title;
         private LocalDate date;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalTime startTime;
+        private LocalTime endTime;
         private String location;
         private double latitude;
         private double longitude;
