@@ -18,4 +18,10 @@ public class UserRequest {
         private String image;
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class kakao_access_token{
+        private String accessToken;
+    }
 }

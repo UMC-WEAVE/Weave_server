@@ -29,6 +29,8 @@ out/
 !**/src/test/**/out/
 *.yml
 **/main/java/com/weave/weaveserver/config/jwt/JwtProperties.java
+**/main/java/com/weave/weaveserver/config/andOauth/SecurityProperties.java
+
 
 ### NetBeans ###
 /nbproject/private/
