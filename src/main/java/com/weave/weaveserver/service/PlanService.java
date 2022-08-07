@@ -1,5 +1,6 @@
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Plan;

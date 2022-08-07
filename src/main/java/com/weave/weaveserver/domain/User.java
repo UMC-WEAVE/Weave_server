@@ -1,5 +1,6 @@
 package com.weave.weaveserver.domain;
 
+import com.weave.weaveserver.dto.UserRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,19 +32,21 @@ public class User {
     private String image;
 
     @Builder
-    public User(String name, String email, String loginId) {
+    public User(String name, String email, String loginId, String image) {
         this.name = name;
         this.email = email;
         this.loginId=loginId;
-    }
-
-    public void setLogin(String name, String email, String loginId){
-        this.name=name;
-        this.email=email;
-        this.loginId=loginId;
+        this.image = image;
     }
 
     public void setImage(String image) {
         this.image = image;
     }
+
+    public static User joinUser(UserRequest.join joinUser){
+        return User.builder()
+                .name(joinUser.getName()).email(joinUser.getEmail()).loginId(joinUser.getLoginId()).image(joinUser.getImage())
+                .build();
+    }
+
 }
