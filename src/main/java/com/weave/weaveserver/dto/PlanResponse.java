@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +22,8 @@ public class PlanResponse {
         private LocalDate date;
         private String day;
         private String title;
-        private LocalDateTime startTime;
-        private LocalDateTime endTime;
+        private LocalTime startTime;
+        private LocalTime endTime;
         private String location;
         private int cost;
 
