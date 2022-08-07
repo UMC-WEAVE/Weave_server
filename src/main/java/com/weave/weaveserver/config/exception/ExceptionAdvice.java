@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionAdvice {
 
-
     //400
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Object> BadRequestException(BadRequestException e){
@@ -46,7 +45,6 @@ public class ExceptionAdvice {
         int status = 405;
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false,status,msg));
     }
-
 
     //501
     @ExceptionHandler(GlobalException.class)

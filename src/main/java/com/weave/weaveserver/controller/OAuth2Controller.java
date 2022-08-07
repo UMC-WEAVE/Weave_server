@@ -4,13 +4,15 @@ import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.GlobalException;
 import com.weave.weaveserver.config.exception.MethodNotAllowedException;
 import com.weave.weaveserver.config.exception.NotFoundException;
-import com.weave.weaveserver.config.jwt.JwtProperties;
 import com.weave.weaveserver.config.jwt.TokenService;
-import io.jsonwebtoken.Jwts;
+import com.weave.weaveserver.dto.JsonResponse;
+import com.weave.weaveserver.dto.UserResponse;
+import com.weave.weaveserver.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,24 +21,50 @@ import javax.websocket.server.PathParam;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/user")
 public class OAuth2Controller {
 
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("/user/hello")
+    public String helloTest(){
+        return "hello";
+    }
+
     //response없음 -> 로그인 처리 후에 사용자의 정보를 oauth로 반환
-    @GetMapping("/{oauthId}")
+    @GetMapping("/login/{oauthId}")
     public void oauthLogin(@PathVariable String oauthId, HttpServletResponse response)throws IOException {
-        String redirect_uri = "http://localhost:8080/oauth2/authorization/"+oauthId;
+        String redirect_uri = "http://wave-weave.shop/oauth2/authorization/"+oauthId;
         response.sendRedirect(redirect_uri);
     }
 
+    //소셜 로그인 성공시 redirect uri -> token처리를 위해 만듬
     @GetMapping("/")
     public String home(@PathParam("token") String token){
 //        response.sendRedirect("http://localhost:8080/hello",);
         return token;
     }
+
+
+    @GetMapping("/user/mypage")
+    public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request){
+        String email = tokenService.getUserEmail(request);
+        UserResponse.myPage data = userService.loadMyPage(email);
+        return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
+    }
+
+    @DeleteMapping("/")
+    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
+        String email = tokenService.getUserEmail(request);
+        userService.deleteUser(email);
+        return ResponseEntity.ok(new JsonResponse(200, "deleteUser",null));
+    }
+
+
+    ////throw error example
 
     @GetMapping("/error/{errorCode}")
     public void errorTest(@PathVariable int errorCode){
@@ -49,9 +77,11 @@ public class OAuth2Controller {
         }
     }
 
+    ////resolve Token example
     @GetMapping("/getToken")
     public String getUserEmail(HttpServletRequest request){
-            String userEmail = tokenService.getUserEmail(request);
-            return userEmail;
+        String userEmail = tokenService.getUserEmail(request);
+        return userEmail;
     }
+
 }

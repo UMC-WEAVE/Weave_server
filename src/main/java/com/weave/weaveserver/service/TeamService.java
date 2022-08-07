@@ -1,6 +1,7 @@
 
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.Belong;
 import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
