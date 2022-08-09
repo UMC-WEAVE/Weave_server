@@ -9,10 +9,8 @@ import lombok.ToString;
 @Getter
 public class Token {
     private String token;
-    private String refreshToken;
 
-    public Token(String token, String refreshToken) {
+    public Token(String token) {
         this.token = token;
-        this.refreshToken = refreshToken;
     }
 }

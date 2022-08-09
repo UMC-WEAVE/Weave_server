@@ -46,7 +46,7 @@ public class TokenService{
                 // signature 에 들어갈 secret값 세팅
                 .compact();
 
-        return new Token(acToken, "refreshToken");
+        return new Token(acToken);
     }
 
     public String getUserEmail(HttpServletRequest request){

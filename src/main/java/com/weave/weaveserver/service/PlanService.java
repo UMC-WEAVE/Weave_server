@@ -6,6 +6,7 @@ import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Plan;
 import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.dto.MapResponse;
 import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
 import com.weave.weaveserver.dto.TeamResponse;
@@ -148,7 +149,7 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planIdx, PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+    public void updatePlan(Long planIdx, PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         Plan plan = planRepository.getReferenceById(planIdx);
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
@@ -162,6 +163,19 @@ public class PlanService {
                 req.getLongitude(),
                 req.getCost());
 
+    }
+
+    @Transactional
+    public List<MapResponse> getMaps(Long teamIdx){
+        List<Plan> pointListEntity = planRepository.getPointsByTeamIdx(teamIdx);
+        List<MapResponse> pointListDto = pointListEntity.stream().map(point -> new MapResponse(
+                point.getDate(),
+                point.getLatitude(),
+                point.getLongitude()
+        )).collect(Collectors.toList());
+
+
+        return pointListDto;
     }
 
 }
