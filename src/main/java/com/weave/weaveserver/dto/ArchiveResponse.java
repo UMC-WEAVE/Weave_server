@@ -13,8 +13,10 @@ public class ArchiveResponse {
     @AllArgsConstructor
     @Data
     public static class archiveListResponseContainer{
-        private TeamResponse.teamWithDateListResponse team; //TODO : 이걸 밖으로 꺼내서 archiveListResponse와 teamWithDateListResponse를 감싸는 DTO 필요
+        private TeamResponse.teamWithDateListResponse team;
         private List<archiveListResponse> archiveList;
+
+
     }
 
 
