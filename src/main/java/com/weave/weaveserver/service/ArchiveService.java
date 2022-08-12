@@ -51,10 +51,10 @@ public class ArchiveService {
     }
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
-    public List<ArchiveResponse.archiveListResponse> getArchiveList(Long teamIdx){
+    public ArchiveResponse.archiveListResponseContainer getArchiveList(Long teamIdx){
         //Team
         Team team = teamRepository.findByTeamIdx(teamIdx);
-        List<LocalDate> dateList = team.getStartDate().datesUntil(team.getEndDate())
+        List<LocalDate> dateList = team.getStartDate().datesUntil(team.getEndDate().plusDays(1))
                 .collect(Collectors.toList());
         TeamResponse.teamWithDateListResponse teamResponse = new TeamResponse.teamWithDateListResponse(
                 team.getTeamIdx(),
@@ -98,12 +98,11 @@ public class ArchiveService {
             }
         }
 
-        //response 생성
-        List<ArchiveResponse.archiveListResponse> responseList = archiveList.stream().map(archive ->
+        //archiveResponse 생성
+        List<ArchiveResponse.archiveListResponse> archiveResponseList = archiveList.stream().map(archive ->
                 new ArchiveResponse.archiveListResponse(
                 archive.getArchiveIdx(),
                 new CategoryResponse.categoryResponse(archive.getCategory().getCategoryIdx(), archive.getCategory().getCategoryName()),
-                teamResponse,
                 userList.get(archive.getArchiveIdx()),
                 archive.getTitle(),
                 archive.getContent(),
@@ -111,7 +110,10 @@ public class ArchiveService {
                 archive.isPinned())
         ).collect(Collectors.toList());
 
-        return responseList;
+        //response 생성
+        ArchiveResponse.archiveListResponseContainer response = new ArchiveResponse.archiveListResponseContainer(teamResponse, archiveResponseList);
+
+        return response;
     }
 
 

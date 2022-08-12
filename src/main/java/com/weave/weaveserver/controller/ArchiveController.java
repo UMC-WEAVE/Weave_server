@@ -24,8 +24,8 @@ public class ArchiveController {
 
     @GetMapping("/teams/{teamIdx}/archives")
     public ResponseEntity<?> getArchiveList(@PathVariable Long teamIdx){
-        List<ArchiveResponse.archiveListResponse> archiveList = archiveService.getArchiveList(teamIdx);
-        return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveList));
+        ArchiveResponse.archiveListResponseContainer archiveListContainer = archiveService.getArchiveList(teamIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveListContainer));
     }
 
     @GetMapping("/archives/{archiveIdx}")
