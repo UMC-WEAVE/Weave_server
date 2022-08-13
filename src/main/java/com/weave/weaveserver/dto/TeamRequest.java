@@ -23,7 +23,7 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class addMemberReq {
-        private Long leaderIdx;
+        //private Long leaderIdx;
         private String email;
     }
 
@@ -40,7 +40,7 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class deleteTeamReq {
-        private Long userIdx;
+        private Long leaderIdx;
     }
 
     @NoArgsConstructor

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -18,16 +19,20 @@ public class TeamController {
     private final TeamService teamService;
 
     // CREATE TEAM
-    @PostMapping("/teams/{userIdx}/create")
-    public ResponseEntity<?> createTeam(@PathVariable("userIdx") Long leaderIdx, @RequestBody TeamRequest.createReq req){
-        teamService.createTeam(leaderIdx, req);
+    @PostMapping("/teams/create")
+    public ResponseEntity<?> createTeam( @RequestBody TeamRequest.createReq req,
+                                         HttpServletRequest httpServletRequest){
+        teamService.createTeam(req, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",null));
     }
 
     // INVITE TEAM MEMBER
     @PostMapping("/teams/{teamIdx}/invite")
-    public ResponseEntity<?> addMember(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.addMemberReq req) {
-        int result = teamService.addMember(teamIdx, req);
+    public ResponseEntity<?> addMember(@PathVariable("teamIdx") Long teamIdx,
+                                       @RequestBody TeamRequest.addMemberReq req,
+                                       HttpServletRequest httpServletRequest) {
+        int result = teamService.addMember(teamIdx, req, httpServletRequest);
+
         return ResponseEntity.ok(new JsonResponse(200, "Success", result));
     }
 
@@ -39,31 +44,35 @@ public class TeamController {
     }
 
     // SHOW MY TEAMS
-    @GetMapping("/teams/{userIdx}")
-    public ResponseEntity<?> getTeam(@PathVariable("userIdx") Long userIdx){
-        List<TeamResponse.teamResponse> teamList = teamService.getMyTeams(userIdx);
+    @GetMapping("/teams")
+    public ResponseEntity<?> getTeam(HttpServletRequest httpServletRequest){
+        List<TeamResponse.teamResponse> teamList = teamService.getMyTeams(httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 
     // DELETE TEAM
     @DeleteMapping("/teams/{teamIdx}")
-    public ResponseEntity<?> deleteTeam(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.deleteTeamReq req){
-        teamService.deleteTeam(teamIdx, req);
+    public ResponseEntity<?> deleteTeam(@PathVariable("teamIdx") Long teamIdx, HttpServletRequest httpServletRequest){
+        teamService.deleteTeam(teamIdx, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", null));
     }
 
 
     // DELETE TEAM MEMBER
     @DeleteMapping("/teams/{teamIdx}/members")
-    public ResponseEntity<?> deleteMember(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.deleteMemberReq req){
-        teamService.deleteMember(teamIdx, req);
+    public ResponseEntity<?> deleteMember(@PathVariable("teamIdx") Long teamIdx,
+                                          @RequestBody TeamRequest.deleteMemberReq req,
+                                          HttpServletRequest httpServletRequest){
+        teamService.deleteMember(teamIdx, req, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", null));
     }
 
     // MODIFY TEAM INFO
     @PatchMapping("/teams/{teamIdx}/modify")
-    public ResponseEntity<?> updateTeam(@PathVariable("teamIdx") Long teamIdx, @RequestBody TeamRequest.updateTeamReq req){
-        teamService.updateTeam(teamIdx, req);
+    public ResponseEntity<?> updateTeam(@PathVariable("teamIdx") Long teamIdx,
+                                        @RequestBody TeamRequest.updateTeamReq req,
+                                        HttpServletRequest httpServletRequest){
+        teamService.updateTeam(teamIdx, req, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", null));
     }
 }

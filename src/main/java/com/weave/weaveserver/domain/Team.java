@@ -48,5 +48,4 @@ public class Team {
         this.endDate = endDate;
         this.imgUrl = imgUrl;
     }
-
 }
