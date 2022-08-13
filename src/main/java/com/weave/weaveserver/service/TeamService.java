@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,13 @@ public class TeamService {
 
     @Transactional
     public ResponseEntity<JsonResponse> createTeam(TeamRequest.createReq req, HttpServletRequest httpServletRequest) {
+
+        //startDate vs endDate
+//        LocalDate startDate = req.getStartDate();
+//        LocalDate endDate = req.getEndDate();
+//        if(startDate.compareTo(endDate) < 0){
+//            return ResponseEntity.ok(new JsonResponse(2005, "여행 시작 날짜와 끝나는 날짜를 다시 확인해주세요",null));
+//        }
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User leader = userRepository.findUserByEmail(userEmail);

@@ -22,9 +22,15 @@ public class TeamController {
     @PostMapping("/teams/create")
     public ResponseEntity<JsonResponse> createTeam( @RequestBody TeamRequest.createReq req,
                                          HttpServletRequest httpServletRequest){
-//        if(req.getTitle() == null){
-//            return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",null));
-//        }
+        if(req.getTitle() == null){
+            return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(title)",null));
+        }
+        if(req.getStartDate() == null){
+            return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(startDate)",null));
+        }
+        if(req.getEndDate() == null){
+            return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(endDate)",null));
+        }
 
         return teamService.createTeam(req, httpServletRequest);
     }
