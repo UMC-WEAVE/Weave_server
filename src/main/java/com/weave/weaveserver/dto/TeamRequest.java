@@ -12,7 +12,6 @@ public class TeamRequest {
     @Data
     // 팀 생성
     public static class createReq {
-        private Long leaderIdx;
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
@@ -23,7 +22,6 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class addMemberReq {
-        //private Long leaderIdx;
         private String email;
     }
 
@@ -31,7 +29,6 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class getMemberReq {
-        private Long leaderIdx;
         private Long teamIdx;
     }
 
@@ -39,23 +36,14 @@ public class TeamRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class deleteTeamReq {
-        private Long leaderIdx;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
     public static class deleteMemberReq {
-        private Long leaderIdx;
-        private Long userIdx;
+        private String email;
     }
 
     @NoArgsConstructor
     @Getter
     // 팀 정보 수정
     public static class updateTeamReq {
-        private Long leaderIdx;
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;

@@ -46,8 +46,8 @@ public class TeamResponse {
     @Data
     public static class getMemberList {
         private Long userIdx;
-        private String name;
-        private String url;
+        private String userName;
+        private String userImg;
     }
 
 
