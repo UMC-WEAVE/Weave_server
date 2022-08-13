@@ -1,19 +1,24 @@
-
 package com.weave.weaveserver.service;
 
-import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.exception.NotFoundException;
+import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.Belong;
 import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.repository.BelongRepository;
 import com.weave.weaveserver.repository.TeamRepository;
 import com.weave.weaveserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,13 +26,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamService {
 
+    @Autowired
+    private TokenService tokenService;
+
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final BelongRepository belongRepository;
 
+
     @Transactional
-    public void createTeam(Long leaderIdx, TeamRequest.createReq req) {
-        User leader = userRepository.getReferenceById(leaderIdx);
+    public ResponseEntity<JsonResponse> createTeam(TeamRequest.createReq req, HttpServletRequest httpServletRequest) {
+
+        //startDate vs endDate
+//        LocalDate startDate = req.getStartDate();
+//        LocalDate endDate = req.getEndDate();
+//        if(startDate.compareTo(endDate) < 0){
+//            return ResponseEntity.ok(new JsonResponse(2005, "여행 시작 날짜와 끝나는 날짜를 다시 확인해주세요",null));
+//        }
+
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User leader = userRepository.findUserByEmail(userEmail);
+
+        System.out.println(leader.getUserIdx());
 
         Team team = Team.builder()
                 .leader(leader)
@@ -37,102 +57,215 @@ public class TeamService {
                 .imgUrl(req.getImgUrl())
                 .isEmpty(true)
                 .build();
-        teamRepository.save(team);
+        Long teamIdx = teamRepository.save(team).getTeamIdx();
 
         Belong belong = Belong.builder()
                 .user(leader)
                 .team(team)
                 .build();
         belongRepository.save(belong);
+
+        return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",teamIdx));
+
     }
 
     @Transactional
-    public int addMember(Long teamIdx, TeamRequest.addMemberReq req) {
+    public ResponseEntity<JsonResponse> addMember(Long teamIdx, TeamRequest.addMemberReq req, HttpServletRequest httpServletRequest) {
 
-        // team creator == request user (생성하려는 사용자와 팀짱이 동일인인지 확인)
-        Team team = teamRepository.getReferenceById(teamIdx);
-//        User creator = team.getLeader();
-//
-//        if(!(creator.getUserIdx().equals(req.getLeaderIdx()))){
-//            System.out.println("생성자와 팀짱이 일치하지 않음");
-//            return 0;
-//        }
+        // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
+        Team team = teamRepository.findById(teamIdx)
+                .orElseThrow(() -> new NotFoundException("해당 팀이 존재하지 않습니다."));
 
-        // find user (존재하는 사용자인지 확인)
-        User invitedUser = userRepository.findUserByEmail(req.getEmail());
-        if(invitedUser != null){
-            System.out.println("초대 팀원 존재 : "+ invitedUser.getEmail());
+        User leader = team.getLeader();
 
-            Long userIdx = invitedUser.getUserIdx();
-            User user = userRepository.getReferenceById(userIdx);
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User creator = userRepository.findUserByEmail(userEmail);
 
-            Belong belong = Belong.builder()
-                    .user(user)
-                    .team(team)
-                    .build();
+        if(leader.equals(creator)){
+            //생성하려는 사용자와 팀짱이 동일
+            System.out.println("same");
 
-            belongRepository.save(belong);
+            // find user (존재하는 사용자인지 확인)
+            User invitedUser = userRepository.findUserByEmail(req.getEmail());
+            if(invitedUser != null){
+                System.out.println("초대 팀원 존재 : "+ invitedUser.getEmail());
 
-            //team에 유저가 1명 이상 -> isEmpty = false;
-            team.updateEmpty();
+                // 이미 팀에 존재하는 유저인지 확인
+                Belong already = belongRepository.findUserByIndex(teamIdx, invitedUser.getUserIdx());
 
-            return 1;
+                if(already == null){
+                    System.out.println("팀짱이고 사용자도 존재하고, 팀에도 없어요~!!");
 
+                    Long userIdx = invitedUser.getUserIdx();
+                    User user = userRepository.getReferenceById(userIdx);
+
+                    Belong belong = Belong.builder()
+                            .user(user)
+                            .team(team)
+                            .build();
+
+                    belongRepository.save(belong);
+
+                    //team에 유저가 1명 이상 -> isEmpty = false;
+                    team.updateEmpty();
+
+                    return ResponseEntity.ok(new JsonResponse(200, "Success", userIdx));
+
+                } else {
+                    System.out.println("이미 초대된 팀원");
+                    return ResponseEntity.ok(new JsonResponse(2002, "이미 속한 팀원입니다.", null));
+                }
+            } else {
+                System.out.println("초대 팀원이 존재하지 않음");
+                return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자가 존재하지 않습니다.", null));
+            }
         } else {
-            System.out.println("초대 팀원이 존재하지 않음");
-            return 0;
+            //생성하려는 사용자와 팀짱이 동일하지 않음
+            System.out.println("not same");
+            return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
         }
     }
 
 
     @Transactional
     public List<TeamResponse.getMemberList> getMembers(Long teamIdx){
-        List<User> userList = belongRepository.findAllByTeamIdx(teamIdx);
+
+        // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
+        Team team = teamRepository.findById(teamIdx)
+                .orElseThrow(() -> new NotFoundException("해당 팀이 존재하지 않습니다."));
+
+        List<User> userList = belongRepository.findAllByTeamIdx(team.getTeamIdx());
 
         List<TeamResponse.getMemberList> memberList = userList.stream().map(user -> new TeamResponse.getMemberList(
                 user.getUserIdx(),
                 user.getName(),
-                "user Image url"
+                user.getImage()
         )).collect(Collectors.toList());
 
         return memberList;
     }
 
     @Transactional
-    public List<TeamResponse.teamResponse> getMyTeams(Long userIdx){
-        List<Team> teams = belongRepository.findAllByUserIdx(userIdx);
+    public ResponseEntity<JsonResponse> getMyTeams(HttpServletRequest httpServletRequest){
+
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User user = userRepository.findUserByEmail(userEmail);
+
+        List<Team> teams = belongRepository.findAllByUserIdx(user.getUserIdx());
 
         List<TeamResponse.teamResponse> teamList = teams.stream().map(team -> new TeamResponse.teamResponse(
                 team.getTeamIdx(),
                 team.getTitle(),
                 team.getStartDate(),
                 team.getEndDate(),
-                "user Image url"
+                team.getImgUrl()
         )).collect(Collectors.toList());
 
-        return teamList;
+        if(teamList.isEmpty()){
+            return ResponseEntity.ok(new JsonResponse(2003, "속한 팀이 없습니다.", teamList));
+
+        } else {
+            return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
+        }
+
     }
 
     @Transactional
-    public void deleteTeam(Long teamIdx, TeamRequest.deleteTeamReq req){
+    public ResponseEntity<JsonResponse> deleteTeam(Long teamIdx, HttpServletRequest httpServletRequest){
+
+        // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
+        Team team = teamRepository.findById(teamIdx)
+                .orElseThrow(() -> new NotFoundException("해당 팀이 존재하지 않습니다."));
+
         //팀짱인지 확인 과정 필요
+        User leader = team.getLeader();
 
-        teamRepository.deleteByTeamIdx(teamIdx);
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User requester = userRepository.findUserByEmail(userEmail);
+
+        if(leader.equals(requester)){
+            //요청 사용자와 팀짱이 동일
+            System.out.println("same");
+            teamRepository.deleteByTeamIdx(teamIdx);
+            return ResponseEntity.ok(new JsonResponse(200, "Success", teamIdx));
+
+        } else {
+            //요청 사용자와 팀짱이 동일하지 않음
+            System.out.println("not same");
+            return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
+        }
     }
 
     @Transactional
-    public void deleteMember(Long teamIdx, TeamRequest.deleteMemberReq req){
-        //팀짱인지 확인 과정 필요
+    public ResponseEntity<JsonResponse> deleteMember(Long teamIdx, TeamRequest.deleteMemberReq req, HttpServletRequest httpServletRequest){
 
-        Belong deleteUser = belongRepository.findUserByIndex(teamIdx, req.getUserIdx());
-        belongRepository.deleteById(deleteUser.getBelongIdx());
+        // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
+        Team team = teamRepository.findById(teamIdx)
+                .orElseThrow(() -> new NotFoundException("해당 팀이 존재하지 않습니다."));
+
+        User leader = team.getLeader();
+
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User requester = userRepository.findUserByEmail(userEmail);
+
+        if(leader.equals(requester)){
+            //요청 사용자와 팀짱이 동일
+            System.out.println("same");
+
+            // 삭제하려는 팀원이 존재하는 팀원이지 확인
+            User user = userRepository.findUserByEmail(req.getEmail());
+
+            if(user != null){
+                // 삭제하려는 팀원이 팀 소속인지 확인
+                Belong isBelong = belongRepository.findUserByIndex(teamIdx, user.getUserIdx());
+
+                if(isBelong != null){
+                    // 소속이라면
+                    Belong deleteUser = belongRepository.findUserByIndex(teamIdx, user.getUserIdx());
+                    belongRepository.deleteById(deleteUser.getBelongIdx());
+                    return ResponseEntity.ok(new JsonResponse(200, "Success", user.getUserIdx()));
+
+                } else {
+                    //소속이 아니라면
+                    System.out.println("팀 소속 유저가 아님");
+                    return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자가 존재하지 않습니다.", null));
+                }
+            } else {
+                System.out.println("존재하지 않는 사용자");
+                return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자가 존재하지 않습니다.", null));
+            }
+
+        } else {
+            //요청 사용자와 팀짱이 동일하지 않음
+            System.out.println("not same");
+            return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
+        }
     }
 
     @Transactional
-    public void updateTeam(Long teamIdx, TeamRequest.updateTeamReq req){
+    public ResponseEntity<JsonResponse> updateTeam(Long teamIdx, TeamRequest.updateTeamReq req, HttpServletRequest httpServletRequest){
+
+        // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
+        Team team = teamRepository.findById(teamIdx)
+                .orElseThrow(() -> new NotFoundException("해당 팀이 존재하지 않습니다."));
+
         //팀짱인지 확인 필요
+        User leader = team.getLeader();
 
-        Team team = teamRepository.getReferenceById(teamIdx);
-        team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate(), req.getImgUrl());
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        User requester = userRepository.findUserByEmail(userEmail);
+
+        if(leader.equals(requester)){
+            //요청 사용자와 팀짱이 동일
+            System.out.println("same");
+            //업데이트
+            team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate(), req.getImgUrl());
+            return ResponseEntity.ok(new JsonResponse(200, "Success", teamIdx));
+
+        } else {
+            //요청 사용자와 팀짱이 동일하지 않음
+            System.out.println("not same");
+            return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
+        }
     }
 }
