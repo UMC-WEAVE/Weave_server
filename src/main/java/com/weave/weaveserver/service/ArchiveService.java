@@ -1,10 +1,12 @@
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.*;
 import com.weave.weaveserver.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +56,11 @@ public class ArchiveService {
     public ArchiveResponse.archiveListResponseContainer getArchiveList(Long teamIdx){
         //Team
         Team team = teamRepository.findByTeamIdx(teamIdx);
+        if(team == null){
+            System.out.println("jh : team == null");
+            throw new NotFoundException("Team is not found by this teamIdx");
+        }
+
         List<LocalDate> dateList = team.getStartDate().datesUntil(team.getEndDate().plusDays(1))
                 .collect(Collectors.toList());
         TeamResponse.teamWithDateListResponse teamResponse = new TeamResponse.teamWithDateListResponse(
@@ -120,6 +127,10 @@ public class ArchiveService {
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
     public ArchiveResponse.archiveResponse getArchiveDetail(Long archiveIdx){
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
+        if(archive == null){
+            System.out.println("jh : archive == null");
+            throw new NotFoundException("Archive is not found by this archiveIdx");
+        }
 
         //User
         User user = archive.getUser();
@@ -156,6 +167,11 @@ public class ArchiveService {
 
     public void updateArchivePin(Long archiveIdx){
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
+        if(archive == null){
+            System.out.println("jh : archive == null");
+            throw new NotFoundException("Archive is not found by this archiveIdx");
+        }
+
         archive.updateArchive(false);
         archiveRepository.save(archive);
     }
@@ -166,5 +182,7 @@ public class ArchiveService {
 //        imageRepository.deleteByArchive(archive);
         archiveRepository.deleteByArchiveIdx(archiveIdx);
     }
+
+//    private void throwNotFoundException(String )
 
 }

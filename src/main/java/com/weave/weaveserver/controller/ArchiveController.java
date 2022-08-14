@@ -19,7 +19,7 @@ public class ArchiveController {
     @PostMapping("/archives")
     public ResponseEntity<Object> createArchive(@RequestBody ArchiveRequest.createRequest request, HttpServletRequest servletRequest){ //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
         archiveService.addArchive(request, servletRequest);
-        return ResponseEntity.ok(new JsonResponse(200, "success addArchive", null));
+        return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
     }
 
     @GetMapping("/teams/{teamIdx}/archives")
@@ -43,7 +43,7 @@ public class ArchiveController {
     @DeleteMapping("/archives/{archiveIdx}")
     public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveIdx){
         archiveService.deleteArchive(archiveIdx);
-        return ResponseEntity.ok(new JsonResponse(200, "success deleteArchive", null));
+        return ResponseEntity.ok(new JsonResponse(204, "Archive successfully deleted", null));
     }
 
 }
