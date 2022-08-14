@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.persistence.EntityNotFoundException;
+
 //Controller Exception 관리
 @Slf4j
 @RestControllerAdvice
@@ -49,6 +51,13 @@ public class ExceptionAdvice {
     //501
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<Object> globalException(GlobalException e){
+        String msg = e.getMessage();
+        int status = 500;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(false,status,msg));
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> EntityNotFoundException(EntityNotFoundException e){
         String msg = e.getMessage();
         int status = 500;
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(false,status,msg));
