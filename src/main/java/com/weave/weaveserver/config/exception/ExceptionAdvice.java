@@ -48,6 +48,13 @@ public class ExceptionAdvice {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false,status,msg));
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Object> conflictExceptionHandler(ConflictException e){
+        String msg = e.getMessage();
+        int status = 409; //status code가 결정되는 곳
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, status, msg));
+    }
+
     //501
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<Object> globalException(GlobalException e){

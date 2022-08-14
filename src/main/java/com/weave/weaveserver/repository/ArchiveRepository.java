@@ -14,8 +14,8 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     Archive findByArchiveIdx(Long archiveIdx);
 
-//    @Query(value = "SELECT a from Archive a where a.team.teamIdx = :teamIdx")
-    List<Archive> findByTeam(@Param("teamIdx") Team team);
+//    @Query(value = "SELECT a from Archive a where a.team.teamIdx = :teamIdx") //이 경우 @Param("teamIdx") Long teamIdx 이런식으로 명시해줘야 함
+    List<Archive> findByTeam(Team team);
 
     void deleteByArchiveIdx(Long archiveIdx);
 }
