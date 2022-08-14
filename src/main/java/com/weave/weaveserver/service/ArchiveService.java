@@ -1,5 +1,6 @@
 package com.weave.weaveserver.service;
 
+import com.weave.weaveserver.config.exception.ConflictException;
 import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.*;
@@ -37,8 +38,25 @@ public class ArchiveService {
         String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
         User user = userRepository.findUserByEmail(userEmail);
 
-        Team team = teamRepository.getReferenceById(request.getTeamIdx());
-        Category category = categoryRepository.getReferenceById(request.getCategoryIdx());
+        //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
+        Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
+        if(team == null){
+            System.out.println("jh : team == null");
+            throw new ConflictException("Team is not found by the teamIdx in request body");
+        }
+
+//        Category category = categoryRepository.getReferenceById(request.getCategoryIdx()); //TODO : 동일
+        Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
+        if(category == null){
+            System.out.println("jh : category == null");
+            throw new ConflictException("Category is not found by the categoryIdx in request body");
+        }
+
+        if(request.getTitle().isBlank()){ //""인지 + 공백으로만 된 문자열인지 검사
+            System.out.println("jh : title is empty or blank");
+            throw new ConflictException("Title of archive cannot be empty or blank");
+        }
+
         Archive archive = Archive.builder()
                 .user(user)
                 .team(team)
