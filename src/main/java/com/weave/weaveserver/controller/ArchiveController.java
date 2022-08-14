@@ -23,26 +23,26 @@ public class ArchiveController {
     }
 
     @GetMapping("/teams/{teamIdx}/archives")
-    public ResponseEntity<Object> getArchiveList(@PathVariable Long teamIdx){
-        ArchiveResponse.archiveListResponseContainer archiveListContainer = archiveService.getArchiveList(teamIdx);
+    public ResponseEntity<Object> getArchiveList(@PathVariable Long teamIdx, HttpServletRequest servletRequest){
+        ArchiveResponse.archiveListResponseContainer archiveListContainer = archiveService.getArchiveList(teamIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveListContainer));
     }
 
     @GetMapping("/archives/{archiveIdx}")
-    public ResponseEntity<Object> getArchiveDetail(@PathVariable Long archiveIdx){
-        ArchiveResponse.archiveResponse archiveDetail = archiveService.getArchiveDetail(archiveIdx);
+    public ResponseEntity<Object> getArchiveDetail(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
+        ArchiveResponse.archiveResponse archiveDetail = archiveService.getArchiveDetail(archiveIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveDetail", archiveDetail));
     }
 
     @PatchMapping("/archives/{archiveIdx}/pin")
-    public ResponseEntity<Object> updateArchivePin(@PathVariable Long archiveIdx){
-        archiveService.updateArchivePin(archiveIdx);
+    public ResponseEntity<Object> updateArchivePin(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
+        archiveService.updateArchivePin(archiveIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success updateArchivePin", null));
     }
 
     @DeleteMapping("/archives/{archiveIdx}")
-    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveIdx){
-        archiveService.deleteArchive(archiveIdx);
+    public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
+        archiveService.deleteArchive(archiveIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(204, "Archive successfully deleted", null));
     }
 
