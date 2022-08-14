@@ -1,6 +1,9 @@
 package com.weave.weaveserver.service;
 
 import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.exception.EntityNotFoundException;
+import com.weave.weaveserver.config.exception.GlobalException;
+import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Plan;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.text.html.parser.Entity;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,9 +42,31 @@ public class PlanService {
 
     @Transactional
     public Long addPlan(PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+        if(httpServletRequest == null){
+            throw new GlobalException("user token값을 함께 넘겨주세요.");
+        }
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
         Team team = teamRepository.getReferenceById(req.getTeamIdx());
+
+//        Team team= null;
+//        System.out.println("team: " + teamRepository.getReferenceById(req.getTeamIdx()));
+
+//        Team team;
+//        try{
+//            team = teamRepository.getReferenceById(req.getTeamIdx());
+//        }catch(EntityNotFoundException e){
+//            throw new EntityNotFoundException("team 없어!!");
+//        }
+
+
+//        Team team;
+//        if(teamRepository.getReferenceById(req.getTeamIdx()) == null){
+//            throw new EntityNotFoundException("team 없음");
+//        }else {
+//            team = teamRepository.getReferenceById(req.getTeamIdx());
+//        }
+
         Plan plan = Plan.builder()
                 .team(team)
                 .user(user)
@@ -63,6 +89,9 @@ public class PlanService {
             //Archive table에 isPinned = true해주기
             //Archive가져오려면 archiveIdx도 같이 줘야함
             Archive archive = archiveRepository.getReferenceById(req.getArchiveIdx());
+            if(archive == null){
+                throw new EntityNotFoundException("해당 아카이브 게시물이 존재하지 않습니다.");
+            }
             archive.activatePin();
         }
 
