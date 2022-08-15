@@ -29,10 +29,12 @@ public class Plan {
 
     @ManyToOne
     @JoinColumn(name = "team_idx")
+    @Column(nullable = false)
     private Team team;
 
     @ManyToOne
     @JoinColumn(name = "recent_user_idx")
+    @Column(nullable = false)
     private User user;
 
     @Column(nullable = false)
