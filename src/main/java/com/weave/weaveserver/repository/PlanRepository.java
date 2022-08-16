@@ -23,4 +23,5 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
             + "FROM Plan p "
             + "WHERE p.team.teamIdx = ?1 ")
     List<Plan> getPointsByTeamIdx(Long teamIdx);
+    
 }
