@@ -28,11 +28,11 @@ public class Plan {
     private Long planIdx;
 
     @ManyToOne
-    @JoinColumn(name = "team_idx")
+    @JoinColumn(nullable = false, name = "team_idx")
     private Team team;
 
     @ManyToOne
-    @JoinColumn(name = "recent_user_idx")
+    @JoinColumn(nullable = false, name = "recent_user_idx")
     private User user;
 
     @Column(nullable = false)
