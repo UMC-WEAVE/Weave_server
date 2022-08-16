@@ -224,13 +224,18 @@ public class ArchiveService {
             archiveRepository.deleteByArchiveIdx(archiveIdx);
         }
         else {
-            System.out.println("jh : archive == null. No delete");
+//            System.out.println("jh : archive == null. No delete");
+            throw new NotFoundException("Archive is not found by this archiveIdx");
         }
 
     }
 
 //    private void throwNotFoundException(String )
     private User findUserByEmailInToken(HttpServletRequest servletRequest){
+        System.out.println(servletRequest);
+        if(servletRequest == null){
+            System.out.println("jh : servletRequest == null");
+        }
         String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
         User clientUser = userRepository.findUserByEmail(userEmail);
 
