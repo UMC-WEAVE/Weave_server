@@ -84,7 +84,7 @@ public class PlanController {
     public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         planService.updatePlan(planIdx, req, httpServletRequest);
 
-        return ResponseEntity.ok(new JsonResponse(200, "updatePlan", null));
+        return ResponseEntity.ok(new JsonResponse(201, "updatePlan", null));
     }
 
 }
