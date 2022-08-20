@@ -63,7 +63,7 @@ public class Oauth2Controller {
 
     //TODO : android
     @PostMapping("/android/login/{loginId}")
-    public Object androidLogin(@PathParam(value = "accessToken") String accessToken, @PathVariable String loginId) {
+    public ResponseEntity<JsonResponse> androidLogin(@PathParam(value = "accessToken") String accessToken, @PathVariable String loginId) {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -161,5 +161,107 @@ public class Oauth2Controller {
         throw new MethodNotAllowedException("로그인 플랫폼이 잘못됨");
     }
 
+
+
+
+//
+//    @PostMapping("/android/login/{loginId}")
+//    public Object androidLogin(@PathParam(value = "accessToken") String accessToken, @PathVariable String loginId) {
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//        HttpHeaders headers = new HttpHeaders();
+//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity(headers);
+//        ResponseEntity<String> response;
+//        headers.add("Authorization", "Bearer " + accessToken);
+//
+//        String email="";
+//        String redirect_uri="";
+//        KakaoProfile kakaoProfile = null;
+//        GoogleProfile googleProfile = null;
+//        NaverProfile naverProfile=null;
+//
+//        UserRequest.join joinUser;
+//
+//        if(loginId.equals("kakao")) {
+//            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//            redirect_uri="https://kapi.kakao.com/v2/user/me";
+//
+//            response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
+//
+//            try {
+//                kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfile.class);
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            email=kakaoProfile.getKakao_account().getEmail();
+//            joinUser = UserRequest.join.builder()
+//                    .email(email)
+//                    .loginId("kakao")
+//                    .name(kakaoProfile.getProperties().getNickname())
+//                    .image(kakaoProfile.getProperties().getThumbnail_image()).build();
+//            System.out.println(response.getBody());
+//            System.out.println("kakao profile : "+kakaoProfile.getKakao_account().getProfile().is_default_image());
+//            User user = userService.getUserByEmail(email);
+//            if(user==null){
+//                userService.joinUser(joinUser);
+//            }else{
+//                log.info("kakao login : "+email);
+//            }
+//            Token token = tokenService.generateToken(email);
+//            return ResponseEntity.ok(new JsonResponse(200,"kakao login",token.getToken()));
+//        }
+//        if(loginId.equals("naver")) {
+//            redirect_uri="https://openapi.naver.com/v1/nid/me";
+//            response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
+//            try {
+//                naverProfile = objectMapper.readValue(response.getBody(), NaverProfile.class);
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            email=naverProfile.getResponse().getEmail();
+//            joinUser = UserRequest.join.builder()
+//                    .email(email)
+//                    .loginId("naver")
+//                    .name(naverProfile.getResponse().getName())
+//                    .image(naverProfile.getResponse().getProfile_image()).build();
+//            System.out.println("response.getBody() = " + response.getBody());
+//
+//            User user = userService.getUserByEmail(email);
+//            if(user==null){
+//                userService.joinUser(joinUser);
+//            }else{
+//                log.info("naver login : "+email);
+//            }
+//            Token token = tokenService.generateToken(email);
+//            return ResponseEntity.ok(new JsonResponse(200,"naver login",token.getToken()));
+//        }
+//
+//        if(loginId.equals("google")){
+//            redirect_uri="https://www.googleapis.com/oauth2/v1/userinfo";
+//            response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
+//            try {
+//                googleProfile = objectMapper.readValue(response.getBody(), GoogleProfile.class);
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            email= googleProfile.getEmail();
+//            joinUser = UserRequest.join.builder()
+//                    .email(email)
+//                    .loginId("google")
+//                    .name(googleProfile.getName())
+//                    .image(googleProfile.getPicture()).build();
+//
+//            User user = userService.getUserByEmail(email);
+//            if(user==null){
+//                userService.joinUser(joinUser);
+//            }else{
+//                log.info("google login : "+email);
+//            }
+//            System.out.println(googleProfile);
+//            Token token = tokenService.generateToken(email);
+//            return ResponseEntity.ok(new JsonResponse(200,"google login",token.getToken()));
+//        }
+//        throw new MethodNotAllowedException("로그인 플랫폼이 잘못됨");
+//    }
 
 }

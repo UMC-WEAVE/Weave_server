@@ -34,11 +34,12 @@ public class KakaoProfile {
         private Boolean has_gender;
         private Boolean gender_needs_agreement;
 
-        @Getter
+        @Data
         public static class Profile {
             private String nickname;
             private String thumbnail_image_url;
             private String profile_image_url;
+            private boolean is_default_image;
         }
     }
 }
