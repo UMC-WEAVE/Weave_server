@@ -37,6 +37,9 @@ public class UserService {
     @Transactional
     public void deleteUser(String email) {
         User user = userRepository.findUserByEmail(email);
+        if(user==null){
+            throw new BadRequestException("존재하지 않는 token입니다.");
+        }
         userRepository.delete(user);
     }
 

@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("")
     public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
         String email = tokenService.getUserEmail(request);
         userService.deleteUser(email);
