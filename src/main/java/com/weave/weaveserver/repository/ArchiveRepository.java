@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
@@ -18,4 +19,10 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
     List<Archive> findByTeam(Team team);
 
     void deleteByArchiveIdx(Long archiveIdx);
+
+    @Query(value = "SELECT a FROM Archive a WHERE a.user.userIdx = ?1")
+    Optional<List<Archive>> findAllByUserIdx(Long userIdx);
+
+    @Query(value = "SELECT a FROM Archive a WHERE a.team.teamIdx = ?1")
+    Optional<List<Archive>> findAllByTeamIdx(Long teamIdx);
 }

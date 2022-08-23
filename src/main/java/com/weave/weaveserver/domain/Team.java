@@ -20,7 +20,7 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long teamIdx;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "leader_idx")
     private User leader;
 
@@ -47,5 +47,10 @@ public class Team {
         this.startDate = startDate;
         this.endDate = endDate;
         this.imgUrl = imgUrl;
+    }
+
+    //TODO : 이부분 바꿈!!
+    public void setLeader(User leader) {
+        this.leader = leader;
     }
 }
