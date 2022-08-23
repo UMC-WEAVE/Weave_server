@@ -89,4 +89,9 @@ public class Plan {
 
         return days[dayNum - 1];
     }
+
+    //TODO : 이부분 바꿈!!(휘영)
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

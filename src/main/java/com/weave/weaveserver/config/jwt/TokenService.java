@@ -1,6 +1,10 @@
 package com.weave.weaveserver.config.jwt;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.exception.UnAuthorizedException;
+import com.weave.weaveserver.config.exception.jwt.ExceptionCode;
 import com.weave.weaveserver.service.UserService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +62,7 @@ public class TokenService{
             System.out.println("NullPointerException");
             email = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
         }catch (SignatureException e){
-            throw new BadRequestException("잘못된 토큰값");
+            throw new UnAuthorizedException("UNAUTHORIZED");
         }
         String findUser = userService.getUserByEmail(email).getEmail();
         if(!findUser.equals(email)){
@@ -95,17 +99,22 @@ public class TokenService{
             return !claims.getBody().getExpiration().before(new Date());
         }catch (SecurityException e) {
             log.info("Invalid JWT signature.");
+            request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getStatus());
         } catch (MalformedJwtException e) {
             log.info("Invalid JWT token.");
+            request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getStatus());
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token. at validation Token");
-//            request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getCode());
+            request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getStatus());
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT token.");
+            request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getStatus());
         } catch (IllegalArgumentException e) {
             log.info("JWT token compact of handler are invalid.");
-        }catch (Exception e) {
-            return false;
+            request.setAttribute("exception", ExceptionCode.UNSUPPORTED_TOKEN.getStatus());
+        } catch (Exception e) {
+            log.error("any exception");
+            request.setAttribute("exception", ExceptionCode.UNSUPPORTED_TOKEN.getStatus());
         }
         return false;
     }

@@ -20,6 +20,13 @@ public class ExceptionAdvice {
         int status = 400;
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false,status,msg));
     }
+    //400
+    @ExceptionHandler(UnAuthorizedException.class)
+    public ResponseEntity<Object> UnAuthorizedException(UnAuthorizedException e){
+        String msg = e.getMessage();
+        int status = 401;
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(false,status,msg));
+    }
 
     //403
     @ExceptionHandler(ForbiddenException.class)

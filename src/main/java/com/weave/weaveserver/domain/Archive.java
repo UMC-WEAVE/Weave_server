@@ -39,7 +39,8 @@ public class Archive {
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private Category category;
 
-    @JoinColumn(name = "user_idx", nullable = false)
+    //TODO : 이부분 바꿈!!
+    @JoinColumn(name = "user_idx", nullable = true)
     @ManyToOne(fetch = FetchType.LAZY) //외래키
     private User user;
 
@@ -56,5 +57,10 @@ public class Archive {
     public void updateArchive(boolean isPinned) {
         this.isPinned = isPinned;
 
+    }
+
+    //TODO : 이부분 바꿈!!
+    public void setUser(User user) {
+        this.user = user;
     }
 }
