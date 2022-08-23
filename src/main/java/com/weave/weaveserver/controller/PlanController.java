@@ -60,8 +60,8 @@ public class PlanController {
 
     //일정 상세 조회 (for Android)
     @GetMapping("/plans/{planIdx}")
-    public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx){
-        PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx);
+    public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx, HttpServletRequest httpServletRequest){
+        PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", res));
     }
 
