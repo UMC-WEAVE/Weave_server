@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
@@ -23,5 +24,16 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
             + "FROM Plan p "
             + "WHERE p.team.teamIdx = ?1 ")
     List<Plan> getPointsByTeamIdx(Long teamIdx);
-    
+
+    Plan findByPlanIdx(Long planIdx);
+
+    @Query(value = "SELECT count(p)"
+            + "FROM Plan p "
+            + "WHERE p.team.teamIdx = ?1 ")
+    int countPlan(Long teamIdx);
+
+    @Query(value = "SELECT count(p)"
+            + "FROM Plan p "
+            + "WHERE p.team.teamIdx = ?1 ")
+    int countByTeamIdx(Long teamIdx);
 }
