@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -20,8 +22,9 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long teamIdx;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "leader_idx")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User leader;
 
     @Column(nullable = false)
@@ -47,5 +50,10 @@ public class Team {
         this.startDate = startDate;
         this.endDate = endDate;
         this.imgUrl = imgUrl;
+    }
+
+    //TODO : 이부분 바꿈!!
+    public void setLeader(User leader) {
+        this.leader = leader;
     }
 }

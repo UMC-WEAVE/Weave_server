@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 public enum ExceptionCode {
 
     //jwt token error
-    UNKNOWN_ERROR(false,400,"UNKNOWN_ERROR"),
+    UNKNOWN_ERROR(false,401,"UNAUTHORIZED"),
     WRONG_TYPE_TOKEN(false, 405, "WRONG_TYPE_TOKEN"),
     EXPIRED_TOKEN(false, 401, "EXPIRED_TOKEN"),
     UNSUPPORTED_TOKEN(false, 401, "UNSUPPORTED_TOKEN"),

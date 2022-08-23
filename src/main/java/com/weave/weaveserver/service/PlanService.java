@@ -18,6 +18,7 @@ import com.weave.weaveserver.repository.PlanRepository;
 import com.weave.weaveserver.repository.TeamRepository;
 import com.weave.weaveserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,25 +48,10 @@ public class PlanService {
         }
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
-        Team team = teamRepository.getReferenceById(req.getTeamIdx());
-
-//        Team team= null;
-//        System.out.println("team: " + teamRepository.getReferenceById(req.getTeamIdx()));
-
-//        Team team;
-//        try{
-//            team = teamRepository.getReferenceById(req.getTeamIdx());
-//        }catch(EntityNotFoundException e){
-//            throw new EntityNotFoundException("team 없어!!");
-//        }
-
-
-//        Team team;
-//        if(teamRepository.getReferenceById(req.getTeamIdx()) == null){
-//            throw new EntityNotFoundException("team 없음");
-//        }else {
-//            team = teamRepository.getReferenceById(req.getTeamIdx());
-//        }
+        Team team = teamRepository.findByTeamIdx(req.getTeamIdx());
+        if(team == null){
+            throw new NotFoundException("해당 team이 존재하지 않습니다.");
+        }
 
         Plan plan = Plan.builder()
                 .team(team)
@@ -84,13 +70,10 @@ public class PlanService {
 
                 .build();
 
-        if (req.getIsArchive() == 1){ //archive 필요
-            System.out.println("isArchive!!");
-            //Archive table에 isPinned = true해주기
-            //Archive가져오려면 archiveIdx도 같이 줘야함
-            Archive archive = archiveRepository.getReferenceById(req.getArchiveIdx());
+        if (req.getIsArchive() == 1){
+            Archive archive = archiveRepository.findByArchiveIdx(req.getArchiveIdx());
             if(archive == null){
-                throw new EntityNotFoundException("해당 아카이브 게시물이 존재하지 않습니다.");
+                throw new NotFoundException("해당 아카이브 게시물이 존재하지 않습니다.");
             }
             archive.activatePin();
         }
@@ -100,8 +83,14 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponse.planDetailRes getPlanDetail(Long planIdx){
-        Plan plan = planRepository.getReferenceById(planIdx);
+    public PlanResponse.planDetailRes getPlanDetail(Long planIdx, HttpServletRequest clientToken){
+        if(tokenService.getUserEmail(clientToken) == null){
+            throw new GlobalException("올바른 user의 접근이 아닙니다.");
+        }
+        Plan plan = planRepository.findByPlanIdx(planIdx);
+        if(plan == null){
+            throw new GlobalException("해당 일정이 존재하지 않습니다.");
+        }
 
         PlanResponse.planDetailRes dto = new PlanResponse.planDetailRes(
                 plan.getPlanIdx(),
@@ -123,7 +112,11 @@ public class PlanService {
     @Transactional
     public PlanResponse.planListRes getPlanList(Long teamIdx){
         //Team 정보 가져오기
-        Team team = teamRepository.getReferenceById(teamIdx);
+        Team team = teamRepository.findByTeamIdx(teamIdx);
+        if(team == null){
+            throw new NotFoundException("해당 team이 존재하지 않습니다.");
+        }
+
         TeamResponse.teamResponse teamDetail = new TeamResponse.teamResponse(
                 team.getTeamIdx(),
                 team.getTitle(),
@@ -136,7 +129,12 @@ public class PlanService {
         List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
 
         //Plan List 가져오기
+//        int planSize = planRepository.countByTeamIdx(teamIdx);
+//        if(planSize == 0){
+//            throw new GlobalException("해당 팀의 일정이 하나도 없습니다.");
+//        }
         List<Plan> planList = planRepository.findAllByTeamIdxOrderByDateAndStartTime(teamIdx);
+
 
         List<PlanResponse.planDetailRes> detailListDto = planList.stream().map(plan -> new PlanResponse.planDetailRes(
                         plan.getPlanIdx(),
@@ -154,32 +152,43 @@ public class PlanService {
         ).collect(Collectors.toList());
 
         List<List> allPlanList = new ArrayList<>();
-        List<PlanResponse.planDetailRes> planListByDate = new ArrayList<>();
-        LocalDate currentDate = detailListDto.get(0).getDate();
-        for (int i = 0; i < detailListDto.size(); i++) {
-            if(detailListDto.get(i).getDate().equals(currentDate)){
-                planListByDate.add(detailListDto.get(i));
-            }else{
-                allPlanList.add(planListByDate);
-                currentDate = detailListDto.get(i).getDate();
-                planListByDate = new ArrayList<>();
-                planListByDate.add(detailListDto.get(i));
-            }
+
+        if(detailListDto.size()==0){
+            detailListDto = null;
         }
-        allPlanList.add(planListByDate);
+
+        else {
+
+            List<PlanResponse.planDetailRes> planListByDate = new ArrayList<>();
+            LocalDate currentDate = detailListDto.get(0).getDate();
+            for (int i = 0; i < detailListDto.size(); i++) {
+                if (detailListDto.get(i).getDate().equals(currentDate)) {
+                    planListByDate.add(detailListDto.get(i));
+                } else {
+                    allPlanList.add(planListByDate);
+                    currentDate = detailListDto.get(i).getDate();
+                    planListByDate = new ArrayList<>();
+                    planListByDate.add(detailListDto.get(i));
+                }
+            }
+            allPlanList.add(planListByDate);
+        }
         
         PlanResponse.planListRes planListRes = new PlanResponse.planListRes(teamDetail, memberList, allPlanList);
         return planListRes;
     }
 
     @Transactional
-    public Long deletePlan(Long planIdx){
+    public Long deletePlan(Long planIdx) throws EmptyResultDataAccessException {
         planRepository.deleteById(planIdx); return planIdx;
     }
 
     @Transactional
     public void updatePlan(Long planIdx, PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
-        Plan plan = planRepository.getReferenceById(planIdx);
+        Plan plan = planRepository.findByPlanIdx(planIdx);
+        if(plan == null){
+            throw new BadRequestException("해당 일정이 존재하지 않습니다.");
+        }
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
         plan.updatePlan(user,
@@ -191,7 +200,6 @@ public class PlanService {
                 req.getLatitude(),
                 req.getLongitude(),
                 req.getCost());
-
     }
 
     @Transactional
