@@ -37,7 +37,7 @@ public class TeamRequest {
     @AllArgsConstructor
     @Data
     public static class deleteMemberReq {
-        private String email;
+        private Long userIdx;
     }
 
     @NoArgsConstructor

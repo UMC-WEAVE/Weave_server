@@ -213,7 +213,7 @@ public class TeamService {
             System.out.println("same");
 
             // 삭제하려는 팀원이 존재하는 팀원이지 확인
-            User user = userRepository.findUserByEmail(req.getEmail());
+            User user = userRepository.getReferenceById(req.getUserIdx());
 
             if(user != null){
                 // 삭제하려는 팀원이 팀 소속인지 확인
