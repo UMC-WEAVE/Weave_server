@@ -87,7 +87,7 @@ public class Plan {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         int dayNum = dayOfWeek.getValue();
 
-        return days[dayNum];
+        return days[dayNum - 1];
     }
 
     //TODO : 이부분 바꿈!!(휘영)
