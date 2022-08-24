@@ -25,6 +25,8 @@ public class PlanResponse {
         private LocalTime startTime;
         private LocalTime endTime;
         private String location;
+        private double latitude;
+        private double longitude;
         private int cost;
 
         private Long recentUserIdx;

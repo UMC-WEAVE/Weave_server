@@ -101,6 +101,8 @@ public class PlanService {
                 plan.getStartTime(),
                 plan.getEndTime(),
                 plan.getLocation(),
+                plan.getLatitude(),
+                plan.getLongitude(),
                 plan.getCost(),
                 plan.getUser().getUserIdx(),
                 plan.isModified()
@@ -145,6 +147,8 @@ public class PlanService {
                         plan.getStartTime(),
                         plan.getEndTime(),
                         plan.getLocation(),
+                        plan.getLatitude(),
+                        plan.getLongitude(),
                         plan.getCost(),
                         plan.getUser().getUserIdx(),
                         plan.isModified()
