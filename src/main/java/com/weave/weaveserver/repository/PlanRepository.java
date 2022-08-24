@@ -34,13 +34,5 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     Plan findByPlanIdx(Long planIdx);
 
-    @Query(value = "SELECT count(p)"
-            + "FROM Plan p "
-            + "WHERE p.team.teamIdx = ?1 ")
-    int countPlan(Long teamIdx);
-
-    @Query(value = "SELECT count(p)"
-            + "FROM Plan p "
-            + "WHERE p.team.teamIdx = ?1 ")
             
  }
