@@ -69,7 +69,7 @@ public class Plan {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        if(!this.location.equals(location)){
+        if(this.location == null || !this.location.equals(location)){
             updateLocation(location, latitude, longitude);
         }
         this.cost = cost;

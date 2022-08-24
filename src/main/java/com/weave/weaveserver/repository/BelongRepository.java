@@ -38,4 +38,10 @@ public interface BelongRepository extends JpaRepository<Belong, Long> {
             "where b.team.teamIdx = :teamIdx " +
             "and b.user.email = :userEmail")
     Belong findByTeamIdxAndUser(@Param("teamIdx") Long teamIdx, @Param("userEmail") String userEmail);
+
+
+    @Query(value = "SELECT COUNT(b.user) FROM Belong b WHERE b.team.teamIdx=?1")
+    Long countMemberByTeam(Long teamIdx);
+
+
 }
