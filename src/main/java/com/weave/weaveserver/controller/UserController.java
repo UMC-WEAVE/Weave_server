@@ -6,6 +6,7 @@ import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.UserResponse;
 import com.weave.weaveserver.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -40,6 +42,7 @@ public class UserController {
 
     @DeleteMapping("")
     public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
+        log.info("deleteUser");
         String email = tokenService.getUserEmail(request);
         userService.deleteUser(email);
         return ResponseEntity.ok(new JsonResponse(200, "deleteUser",null));

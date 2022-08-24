@@ -2,15 +2,11 @@ package com.weave.weaveserver.service;
 
 import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;
-import com.weave.weaveserver.domain.Belong;
-import com.weave.weaveserver.domain.Team;
-import com.weave.weaveserver.domain.User;
+import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
-import com.weave.weaveserver.repository.BelongRepository;
-import com.weave.weaveserver.repository.TeamRepository;
-import com.weave.weaveserver.repository.UserRepository;
+import com.weave.weaveserver.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +28,10 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final BelongRepository belongRepository;
+
+    private final PlanRepository planRepository;
+
+    private final ArchiveRepository archiveRepository;
 
 
     @Transactional
@@ -75,6 +75,16 @@ public class TeamService {
         // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
         Team team = teamRepository.findById(teamIdx)
                 .orElseThrow(() -> new NotFoundException("해당 팀이 존재하지 않습니다."));
+
+        Long count = belongRepository.countMemberByTeam(teamIdx);
+        System.out.println(count);
+
+        if(count > 10){
+            System.out.println("초대 가능한 인원을 초과했습니다");
+            return ResponseEntity.ok(new JsonResponse(2003, "초대 가능 인원을 초과하였습니다", null));
+        } else {
+            System.out.println("초대 가능");
+        }
 
         User leader = team.getLeader();
 
@@ -186,7 +196,25 @@ public class TeamService {
         if(leader.equals(requester)){
             //요청 사용자와 팀짱이 동일
             System.out.println("same");
+
+            // 연결된 PLAN 모두 끊기
+            List<Plan> plans = planRepository.findAllByTeamIdx(teamIdx);
+            for(int i=0; i<plans.size();i++){
+                planRepository.deleteById(plans.get(i).getPlanIdx());
+                System.out.println("Plan 삭제");
+            }
+
+            // 연결된 archive 모두 끊기
+            List<Archive> archives = archiveRepository.findByTeam(team);
+            for(int i=0; i<archives.size();i++){
+                archiveRepository.deleteByArchiveIdx(archives.get(i).getArchiveIdx());
+                System.out.println("Archive 삭제");
+            }
+
+
+            // 팀 삭제
             teamRepository.deleteByTeamIdx(teamIdx);
+
             return ResponseEntity.ok(new JsonResponse(200, "Success", teamIdx));
 
         } else {

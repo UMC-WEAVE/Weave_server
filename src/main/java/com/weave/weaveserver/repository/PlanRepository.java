@@ -34,5 +34,3 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     Plan findByPlanIdx(Long planIdx);
 
-            
- }
