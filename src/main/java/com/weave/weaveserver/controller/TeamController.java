@@ -4,24 +4,39 @@ package com.weave.weaveserver.controller;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
+import com.weave.weaveserver.service.ImageService;
 import com.weave.weaveserver.service.TeamService;
+import com.weave.weaveserver.util.FileUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class TeamController {
 
     private final TeamService teamService;
 
+    @Autowired
+    private ImageService imageService;
+    @Autowired
+    private FileUtils fileUtils;
+
     // CREATE TEAM
     @PostMapping("/teams/create")
-    public ResponseEntity<JsonResponse> createTeam( @RequestBody TeamRequest.createReq req,
-                                         HttpServletRequest httpServletRequest){
+    public ResponseEntity<JsonResponse> createTeam(HttpServletRequest httpServletRequest,
+                                                   @RequestPart TeamRequest.createReq req,
+                                                   @RequestPart("fileName") @Nullable String fileName,
+                                                   @RequestPart("file") @Nullable MultipartFile file) throws IOException {
         if(req.getTitle() == null){
             return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(title)",null));
         }
@@ -32,7 +47,8 @@ public class TeamController {
             return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(endDate)",null));
         }
 
-        return teamService.createTeam(req, httpServletRequest);
+
+        return teamService.createTeam(httpServletRequest, req, fileName, file);
     }
 
     // INVITE TEAM MEMBER
@@ -75,8 +91,11 @@ public class TeamController {
     // MODIFY TEAM INFO
     @PatchMapping("/teams/{teamIdx}/modify")
     public ResponseEntity<JsonResponse> updateTeam(@PathVariable("teamIdx") Long teamIdx,
-                                        @RequestBody TeamRequest.updateTeamReq req,
-                                        HttpServletRequest httpServletRequest){
-        return teamService.updateTeam(teamIdx, req, httpServletRequest);
+                                        @RequestPart TeamRequest.updateTeamReq req,
+                                        @RequestPart ("fileName") @Nullable String fileName,
+                                        @RequestPart ("file") @Nullable MultipartFile file,
+                                        HttpServletRequest httpServletRequest) throws IOException{
+
+        return teamService.updateTeam(teamIdx, req, fileName, file, httpServletRequest);
     }
 }
