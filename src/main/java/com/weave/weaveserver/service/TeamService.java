@@ -113,7 +113,7 @@ public class TeamService {
 
                     if(count >= 10) {
                         System.out.println("초대 가능한 인원을 초과했습니다");
-                        return ResponseEntity.ok(new JsonResponse(2004, "초대 가능 인원을 초과하였습니다", null));
+                        return ResponseEntity.ok(new JsonResponse(2005, "초대 가능 인원을 초과하였습니다", null));
 
                     } else {
                         System.out.println("팀짱이고 사용자도 존재하고, 팀에도 없고 10명 이내에요~!!");
