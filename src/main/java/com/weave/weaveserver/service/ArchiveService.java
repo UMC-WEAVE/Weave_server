@@ -81,11 +81,18 @@ public class ArchiveService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .url(request.getUrl())
-                .imageUrl(imgUrl)
+                .imageUrl(null) //TODO : 추후 DTO구조 수정, 컬럼 제거
                 .isPinned(false) //처음 생성 시 기본값
                 .category(category)
                 .build();
         archiveRepository.save(archive);
+
+        //이미지는 이미지 테이블에 따로 저장. 위에서 저장한 아카이브를 참조함.
+        Image image = Image.builder()
+                .archive(archive)
+                .url(imgUrl)
+                .build();
+        imageRepository.save(image);
     }
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
