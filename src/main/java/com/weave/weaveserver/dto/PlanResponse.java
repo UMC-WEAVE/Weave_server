@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,14 +23,14 @@ public class PlanResponse {
         private LocalDate date;
         private String day;
         private String title;
-        private LocalTime startTime;
-        private LocalTime endTime;
+        private String startTime;
+        private String endTime;
         private String location;
         private double latitude;
         private double longitude;
         private int cost;
 
-        private Long recentUserIdx;
+        private String recentUserName;
         private boolean isModified;
     }
 
