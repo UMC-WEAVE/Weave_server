@@ -11,9 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ public class ArchiveService {
 
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private ImageService imageService;
 
     public final UserRepository userRepository;
     public final TeamRepository teamRepository;
@@ -36,7 +40,10 @@ public class ArchiveService {
     public final ImageRepository imageRepository;
 
 
-    public void addArchive(ArchiveRequest.createRequest request, HttpServletRequest servletRequest){
+    public void addArchive(ArchiveRequest.createRequest request,
+                           String fileName,
+                           MultipartFile file,
+                           HttpServletRequest servletRequest) throws IOException {
         User clientUser = findUserByEmailInToken(servletRequest);
 
         //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
@@ -60,13 +67,21 @@ public class ArchiveService {
             throw new ConflictException("Title of archive cannot be empty or blank");
         }
 
+        //이미지 유무 확인 및 업로드하여 url 받아오기
+        String imgUrl = "";
+        if(fileName == null || file == null){
+            System.out.println("jh addArchive : no file to upload");
+        } else {
+            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
+        }
+
         Archive archive = Archive.builder()
                 .user(clientUser)
                 .team(team)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .url(request.getUrl())
-                .imageUrl(request.getImageUrl())
+                .imageUrl(imgUrl)
                 .isPinned(false) //처음 생성 시 기본값
                 .category(category)
                 .build();
