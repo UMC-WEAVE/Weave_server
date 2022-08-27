@@ -11,9 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,8 @@ public class TeamService {
 
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private ImageService imageService;
 
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
@@ -35,7 +39,8 @@ public class TeamService {
 
 
     @Transactional
-    public ResponseEntity<JsonResponse> createTeam(TeamRequest.createReq req, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<JsonResponse> createTeam(HttpServletRequest httpServletRequest, TeamRequest.createReq req,
+                                                   String fileName, MultipartFile file) throws IOException{
 
         //startDate vs endDate
 //        LocalDate startDate = req.getStartDate();
@@ -49,12 +54,20 @@ public class TeamService {
 
         System.out.println(leader.getUserIdx());
 
+        String imgUrl = "";
+
+        if(fileName == null || file == null) {
+            System.out.println("파일 없음");
+            imgUrl = "null";
+        } else {
+            imgUrl = imageService.uploadToStorage("team", fileName, file);
+        }
         Team team = Team.builder()
                 .leader(leader)
                 .title(req.getTitle())
                 .startDate(req.getStartDate())
                 .endDate(req.getEndDate())
-                .imgUrl(req.getImgUrl())
+                .imgUrl(imgUrl)
                 .isEmpty(true)
                 .build();
         Long teamIdx = teamRepository.save(team).getTeamIdx();
@@ -79,13 +92,6 @@ public class TeamService {
         Long count = belongRepository.countMemberByTeam(teamIdx);
         System.out.println(count);
 
-        if(count > 10){
-            System.out.println("초대 가능한 인원을 초과했습니다");
-            return ResponseEntity.ok(new JsonResponse(2003, "초대 가능 인원을 초과하였습니다", null));
-        } else {
-            System.out.println("초대 가능");
-        }
-
         User leader = team.getLeader();
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
@@ -104,23 +110,29 @@ public class TeamService {
                 Belong already = belongRepository.findUserByIndex(teamIdx, invitedUser.getUserIdx());
 
                 if(already == null){
-                    System.out.println("팀짱이고 사용자도 존재하고, 팀에도 없어요~!!");
 
-                    Long userIdx = invitedUser.getUserIdx();
-                    User user = userRepository.getReferenceById(userIdx);
+                    if(count >= 10) {
+                        System.out.println("초대 가능한 인원을 초과했습니다");
+                        return ResponseEntity.ok(new JsonResponse(2005, "초대 가능 인원을 초과하였습니다", null));
 
-                    Belong belong = Belong.builder()
-                            .user(user)
-                            .team(team)
-                            .build();
+                    } else {
+                        System.out.println("팀짱이고 사용자도 존재하고, 팀에도 없고 10명 이내에요~!!");
 
-                    belongRepository.save(belong);
+                        Long userIdx = invitedUser.getUserIdx();
+                        User user = userRepository.getReferenceById(userIdx);
 
-                    //team에 유저가 1명 이상 -> isEmpty = false;
-                    team.updateEmpty();
+                        Belong belong = Belong.builder()
+                                .user(user)
+                                .team(team)
+                                .build();
 
-                    return ResponseEntity.ok(new JsonResponse(200, "Success", userIdx));
+                        belongRepository.save(belong);
 
+                        //team에 유저가 1명 이상 -> isEmpty = false;
+                        team.updateEmpty();
+
+                        return ResponseEntity.ok(new JsonResponse(200, "Success", userIdx));
+                    }
                 } else {
                     System.out.println("이미 초대된 팀원");
                     return ResponseEntity.ok(new JsonResponse(2002, "이미 속한 팀원입니다.", null));
@@ -271,7 +283,9 @@ public class TeamService {
     }
 
     @Transactional
-    public ResponseEntity<JsonResponse> updateTeam(Long teamIdx, TeamRequest.updateTeamReq req, HttpServletRequest httpServletRequest){
+    public ResponseEntity<JsonResponse> updateTeam(Long teamIdx, TeamRequest.updateTeamReq req,
+                                                   String fileName, MultipartFile file, HttpServletRequest httpServletRequest)
+    throws IOException{
 
         // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
         Team team = teamRepository.findById(teamIdx)
@@ -286,8 +300,40 @@ public class TeamService {
         if(leader.equals(requester)){
             //요청 사용자와 팀짱이 동일
             System.out.println("same");
+
+            // 지금 DB에 있는 fileName 과 동일한지 확인 필요
+            String imgUrl = team.getImgUrl();
+
+
+            //null 로 보낼 경우 -> 이미지 삭제 처리
+            if(fileName == null || file == null){
+                System.out.println("파일 삭제");
+                imgUrl = "null";
+            } else {
+
+                if(imgUrl != null){
+                    // image 가 null 이 아닐 때 저장된 경로에서 fileName 을 찾아냄
+                    String existFile = imgUrl.replaceAll("https://storage.googleapis.com/weave_bucket/", "");
+                    System.out.println(existFile);
+
+                    // 만약 넘어온 fileName 과 기존의 fileName 이 동일하다면 같은 이미지(업데이트 X) 로 판단
+                    // 동일하지 않다면 새로운 이미지(업데이트 O) 로 판단
+                    if(existFile.equals(fileName)) {
+                        System.out.println("이미지 업데이트 없음");
+                    } else {
+                        System.out.println("이미지 재 업로드!");
+                        imgUrl = imageService.uploadToStorage("team", fileName, file);
+                    }
+                } else {
+                    // image 필드가 null 일 경우 비교 없이 바로 업로드
+                    System.out.println("이미지 새 업로드!");
+                    imgUrl = imageService.uploadToStorage("team", fileName, file);
+                }
+
+            }
+
             //업데이트
-            team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate(), req.getImgUrl());
+            team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate(), imgUrl);
             return ResponseEntity.ok(new JsonResponse(200, "Success", teamIdx));
 
         } else {

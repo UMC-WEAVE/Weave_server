@@ -20,7 +20,7 @@ public class PlanController {
 
     @GetMapping("/plan/hello")
     public String hello(){
-        return "hello";
+        return "hello 은서 배포 완료";
     }
 
 

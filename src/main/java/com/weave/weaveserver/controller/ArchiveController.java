@@ -7,8 +7,11 @@ import com.weave.weaveserver.service.ArchiveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -17,8 +20,11 @@ public class ArchiveController {
     private final ArchiveService archiveService;
 
     @PostMapping("/archives")
-    public ResponseEntity<Object> createArchive(@RequestBody ArchiveRequest.createRequest request, HttpServletRequest servletRequest){ //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
-        archiveService.addArchive(request, servletRequest);
+    public ResponseEntity<Object> createArchive(@RequestPart ArchiveRequest.createRequest request,
+                                                @RequestPart("fileName") @Nullable String fileName,
+                                                @RequestPart("file") @Nullable MultipartFile file,
+                                                HttpServletRequest servletRequest) throws IOException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
+        archiveService.addArchive(request, fileName, file, servletRequest);
         return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
     }
 
