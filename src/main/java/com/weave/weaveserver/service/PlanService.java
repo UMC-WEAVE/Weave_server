@@ -98,13 +98,13 @@ public class PlanService {
                 plan.getDate(),
                 plan.dayOfDate(plan.getDate()),
                 plan.getTitle(),
-                plan.getStartTime(),
-                plan.getEndTime(),
+                String.valueOf(plan.getStartTime()),
+                String.valueOf(plan.getEndTime()),
                 plan.getLocation(),
                 plan.getLatitude(),
                 plan.getLongitude(),
                 plan.getCost(),
-                plan.getUser().getUserIdx(),
+                plan.getUser().getName(),
                 plan.isModified()
         );
 
@@ -144,13 +144,13 @@ public class PlanService {
                         plan.getDate(),
                         plan.dayOfDate(plan.getDate()),
                         plan.getTitle(),
-                        plan.getStartTime(),
-                        plan.getEndTime(),
+                        String.valueOf(plan.getStartTime()),
+                        String.valueOf(plan.getEndTime()),
                         plan.getLocation(),
                         plan.getLatitude(),
                         plan.getLongitude(),
                         plan.getCost(),
-                        plan.getUser().getUserIdx(),
+                        plan.getUser().getName(),
                         plan.isModified()
                 )
         ).collect(Collectors.toList());
