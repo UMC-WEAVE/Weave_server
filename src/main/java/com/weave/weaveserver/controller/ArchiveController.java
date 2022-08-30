@@ -24,6 +24,15 @@ public class ArchiveController {
                                                 @RequestPart("fileName") @Nullable String fileName,
                                                 @RequestPart("file") @Nullable MultipartFile file,
                                                 HttpServletRequest servletRequest) throws IOException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
+        System.out.println("jh request : "+request);
+        System.out.println("jh fileName : "+fileName);
+        if(file != null){
+            System.out.println("jh file : "+file);
+            System.out.println("jh file.getContentType : "+file.getContentType());
+            System.out.println("jh file.getSize : "+file.getSize());
+        } else{
+            System.out.println("jh file : file == null");
+        }
         archiveService.addArchive(request, fileName, file, servletRequest);
         return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
     }
