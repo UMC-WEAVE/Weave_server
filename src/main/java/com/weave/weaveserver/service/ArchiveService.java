@@ -17,10 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -176,6 +173,9 @@ public class ArchiveService {
         User clientUser = findUserByEmailInToken(servletRequest);
 
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
+//        Optional<Archive> archive = archiveRepository.findById(archiveIdx);
+//        Archive archive = archiveRepository.findById(archiveIdx)
+//                .orElseThrow(() -> new NotFoundException("아카이브가 존재하지 않습니다... 같은 에러를 던짐"));
         if(archive == null){
             System.out.println("jh : archive == null");
             throw new NotFoundException("Archive is not found by this archiveIdx");
