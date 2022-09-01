@@ -18,6 +18,7 @@ import com.weave.weaveserver.repository.PlanRepository;
 import com.weave.weaveserver.repository.TeamRepository;
 import com.weave.weaveserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -207,16 +208,56 @@ public class PlanService {
     }
 
     @Transactional
-    public List<MapResponse> getMaps(Long teamIdx){
-        List<Plan> pointListEntity = planRepository.getPointsByTeamIdx(teamIdx);
-        List<MapResponse> pointListDto = pointListEntity.stream().map(point -> new MapResponse(
+    public List<MapResponse.MapByDate> getMaps(Long teamIdx){
+        Team team = teamRepository.findByTeamIdx(teamIdx);
+        if(team == null){
+            throw new NotFoundException("해당 team이 존재하지 않습니다.");
+        }
+
+        List<Plan> pointListEntity = planRepository.findAllByTeamIdxOrderByDateAndStartTime(teamIdx);
+        List<MapResponse.Point> pointListDto = pointListEntity.stream().map(point -> new MapResponse.Point(
                 point.getDate(),
+                point.getTitle(),
                 point.getLatitude(),
                 point.getLongitude()
         )).collect(Collectors.toList());
 
+        List<MapResponse.Point> allPointList = new ArrayList<>(); //Point List
+        MapResponse.MapByDate result = new MapResponse.MapByDate(); //result
+        List<MapResponse.MapByDate> listRes = new ArrayList<>(); //
 
-        return pointListDto;
+        if(pointListDto.size()==0){
+            pointListDto = null;
+        }
+
+        else {
+            //List에 MapByDate를 하나씩 넣기
+            //Date 안에 Point List들 존재
+            //그 Date들을 List로 묶어서 보내기
+
+            //1. pointListDto에서 하나씩 꺼내서 Date별로 모으기
+            LocalDate currentDate = pointListDto.get(0).getDate();
+            for (int i = 0; i < pointListDto.size(); i++) {
+                if(currentDate.isEqual(pointListDto.get(i).getDate())){
+                    allPointList.add(new MapResponse.Point(pointListDto.get(i).getDate(), pointListDto.get(i).getTitle(), pointListDto.get(i).getLatitude(), pointListDto.get(i).getLongitude()));
+                }else{
+                    result = new MapResponse.MapByDate(currentDate, allPointList);
+                    listRes.add(result);
+
+                    currentDate = pointListDto.get(i).getDate();
+                    allPointList = new ArrayList<>();
+                    allPointList.add(new MapResponse.Point(pointListDto.get(i).getDate(), pointListDto.get(i).getTitle(), pointListDto.get(i).getLatitude(), pointListDto.get(i).getLongitude()));
+                }
+
+
+            }
+
+
+        }
+
+
+
+        return listRes;
     }
 
 }
