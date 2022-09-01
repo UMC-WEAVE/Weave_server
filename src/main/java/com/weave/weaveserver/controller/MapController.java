@@ -19,7 +19,7 @@ public class MapController {
 
     @GetMapping("/teams/{teamIdx}/map")
     public ResponseEntity getMapList(@PathVariable Long teamIdx){
-        List<MapResponse> pointList = planService.getMaps(teamIdx);
+        List<MapResponse.MapByDate> pointList = planService.getMaps(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getMapPoints", pointList));
     }
 }
