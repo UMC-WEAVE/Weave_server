@@ -33,4 +33,5 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     Optional<List<Plan>> findALLByTeamIdx(Long teamIdx);
 
     Plan findByPlanIdx(Long planIdx);
+}
 
