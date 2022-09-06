@@ -249,10 +249,9 @@ public class PlanService {
                     allPointList.add(new MapResponse.Point(pointListDto.get(i).getDate(), pointListDto.get(i).getTitle(), pointListDto.get(i).getLatitude(), pointListDto.get(i).getLongitude()));
                 }
 
-
             }
-
-
+            result = new MapResponse.MapByDate(currentDate, allPointList);
+            listRes.add(result);
         }
 
 
