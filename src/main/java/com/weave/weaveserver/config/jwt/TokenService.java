@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.UnAuthorizedException;
 import com.weave.weaveserver.config.exception.jwt.ExceptionCode;
+import com.weave.weaveserver.repository.UserRepository;
 import com.weave.weaveserver.service.UserService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Service
 public class TokenService{
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
 
     private String secretKey = JwtProperties.SECRET;
@@ -64,7 +65,8 @@ public class TokenService{
         }catch (SignatureException e){
             throw new UnAuthorizedException("UNAUTHORIZED");
         }
-        String findUser = userService.getUserByEmail(email).getEmail();
+//        String findUser = userService.getUserByEmail(email).getEmail();
+        String findUser = userRepository.findUserByEmail(email).getEmail();
         if(!findUser.equals(email)){
             throw new BadRequestException("유저의 정보를 찾을 수 없음");
         }
