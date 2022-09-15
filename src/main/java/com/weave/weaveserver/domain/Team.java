@@ -24,9 +24,8 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long teamIdx;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "leader_idx")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private User leader;
 
     @Column(nullable = false)
@@ -52,6 +51,10 @@ public class Team {
         this.startDate = startDate;
         this.endDate = endDate;
         this.imgUrl = imgUrl;
+    }
+
+    public void changeLeader(User user){
+        this.leader = user;
     }
 
     //TODO : 이부분 바꿈!!

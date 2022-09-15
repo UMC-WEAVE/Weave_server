@@ -65,6 +65,18 @@ public class TeamResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
+    public static class getMyTeams {
+        private String userName;
+        private Long teamIdx;
+        private String title;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String imgUrl;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
     public static class teamWithDateListResponse {
         private Long teamIdx;
         private String title;

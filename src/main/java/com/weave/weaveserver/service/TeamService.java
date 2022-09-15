@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -175,7 +176,8 @@ public class TeamService {
 
         List<Team> teams = belongRepository.findAllByUserIdx(user.getUserIdx());
 
-        List<TeamResponse.teamResponse> teamList = teams.stream().map(team -> new TeamResponse.teamResponse(
+        List<TeamResponse.getMyTeams> teamList = teams.stream().map(team -> new TeamResponse.getMyTeams(
+                user.getName(),
                 team.getTeamIdx(),
                 team.getTitle(),
                 team.getStartDate(),
@@ -248,37 +250,61 @@ public class TeamService {
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User requester = userRepository.findUserByEmail(userEmail);
 
-        if(leader.equals(requester)){
-            //요청 사용자와 팀짱이 동일
-            System.out.println("same");
+        User user = userRepository.getReferenceById(req.getUserIdx());
+        if(user==null){
+            System.out.println("존재하지 않는 사용자");
+            return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자가 존재하지 않습니다.", null));
+        }
+        Belong isBelong = belongRepository.findUserByIndex(teamIdx, req.getUserIdx());
+        if(isBelong==null){
+            System.out.println("팀 소속 유저가 아님");
+            return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자는 팀 소속이 아닙니다.", null));
+        }
 
-            // 삭제하려는 팀원이 존재하는 팀원이지 확인
-            User user = userRepository.getReferenceById(req.getUserIdx());
+//        1. 팀짱이라면
+        if(leader.equals(requester)) {
+//        1-1. 삭제하려는 팀원이 나라면
+            if(req.getUserIdx().equals(requester.getUserIdx())) {
+//                  -> 다른 팀원한테 넘기고 나는 나가기
+                List<User> teamUsers = belongRepository.findAllByTeamIdx(team.getTeamIdx());
+                User randomUser = teamUsers.get(1);
 
-            if(user != null){
-                // 삭제하려는 팀원이 팀 소속인지 확인
-                Belong isBelong = belongRepository.findUserByIndex(teamIdx, user.getUserIdx());
+                do {
+                    Collections.shuffle(teamUsers);
+                    randomUser = teamUsers.get(0);
+                } while (randomUser.equals(requester));
 
-                if(isBelong != null){
-                    // 소속이라면
-                    Belong deleteUser = belongRepository.findUserByIndex(teamIdx, user.getUserIdx());
-                    belongRepository.deleteById(deleteUser.getBelongIdx());
-                    return ResponseEntity.ok(new JsonResponse(200, "Success", user.getUserIdx()));
+                System.out.println("random user idx 1 : "+ teamUsers.get(0).getEmail());
+                System.out.println("random user idx 2 : "+ teamUsers.get(1).getEmail());
+                System.out.println("randomUser : "+ randomUser.getEmail());
 
-                } else {
-                    //소속이 아니라면
-                    System.out.println("팀 소속 유저가 아님");
-                    return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자가 존재하지 않습니다.", null));
-                }
+                // 랜덤한 팀원한테 리더 넘기고 나는 belong 삭제
+                team.changeLeader(randomUser);
+                System.out.println("update team leader");
+
+                Belong deleteUser = belongRepository.findUserByIndex(teamIdx, requester.getUserIdx());
+                belongRepository.deleteById(deleteUser.getBelongIdx());
+                return ResponseEntity.ok(new JsonResponse(200, "Success", req.getUserIdx()));
+
             } else {
-                System.out.println("존재하지 않는 사용자");
-                return ResponseEntity.ok(new JsonResponse(2001, "해당 사용자가 존재하지 않습니다.", null));
+//        1-2. 삭제하려는 팀원이 내가 아니라면 == 팀원 삭제
+                Belong deleteUser = belongRepository.findUserByIndex(teamIdx, req.getUserIdx());
+                belongRepository.deleteById(deleteUser.getBelongIdx());
+                return ResponseEntity.ok(new JsonResponse(200, "Success", req.getUserIdx()));
             }
-
+//
         } else {
-            //요청 사용자와 팀짱이 동일하지 않음
-            System.out.println("not same");
-            return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
+//        2. 팀짱이 아니라면
+//        2-1. 삭제하려는 팀원이 나라면
+            if(req.getUserIdx().equals(requester.getUserIdx())){
+//                  -> 그냥 나 나가기
+                Belong deleteUser = belongRepository.findUserByIndex(teamIdx, requester.getUserIdx());
+                belongRepository.deleteById(deleteUser.getBelongIdx());
+                return ResponseEntity.ok(new JsonResponse(200, "Success", requester.getUserIdx()));
+            } else {
+//        2-2. 삭제하려는 팀원이 내가 아니라면 -> 권한 없음
+                return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
+            }
         }
     }
 
@@ -342,4 +368,5 @@ public class TeamService {
             return ResponseEntity.ok(new JsonResponse(2000, "권한이 없습니다. 팀장만 가능합니다.", null));
         }
     }
+
 }
