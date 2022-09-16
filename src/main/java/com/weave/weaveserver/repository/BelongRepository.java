@@ -26,7 +26,7 @@ public interface BelongRepository extends JpaRepository<Belong, Long> {
             + "WHERE b.team.teamIdx =?1 and b.user.userIdx =?2")
     Belong findUserByIndex(Long teamIdx, Long userIdx);
 
-    void deleteById(Long belongIdx);
+    //void deleteById(Long belongIdx);
 
 
     //jpa에서는 count query를 Long type으로 return

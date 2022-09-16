@@ -25,12 +25,12 @@ public class TeamRequest {
         private String email;
     }
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class getMemberReq {
-        private Long teamIdx;
-    }
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    @Data
+//    public static class getMemberReq {
+//        private Long teamIdx;
+//    }
 
 
     @NoArgsConstructor
