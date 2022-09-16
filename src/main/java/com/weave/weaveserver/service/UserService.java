@@ -27,6 +27,8 @@ public class UserService {
     private final PlanRepository planRepository;
     private final ArchiveRepository archiveRepository;
 
+    private final PlanService planService;
+
     @Transactional
     public void joinUser(UserRequest.join joinUser) {
         User user = User.joinUser(joinUser);
@@ -63,9 +65,10 @@ public class UserService {
             throw new BadRequestException("존재하지 않는 token입니다.");
         }
         try{
-            deleteTeamByLeaderIdx(user.getUserIdx());
-            deletePlanByUserIdx(user.getUserIdx());
-            deleteArchiveByUserIdx(user.getUserIdx());
+            planService.deletePlanByUserIdx(user.getUserIdx());
+//            deleteTeamByLeaderIdx(user.getUserIdx());
+//            //deletePlanByUserIdx(user.getUserIdx());
+//            deleteArchiveByUserIdx(user.getUserIdx());
 
         }catch (BadRequestException e){
             System.out.println("등록되지 않은 팀이래요~~");
@@ -87,17 +90,7 @@ public class UserService {
         System.out.println("팀삭제 끝!");
     }
 
-    //user 탈퇴시 -> plan 삭제
-    //team 삭제시 -> plan 삭제
-    @Transactional
-    public void deletePlanByUserIdx(Long userIdx){
-        List<Plan> planList = planRepository.findALLByUserIdx(userIdx).orElseThrow(()->new BadRequestException("plan이 등록되어있지 않은 user"));
-        for(Plan plan : planList){
-            System.out.println("deletePlan : "+plan.getPlanIdx());
-            planRepository.delete(plan);
-        }
-        System.out.println("플랜 삭제 끝!");
-    }
+
 
     @Transactional
     public void deletePlanByTeamIdx(Long teamIdx){

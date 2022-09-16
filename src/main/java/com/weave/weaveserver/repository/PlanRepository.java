@@ -2,8 +2,10 @@ package com.weave.weaveserver.repository;
 
 import com.weave.weaveserver.domain.Plan;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,5 +35,11 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
     Optional<List<Plan>> findALLByTeamIdx(Long teamIdx);
 
     Plan findByPlanIdx(Long planIdx);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM Plan p WHERE p.user.userIdx=?1")
+    void deleteAllByUserIdx(Long userIdx);
 }
 
