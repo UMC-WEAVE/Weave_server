@@ -1,6 +1,7 @@
 
 package com.weave.weaveserver.controller;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
@@ -38,17 +39,17 @@ public class TeamController {
                                                    @RequestPart("fileName") @Nullable String fileName,
                                                    @RequestPart("file") @Nullable MultipartFile file) throws IOException {
         if(req.getTitle() == null){
-            return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(title)",null));
+            throw new BadRequestException("title이 존재하지 않습니다.");
         }
         if(req.getStartDate() == null){
-            return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(startDate)",null));
+            throw new BadRequestException("startDate가 존재하지 않습니다.");
         }
         if(req.getEndDate() == null){
-            return ResponseEntity.ok(new JsonResponse(2004, "값을 모두 채워주세요(endDate)",null));
+            throw new BadRequestException("endDate가 존재하지 않습니다.");
         }
 
-
-        return teamService.createTeam(httpServletRequest, req, fileName, file);
+        Long teamIdx = teamService.createTeam(httpServletRequest, req, fileName, file);
+        return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",teamIdx));
     }
 
     // INVITE TEAM MEMBER
@@ -57,7 +58,8 @@ public class TeamController {
                                        @RequestBody TeamRequest.addMemberReq req,
                                        HttpServletRequest httpServletRequest) {
 
-        return teamService.addMember(teamIdx, req, httpServletRequest);
+        Long addUserIdx = teamService.addMember(teamIdx, req, httpServletRequest);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", addUserIdx));
     }
 
     // SHOW TEAM MEMBER LIST
@@ -70,13 +72,15 @@ public class TeamController {
     // SHOW MY TEAMS
     @GetMapping("/teams")
     public ResponseEntity<JsonResponse> getTeam(HttpServletRequest httpServletRequest){
-        return teamService.getMyTeams(httpServletRequest);
+        List<TeamResponse.getMyTeams> teamList = teamService.getMyTeams(httpServletRequest);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 
     // DELETE TEAM
     @DeleteMapping("/teams/{teamIdx}")
     public ResponseEntity<JsonResponse> deleteTeam(@PathVariable("teamIdx") Long teamIdx, HttpServletRequest httpServletRequest){
-        return teamService.deleteTeam(teamIdx, httpServletRequest);
+        Long deleteTeamIdx = teamService.deleteTeam(teamIdx, httpServletRequest);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", deleteTeamIdx));
     }
 
 
@@ -85,7 +89,8 @@ public class TeamController {
     public ResponseEntity<JsonResponse> deleteMember(@PathVariable("teamIdx") Long teamIdx,
                                           @RequestBody TeamRequest.deleteMemberReq req,
                                           HttpServletRequest httpServletRequest){
-        return teamService.deleteMember(teamIdx, req, httpServletRequest);
+        String deleteMember = teamService.deleteMember(teamIdx, req, httpServletRequest);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", deleteMember));
     }
 
     // MODIFY TEAM INFO
@@ -96,6 +101,7 @@ public class TeamController {
                                         @RequestPart ("file") @Nullable MultipartFile file,
                                         HttpServletRequest httpServletRequest) throws IOException{
 
-        return teamService.updateTeam(teamIdx, req, fileName, file, httpServletRequest);
+        Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, httpServletRequest);
+        return ResponseEntity.ok(new JsonResponse(200, "Success", updateTeamIdx));
     }
 }

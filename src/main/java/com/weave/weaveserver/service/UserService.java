@@ -90,7 +90,18 @@ public class UserService {
         System.out.println("팀삭제 끝!");
     }
 
-
+    //user 탈퇴시 -> plan 삭제
+    //team 삭제시 -> plan 삭제
+    @Transactional
+    public void deletePlanByUserIdx(Long userIdx){
+        planRepository.deleteAllByUserIdx(userIdx);
+//        List<Plan> planList = planRepository.findALLByUserIdx(userIdx).orElseThrow(()->new BadRequestException("plan이 등록되어있지 않은 user"));
+//        for(Plan plan : planList){
+//            System.out.println("deletePlan : "+plan.getPlanIdx());
+//            planRepository.delete(plan);
+//        }
+//        System.out.println("플랜 삭제 끝!");
+    }
 
     @Transactional
     public void deletePlanByTeamIdx(Long teamIdx){
