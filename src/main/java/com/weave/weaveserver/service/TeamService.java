@@ -405,8 +405,8 @@ public class TeamService {
         for(Team team : teamList){
             System.out.println("deleteTeam : "+team.getTeamIdx());
 
-            userService.deleteArchiveByTeamIdx(team.getTeamIdx());
-            userService.deletePlanByTeamIdx(team.getTeamIdx());
+//            userService.deleteArchiveByTeamIdx(team.getTeamIdx());
+//            userService.deletePlanByTeamIdx(team.getTeamIdx());
 //            archiveService.deleteArchiveByTeamIdx(team.getTeamIdx());
 //            planService.deletePlanByTeamIdx(team.getTeamIdx());
 
@@ -429,8 +429,8 @@ public class TeamService {
 
         for(Team team : belongTeamList){
             deleteBelongMember(team, user, user);
-            userService.deleteArchiveByTeamIdx(team.getTeamIdx()); //archiveService.delete...
-            userService.deletePlanByTeamIdx(team.getTeamIdx()); //planService.delete...
+//            userService.deleteArchiveByTeamIdx(team.getTeamIdx()); //archiveService.delete...
+//            userService.deletePlanByTeamIdx(team.getTeamIdx()); //planService.delete...
 
         }
         System.out.println("팀삭제 끝!");
