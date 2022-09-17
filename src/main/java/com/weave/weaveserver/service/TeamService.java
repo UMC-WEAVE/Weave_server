@@ -420,8 +420,8 @@ public class TeamService {
 
     //team 삭제시 plan, archive 전부 삭제 => teamIdx
     @Transactional
-    public void deleteBelongTeam(HttpServletRequest httpServletRequest){
-        String userEmail = tokenService.getUserEmail(httpServletRequest);
+    public void deleteBelongTeam(String userEmail){
+//        String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
 
         //belong 에서 내가 속한 팀을 찾고, 그 팀의 teamIdx 로 접근해서 내가 리더인지 아닌지 확인
