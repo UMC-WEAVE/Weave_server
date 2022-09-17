@@ -21,10 +21,10 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.swing.text.html.parser.Entity;
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -209,7 +209,7 @@ public class PlanService {
 
     //user 탈퇴시 -> plan 삭제
     //team 삭제시 -> plan 삭제
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public void deletePlanByUserIdx(Long userIdx){
 
         planRepository.deleteAllByUserIdx(userIdx);
