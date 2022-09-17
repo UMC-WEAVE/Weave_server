@@ -4,10 +4,11 @@ import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Team;
 import com.weave.weaveserver.dto.ArchiveResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,11 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
     List<Archive> findByTeam(Team team);
 
     void deleteByArchiveIdx(Long archiveIdx);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM Archive a WHERE a.user.userIdx=?1")
+    void deleteAllByUserIdx(Long userIdx);
 
     @Query(value = "SELECT a FROM Archive a WHERE a.user.userIdx = ?1")
     Optional<List<Archive>> findAllByUserIdx(Long userIdx);
