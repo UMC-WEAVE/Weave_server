@@ -65,10 +65,9 @@ public class UserService {
             throw new BadRequestException("존재하지 않는 token입니다.");
         }
         try{
-            planService.deletePlanByUserIdx(user.getUserIdx());
-//            deleteTeamByLeaderIdx(user.getUserIdx());
-//            //deletePlanByUserIdx(user.getUserIdx());
-//            deleteArchiveByUserIdx(user.getUserIdx());
+            deleteTeamByLeaderIdx(user.getUserIdx());
+            deletePlanByUserIdx(user.getUserIdx());
+            deleteArchiveByUserIdx(user.getUserIdx());
 
         }catch (BadRequestException e){
             System.out.println("등록되지 않은 팀이래요~~");
