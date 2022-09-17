@@ -252,7 +252,16 @@ public class ArchiveService {
 
     }
 
-//    private void throwNotFoundException(String )
+
+    //TODO : 휘영이 이거 써서 아카이브들 삭제하면 됩니다~!!
+    @Transactional
+    public void deleteAllArchiveByUserIdx(HttpServletRequest servletRequest){
+        User user = findUserByEmailInToken(servletRequest);
+
+        archiveRepository.deleteAllByUserIdx(user.getUserIdx());
+    }
+
+
     private User findUserByEmailInToken(HttpServletRequest servletRequest){
         System.out.println(servletRequest);
         if(servletRequest == null){
