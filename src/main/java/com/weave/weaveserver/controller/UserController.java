@@ -44,7 +44,7 @@ public class UserController {
     public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
         log.info("deleteUser");
         String email = tokenService.getUserEmail(request);
-        userService.deleteUser(email);
+//        userService.deleteUser(email);
         return ResponseEntity.ok(new JsonResponse(200, "deleteUser",null));
     }
 
@@ -67,5 +67,6 @@ public class UserController {
         String userEmail = tokenService.getUserEmail(request);
         return userEmail;
     }
+
 
 }

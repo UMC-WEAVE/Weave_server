@@ -264,4 +264,14 @@ public class Oauth2Controller {
 //        throw new MethodNotAllowedException("로그인 플랫폼이 잘못됨");
 //    }
 
+
+    @GetMapping("/log")
+    public void logTest(){
+        log.info("info Test");
+        log.error("error Test");
+        log.debug("debug Test");
+        log.warn("Warning Test");
+    }
+
+
 }

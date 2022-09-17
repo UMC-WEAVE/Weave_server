@@ -38,6 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/android/login/**").permitAll()
                 .antMatchers("/user/**").access("hasRole('ROLE_USER')")
                 .antMatchers("/gcp/**").permitAll()
+                .antMatchers("/log").permitAll()
                 .anyRequest().access("hasRole('ROLE_USER')")
                 .and()
                 .logout()

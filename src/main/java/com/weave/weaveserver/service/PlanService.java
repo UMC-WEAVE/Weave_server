@@ -1,7 +1,6 @@
 package com.weave.weaveserver.service;
 
 import com.weave.weaveserver.config.exception.BadRequestException;
-import com.weave.weaveserver.config.exception.EntityNotFoundException;
 import com.weave.weaveserver.config.exception.GlobalException;
 import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;

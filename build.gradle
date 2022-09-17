@@ -60,13 +60,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.10'
 	annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
+	testImplementation 'ch.qos.logback:logback-classic:1.2.10'
+	implementation 'ch.qos.logback:logback-core:1.2.3'
 
-	//GCP(Google Cloud Platform)
-	//1.
-//	implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter', version: '1.2.5.RELEASE'
-//	implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-storage', version: '1.2.5.RELEASE'
-
-	//2.
 	implementation platform('com.google.cloud:libraries-bom:26.1.0')
 	implementation 'com.google.cloud:google-cloud-storage'
 
