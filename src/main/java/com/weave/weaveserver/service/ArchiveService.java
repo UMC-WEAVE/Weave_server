@@ -8,6 +8,7 @@ import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.*;
 import com.weave.weaveserver.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArchiveService {
@@ -46,7 +48,8 @@ public class ArchiveService {
         //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
         Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
         if(team == null){
-            System.out.println("jh : team == null");
+            log.error("addArchive : team == null");
+//            System.out.println("jh : team == null");
             throw new ConflictException("Team is not found by the teamIdx in request body");
         }
 
@@ -55,19 +58,22 @@ public class ArchiveService {
 //        Category category = categoryRepository.getReferenceById(request.getCategoryIdx()); //TODO : 동일
         Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
         if(category == null){
-            System.out.println("jh : category == null");
+            log.error("addArchive : category == null");
+//            System.out.println("jh : category == null");
             throw new ConflictException("Category is not found by the categoryIdx in request body");
         }
 
         if(request.getTitle().isBlank()){ //""인지 + 공백으로만 된 문자열인지 검사
-            System.out.println("jh : title is empty or blank");
+            log.error("addArchive : title is empty or blank");
+//            System.out.println("jh : title is empty or blank");
             throw new ConflictException("Title of archive cannot be empty or blank");
         }
 
         //이미지 유무 확인 및 업로드하여 url 받아오기
         String imgUrl = "";
         if(fileName == null || file == null){
-            System.out.println("jh addArchive : no file to upload");
+            log.error("addArchive : no file to upload");
+//            System.out.println("jh addArchive : no file to upload");
         } else {
             imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
         }
@@ -99,7 +105,8 @@ public class ArchiveService {
         //Team
         Team team = teamRepository.findByTeamIdx(teamIdx);
         if(team == null){
-            System.out.println("jh : team == null");
+            log.error("getArchiveList : team == null");
+//            System.out.println("jh : team == null");
             throw new NotFoundException("Team is not found by this teamIdx");
         }
 
@@ -177,7 +184,8 @@ public class ArchiveService {
 //        Archive archive = archiveRepository.findById(archiveIdx)
 //                .orElseThrow(() -> new NotFoundException("아카이브가 존재하지 않습니다... 같은 에러를 던짐"));
         if(archive == null){
-            System.out.println("jh : archive == null");
+            log.error("getArchiveDetail : archive == null");
+//            System.out.println("jh : archive == null");
             throw new NotFoundException("Archive is not found by this archiveIdx");
         }
 
@@ -222,7 +230,8 @@ public class ArchiveService {
 
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
         if(archive == null){
-            System.out.println("jh : archive == null");
+            log.error("updateArchivePin : archive == null");
+//            System.out.println("jh : archive == null");
             throw new NotFoundException("Archive is not found by this archiveIdx");
         }
 
@@ -246,6 +255,7 @@ public class ArchiveService {
             archiveRepository.deleteByArchiveIdx(archiveIdx);
         }
         else {
+            log.warn("deleteArchive : archive == null");
 //            System.out.println("jh : archive == null. No delete");
             throw new NotFoundException("Archive is not found by this archiveIdx");
         }
@@ -263,9 +273,10 @@ public class ArchiveService {
 
 
     private User findUserByEmailInToken(HttpServletRequest servletRequest){
-        System.out.println(servletRequest);
+//        System.out.println(servletRequest);
         if(servletRequest == null){
-            System.out.println("jh : servletRequest == null");
+            log.error("archive findUserByEmailInToken : servletRequest == null");
+//            System.out.println("jh : servletRequest == null");
         }
         String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
         User clientUser = userRepository.findUserByEmail(userEmail);
@@ -276,7 +287,8 @@ public class ArchiveService {
     private void checkBelong(Long teamIdx, String email){
         Belong belong = belongRepository.findByTeamIdxAndUser(teamIdx, email);
         if(belong == null){
-            System.out.println("jh : belong == null");
+            log.error("archive checkBelong : belong == null");
+//            System.out.println("jh : belong == null");
             throw new ForbiddenException("Forbidden. User is not belong in the team");
         }
     }
