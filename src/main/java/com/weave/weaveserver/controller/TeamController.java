@@ -39,12 +39,15 @@ public class TeamController {
                                                    @RequestPart("fileName") @Nullable String fileName,
                                                    @RequestPart("file") @Nullable MultipartFile file) throws IOException {
         if(req.getTitle() == null){
+            log.error("[ERROR] createTeam - 팀의 title이 존재하지 않음");
             throw new BadRequestException("title이 존재하지 않습니다.");
         }
         if(req.getStartDate() == null){
+            log.error("[ERROR] createTeam - 팀의 startDate가 존재하지 않음");
             throw new BadRequestException("startDate가 존재하지 않습니다.");
         }
         if(req.getEndDate() == null){
+            log.error("[ERROR] createTeam - 팀의 endDate가 존재하지 않음");
             throw new BadRequestException("endDate가 존재하지 않습니다.");
         }
 
