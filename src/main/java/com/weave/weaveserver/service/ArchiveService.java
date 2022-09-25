@@ -84,7 +84,7 @@ public class ArchiveService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .url(request.getUrl())
-                .imageUrl(null) //TODO : 추후 DTO구조 수정, 컬럼 제거
+                .imageUrl(imgUrl)
                 .isPinned(false) //처음 생성 시 기본값
                 .category(category)
                 .build();
