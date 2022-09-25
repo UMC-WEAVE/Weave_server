@@ -28,9 +28,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+
 
 @Service
-
+@Slf4j
 @RequiredArgsConstructor
 public class PlanService {
     public final TeamService teamService;
@@ -44,12 +46,14 @@ public class PlanService {
     @Transactional
     public Long addPlan(PlanRequest.createReq req, HttpServletRequest httpServletRequest){
         if(httpServletRequest == null){
+            log.error("[ERROR] user token 값이 없습니다.");
             throw new GlobalException("user token값을 함께 넘겨주세요.");
         }
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
         Team team = teamRepository.findByTeamIdx(req.getTeamIdx());
         if(team == null){
+            log.error("[ERROR] 해당 team이 존재하지 않습니다.");
             throw new NotFoundException("해당 team이 존재하지 않습니다.");
         }
 
