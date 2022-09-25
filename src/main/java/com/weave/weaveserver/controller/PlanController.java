@@ -7,12 +7,14 @@ import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
 import com.weave.weaveserver.service.PlanService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class PlanController {
@@ -20,8 +22,11 @@ public class PlanController {
 
     @GetMapping("/plan/hello")
     public String hello(){
+        log.info("log를 log 찍어보기");
+        log.error("log가 에러라면");
         return "hello 은서 배포 완료";
     }
+
 
 
     //일정 추가
@@ -55,6 +60,8 @@ public class PlanController {
             }
         }
         Long planIdx = planService.addPlan(req, httpServletRequest);
+
+        log.info("[API] createPlan");
         return ResponseEntity.ok(new JsonResponse(201, "addPlan", planIdx));
     }
 
@@ -62,6 +69,7 @@ public class PlanController {
     @GetMapping("/plans/{planIdx}")
     public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx, HttpServletRequest httpServletRequest){
         PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx, httpServletRequest);
+        log.info("[API] getPlanDetail");
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", res));
     }
 
@@ -69,6 +77,7 @@ public class PlanController {
     @GetMapping("/teams/{teamIdx}/plans")
     public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
         PlanResponse.planListRes res = planService.getPlanList(teamIdx);
+        log.info("[API] getPlanListByTeam");
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", res));
     }
 
@@ -76,6 +85,7 @@ public class PlanController {
     @DeleteMapping("/plans/{planIdx}")
     public ResponseEntity deletePlan(@PathVariable Long planIdx){
         Long deletedPlanIdx = planService.deletePlan(planIdx);
+        log.info("[API] deletePlan");
         return ResponseEntity.ok(new JsonResponse(200, "deletePlan", deletedPlanIdx));
     }
 
@@ -83,7 +93,7 @@ public class PlanController {
     @PatchMapping("/plans/{planIdx}")
     public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         planService.updatePlan(planIdx, req, httpServletRequest);
-
+        log.info("[API] updatePlan");
         return ResponseEntity.ok(new JsonResponse(201, "updatePlan", null));
     }
 
