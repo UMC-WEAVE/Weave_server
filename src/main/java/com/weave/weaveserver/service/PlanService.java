@@ -45,15 +45,16 @@ public class PlanService {
 
     @Transactional
     public Long addPlan(PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+        log.info("[INFO] addPlan");
         if(httpServletRequest == null){
-            log.error("[ERROR] user token 값이 없습니다.");
+            log.info("[REJECT] addPlan : user token 값이 없습니다.");
             throw new GlobalException("user token값을 함께 넘겨주세요.");
         }
         String userEmail = tokenService.getUserEmail(httpServletRequest);
         User user = userRepository.findUserByEmail(userEmail);
         Team team = teamRepository.findByTeamIdx(req.getTeamIdx());
         if(team == null){
-            log.error("[ERROR] 해당 team이 존재하지 않습니다.");
+            log.info("[REJECT] addPlan : 해당 team이 존재하지 않습니다.");
             throw new NotFoundException("해당 team이 존재하지 않습니다.");
         }
 
@@ -77,6 +78,7 @@ public class PlanService {
         if (req.getIsArchive() == 1){
             Archive archive = archiveRepository.findByArchiveIdx(req.getArchiveIdx());
             if(archive == null){
+                log.info("[REJECT] addPlan : 해당 archive index 값이 없습니다.");
                 throw new NotFoundException("해당 아카이브 게시물이 존재하지 않습니다.");
             }
             archive.activatePin();
@@ -89,10 +91,12 @@ public class PlanService {
     @Transactional
     public PlanResponse.planDetailRes getPlanDetail(Long planIdx, HttpServletRequest clientToken){
         if(tokenService.getUserEmail(clientToken) == null){
+            log.info("[REJECT] getPlanDetail : user token값이 없습니다.");
             throw new GlobalException("올바른 user의 접근이 아닙니다.");
         }
         Plan plan = planRepository.findByPlanIdx(planIdx);
         if(plan == null){
+            log.info("[REJECT] getPlanDetail : 해당 plan index 값이 없습니다.");
             throw new GlobalException("해당 일정이 존재하지 않습니다.");
         }
 
@@ -120,6 +124,7 @@ public class PlanService {
         //Team 정보 가져오기
         Team team = teamRepository.findByTeamIdx(teamIdx);
         if(team == null){
+            log.info("[REJECT] getPlanList : 해당 team index 값이 없습니다.");
             throw new NotFoundException("해당 team이 존재하지 않습니다.");
         }
 
@@ -134,13 +139,7 @@ public class PlanService {
         //Team Member List 가져오기
         List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
 
-        //Plan List 가져오기
-//        int planSize = planRepository.countByTeamIdx(teamIdx);
-//        if(planSize == 0){
-//            throw new GlobalException("해당 팀의 일정이 하나도 없습니다.");
-//        }
         List<Plan> planList = planRepository.findAllByTeamIdxOrderByDateAndStartTime(teamIdx);
-
 
         List<PlanResponse.planDetailRes> detailListDto = planList.stream().map(plan -> new PlanResponse.planDetailRes(
                         plan.getPlanIdx(),
@@ -162,11 +161,11 @@ public class PlanService {
         List<List> allPlanList = new ArrayList<>();
 
         if(detailListDto.size()==0){
+            log.info("[INFO] getPlanList : 해당 team의 일정이 하나도 없습니다.");
             detailListDto = null;
         }
 
         else {
-
             List<PlanResponse.planDetailRes> planListByDate = new ArrayList<>();
             LocalDate currentDate = detailListDto.get(0).getDate();
             for (int i = 0; i < detailListDto.size(); i++) {
@@ -188,6 +187,11 @@ public class PlanService {
 
     @Transactional
     public Long deletePlan(Long planIdx) throws EmptyResultDataAccessException {
+        Plan plan = planRepository.findByPlanIdx(planIdx);
+        if(plan == null){
+            log.info("[REJECT] deletePlan : 해당 plan index 값이 없습니다.");
+            throw new GlobalException("해당 일정이 존재하지 않습니다.");
+        }
         planRepository.deleteById(planIdx); return planIdx;
     }
 
@@ -195,6 +199,7 @@ public class PlanService {
     public void updatePlan(Long planIdx, PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         Plan plan = planRepository.findByPlanIdx(planIdx);
         if(plan == null){
+            log.info("[REJECT] deletePlan : 해당 plan index 값이 없습니다.");
             throw new BadRequestException("해당 일정이 존재하지 않습니다.");
         }
         String userEmail = tokenService.getUserEmail(httpServletRequest);
@@ -214,20 +219,16 @@ public class PlanService {
     //team 삭제시 -> plan 삭제
     @Transactional
     public void deletePlanByUserIdx(Long userIdx){
-
+        log.info("[INFO] deletePlanByUserIdx : 해당 유저가 쓴 일정 모두 지우기.");
         planRepository.deleteAllByUserIdx(userIdx);
-//        List<Plan> planList = planRepository.findALLByUserIdx(userIdx).orElseThrow(()->new BadRequestException("plan이 등록되어있지 않은 user"));
-//        for(Plan plan : planList){
-//            System.out.println("deletePlan : "+plan.getPlanIdx());
-//            planRepository.delete(plan);
-//        }
-//        System.out.println("플랜 삭제 끝!");
+
     }
 
     @Transactional
     public List<MapResponse.MapByDate> getMaps(Long teamIdx){
         Team team = teamRepository.findByTeamIdx(teamIdx);
         if(team == null){
+            log.info("[REJECT] getMaps : 해당 team index 값이 없습니다.");
             throw new NotFoundException("해당 team이 존재하지 않습니다.");
         }
 
@@ -244,6 +245,7 @@ public class PlanService {
         List<MapResponse.MapByDate> listRes = new ArrayList<>(); //
 
         if(pointListDto.size()==0){
+            log.info("[INFO] getPlanList : 해당 team의 일정이 하나도 없습니다.");
             pointListDto = null;
         }
 
