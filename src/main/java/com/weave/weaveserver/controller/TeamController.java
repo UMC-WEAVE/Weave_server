@@ -76,7 +76,7 @@ public class TeamController {
         return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 
-    // DELETE TEAM
+    // DELETE TEAMㅋ
     @DeleteMapping("/teams/{teamIdx}")
     public ResponseEntity<JsonResponse> deleteTeam(@PathVariable("teamIdx") Long teamIdx, HttpServletRequest httpServletRequest){
         Long deleteTeamIdx = teamService.deleteTeam(teamIdx, httpServletRequest);

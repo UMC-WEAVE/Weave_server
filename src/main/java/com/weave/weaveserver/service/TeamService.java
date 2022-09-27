@@ -232,7 +232,6 @@ public class TeamService {
                 archiveRepository.deleteByArchiveIdx(archive.getArchiveIdx());
                 System.out.println("Archive 삭제");
             }
-
             // 팀 삭제
             teamRepository.deleteByTeamIdx(teamIdx);
 

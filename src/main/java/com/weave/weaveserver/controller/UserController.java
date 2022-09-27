@@ -35,6 +35,7 @@ public class UserController {
 
     @GetMapping("/mypage")
     public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request){
+        log.info("[GET] deleteUser");
         String email = tokenService.getUserEmail(request);
         UserResponse.myPage data = userService.loadMyPage(email);
         return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
@@ -42,7 +43,7 @@ public class UserController {
 
     @DeleteMapping("")
     public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
-        log.info("deleteUser");
+        log.info("[DELETE] deleteUser");
         String email = tokenService.getUserEmail(request);
 //        userService.deleteUser(email);
         return ResponseEntity.ok(new JsonResponse(200, "deleteUser",null));
