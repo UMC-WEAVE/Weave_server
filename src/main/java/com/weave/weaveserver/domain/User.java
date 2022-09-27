@@ -27,7 +27,6 @@ public class User {
     @Column(name = "login_type",nullable = false)
     private String loginId;
 
-
     @Column(nullable = true)
     private String image;
 
