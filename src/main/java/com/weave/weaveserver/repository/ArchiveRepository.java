@@ -22,6 +22,8 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     void deleteByArchiveIdx(Long archiveIdx);
 
+    void deleteByTeam(Team team);
+
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM Archive a WHERE a.user.userIdx=?1")

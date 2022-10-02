@@ -41,6 +41,24 @@ public class ArchiveService {
     public final ArchiveRepository archiveRepository;
     public final ImageRepository imageRepository;
 
+    // [외부사용] findByArchiveIdx
+    public Archive findByArchiveIdx(Long archiveIdx) {
+        log.info("[INFO] findByArchiveIdx : called");
+        return archiveRepository.findByArchiveIdx(archiveIdx);
+    }
+
+    //[외부사용] deleteByTeamIdx
+    public void deleteByTeamIdx(Team team) {
+        log.info("[INFO] deleteByTeamIdx : called");
+        List<Archive> archives = archiveRepository.findByTeam(team);
+        if(archives.isEmpty()) {
+            log.info("[INFO] deleteByTeamIdx : No archives to delete");
+        }
+        else {
+            archiveRepository.deleteByTeam(team);
+        }
+    }
+
 
     public void addArchive(ArchiveRequest.createRequest request,
                            String fileName,
