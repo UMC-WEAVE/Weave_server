@@ -39,15 +39,19 @@ public class TeamController {
                                                    @RequestPart("fileName") @Nullable String fileName,
                                                    @RequestPart("file") @Nullable MultipartFile file) throws IOException {
         if(req.getTitle() == null){
+            log.info("[REJECT] createTeam : 팀의 title이 존재하지 않음");
             throw new BadRequestException("title이 존재하지 않습니다.");
         }
         if(req.getStartDate() == null){
+            log.info("[REJECT] createTeam : 팀의 startDate가 존재하지 않음");
             throw new BadRequestException("startDate가 존재하지 않습니다.");
         }
         if(req.getEndDate() == null){
+            log.info("[REJECT] createTeam : 팀의 endDate가 존재하지 않음");
             throw new BadRequestException("endDate가 존재하지 않습니다.");
         }
 
+        log.info("[API] createTeam : 팀 생성");
         Long teamIdx = teamService.createTeam(httpServletRequest, req, fileName, file);
         return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",teamIdx));
     }
@@ -58,27 +62,31 @@ public class TeamController {
                                        @RequestBody TeamRequest.addMemberReq req,
                                        HttpServletRequest httpServletRequest) {
 
+        log.info("[API] addMember : 팀원 초대");
         Long addUserIdx = teamService.addMember(teamIdx, req, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", addUserIdx));
     }
 
     // SHOW TEAM MEMBER LIST
     @GetMapping("/teams/{teamIdx}/members")
-    public ResponseEntity<JsonResponse> getMember(@PathVariable("teamIdx") Long teamIdx){
+    public ResponseEntity<JsonResponse> getMembers(@PathVariable("teamIdx") Long teamIdx){
+        log.info("[API] getMembers : 팀에 속한 팀원 전체 조회");
         List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "Success", memberList));
     }
 
     // SHOW MY TEAMS
     @GetMapping("/teams")
-    public ResponseEntity<JsonResponse> getTeam(HttpServletRequest httpServletRequest){
+    public ResponseEntity<JsonResponse> getMyTeams(HttpServletRequest httpServletRequest){
+        log.info("[API] getMyTeams : 내가 속한 팀 조회");
         List<TeamResponse.getMyTeams> teamList = teamService.getMyTeams(httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 
-    // DELETE TEAMㅋ
+    // DELETE TEAM
     @DeleteMapping("/teams/{teamIdx}")
     public ResponseEntity<JsonResponse> deleteTeam(@PathVariable("teamIdx") Long teamIdx, HttpServletRequest httpServletRequest){
+        log.info("[API] deleteTeam : 팀 삭제");
         Long deleteTeamIdx = teamService.deleteTeam(teamIdx, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", deleteTeamIdx));
     }
@@ -89,6 +97,7 @@ public class TeamController {
     public ResponseEntity<JsonResponse> deleteMember(@PathVariable("teamIdx") Long teamIdx,
                                           @RequestBody TeamRequest.deleteMemberReq req,
                                           HttpServletRequest httpServletRequest){
+        log.info("[API] deleteMember : 팀원 삭제(팀에서 접근)");
         String deleteMember = teamService.deleteMember(teamIdx, req, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", deleteMember));
     }
@@ -101,6 +110,7 @@ public class TeamController {
                                         @RequestPart ("file") @Nullable MultipartFile file,
                                         HttpServletRequest httpServletRequest) throws IOException{
 
+        log.info("[API] updateTeam : 팀 정보 수정");
         Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "Success", updateTeamIdx));
     }
