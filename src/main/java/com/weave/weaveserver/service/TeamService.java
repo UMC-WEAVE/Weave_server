@@ -46,9 +46,6 @@ public class TeamService {
 
     private UserService userService;
 
-    //private PlanService planService;
-    //private ArchiveService archiveService;
-
 
     @Transactional
     public Long createTeam(HttpServletRequest httpServletRequest, TeamRequest.createReq req,
@@ -62,7 +59,7 @@ public class TeamService {
 //        }
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User leader = userRepository.findUserByEmail(userEmail);
+        User leader = userService.getUserByEmail(userEmail);
 
         //---System.out.println(leader.getUserIdx());
 
@@ -113,7 +110,7 @@ public class TeamService {
         User leader = team.getLeader();
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User creator = userRepository.findUserByEmail(userEmail);
+        User creator = userService.getUserByEmail(userEmail);
 
         if(leader.equals(creator)){
             //생성하려는 사용자와 팀짱이 동일
@@ -121,7 +118,7 @@ public class TeamService {
             log.info("[INFO] addMember - 요청 사용자가 팀의 팀짱과 일치함");
 
             // find user (존재하는 사용자인지 확인)
-            User invitedUser = userRepository.findUserByEmail(req.getEmail());
+            User invitedUser = userService.getUserByEmail(req.getEmail());
             if(invitedUser != null){
                 //System.out.println("초대 팀원 존재 : "+ invitedUser.getEmail());
                 log.info("[INFO] addMember - 서비스에 가입된 유저임 확인, IDX:"+invitedUser.getUserIdx());
@@ -139,8 +136,7 @@ public class TeamService {
                     } else {
                         //System.out.println("팀짱이고 사용자도 존재하고, 팀에도 없고 10명 이내에요~!!");
                         log.info("[INFO] addMember - 모든 요청에 유효함(팀짱, 초대 사용자 존재, 팀에 10명이 넘지 않음");
-                        Long userIdx = invitedUser.getUserIdx();
-                        User user = userRepository.getReferenceById(userIdx);
+                        User user = userService.getUserByEmail(invitedUser.getEmail());
 
                         Belong belong = Belong.builder()
                                 .user(user)
@@ -151,8 +147,8 @@ public class TeamService {
 
                         //team에 유저가 1명 이상 -> isEmpty = false;
                         team.updateEmpty();
-                        log.info("[INFO] addMember - 팀원 초대 성공, new member idx: "+userIdx);
-                        return userIdx;
+                        log.info("[INFO] addMember - 팀원 초대 성공, new member idx: "+user.getUserIdx());
+                        return user.getUserIdx();
                     }
                 } else {
                     //System.out.println("이미 초대된 팀원");
@@ -200,7 +196,7 @@ public class TeamService {
         log.info("[API] getMyTeams - GET /teams, 나의 팀 조회");
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User user = userRepository.findUserByEmail(userEmail);
+        User user = userService.getUserByEmail(userEmail);
 
         List<Team> teams = belongRepository.findAllByUserIdx(user.getUserIdx());
 
@@ -238,7 +234,7 @@ public class TeamService {
         User leader = team.getLeader();
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User requester = userRepository.findUserByEmail(userEmail);
+        User requester = userService.getUserByEmail(userEmail);
 
         if(leader.equals(requester)){
             //요청 사용자와 팀짱이 동일
@@ -288,8 +284,10 @@ public class TeamService {
         User leader = team.getLeader();
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User requester = userRepository.findUserByEmail(userEmail); //삭제 요청자
+        User requester = userService.getUserByEmail(userEmail); //삭제 요청자
+
         User user = userRepository.getReferenceById(req.getUserIdx()); //삭제하려는 사용자
+        // 안드로이드 측에 user email 로 전달해 줄 수 있는지 물어보고 안되면 userService 에 생성하기
 
         if(user==null){
             //System.out.println("존재하지 않는 사용자");
@@ -323,7 +321,7 @@ public class TeamService {
         User leader = team.getLeader();
 
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User requester = userRepository.findUserByEmail(userEmail);
+        User requester = userService.getUserByEmail(userEmail);;
 
         if(leader.equals(requester)){
             //요청 사용자와 팀짱이 동일
@@ -477,7 +475,7 @@ public class TeamService {
     public void deleteBelongTeam(String userEmail){
         log.info("[API] deleteBelongTeam");
 //        String userEmail = tokenService.getUserEmail(httpServletRequest);
-        User user = userRepository.findUserByEmail(userEmail);
+        User user = userService.getUserByEmail(userEmail);
 
         //belong 에서 내가 속한 팀을 찾고, 그 팀의 teamIdx 로 접근해서 내가 리더인지 아닌지 확인
         List<Team> belongTeamList = belongRepository.findAllByUserIdx(user.getUserIdx());
@@ -491,4 +489,19 @@ public class TeamService {
         log.info("[INFO] deleteBelongTeam - 팀 삭제 성공");
         System.out.println("팀삭제 끝!");
     }
+
+
+    public Team findTeamByTeamIdx(Long teamIdx){
+        return teamRepository.findByTeamIdx(teamIdx);
+    }
+
+    public boolean findByTeamIdxAndUser(Long teamIdx, String userEmail){
+        Belong belong = belongRepository.findByTeamIdxAndUser(teamIdx, userEmail);
+        if(belong == null){
+            return false;
+        }else {
+            return true;
+        }
+    }
+
 }
