@@ -256,7 +256,6 @@ public class TeamService {
                 //System.out.println("Archive 삭제");
                 log.info("[INFO] deleteTeam - 팀과 연결된 Archive 모두 삭제");
             }
-
             // 팀 삭제
             teamRepository.deleteByTeamIdx(teamIdx);
             log.info("[INFO] deleteTeam - 팀 삭제 성공, deleted team idx: "+teamIdx);

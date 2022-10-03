@@ -7,12 +7,14 @@ import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
 import com.weave.weaveserver.service.PlanService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class PlanController {
@@ -20,6 +22,8 @@ public class PlanController {
 
     @GetMapping("/plan/hello")
     public String hello(){
+        log.info("log를 log 찍어보기");
+        log.error("log가 에러라면");
         return "hello 은서 배포 완료";
     }
 
@@ -27,40 +31,51 @@ public class PlanController {
     //일정 추가
     @PostMapping("/plans")
     public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+        log.info("[API] createPlan : createPlan API");
+
         //user token값 없을 때
         if(httpServletRequest == null){
+            log.info("[REJECT] createPlan : user token 값 없음");
             throw new GlobalException("user token값을 함께 넘겨주세요.");
         }
         //team Idx가 없을 때
         if(req.getTeamIdx() == null){
+            log.info("[REJECT] createPlan : team index 값 없음");
             throw new BadRequestException("teamIdx가 필요합니다.");
         }
         //title이 없을 때
         if(req.getTitle() == null){
+            log.info("[REJECT] createPlan : title 값 없음");
             throw new BadRequestException("title을 입력해주세요.");
         }
         //date가 없을 때
         if(req.getDate() == null){
+            log.info("[REJECT] createPlan : 일정 날짜 값 없음");
             throw new BadRequestException("일정 생성할 날짜를 입력해주세요.");
         }
         //startTime이 없을 때
         if(req.getStartTime() == null){
+            log.info("[REJECT] createPlan : 일정 시작 시간 값 없음");
             throw new BadRequestException("생성할 일자의 시작 시간을 입력해주세요.");
         }
 
         //Archive에서 일정 생성 시 archive Idx 값을 같이 넘겨주지 않을 때
         if(req.getIsArchive() == 1){
             if(req.getArchiveIdx() == null){
+                log.info("[REJECT] createPlan : archive index 값 없음");
                 throw new BadRequestException("archiveIdx가 필요합니다.");
             }
         }
         Long planIdx = planService.addPlan(req, httpServletRequest);
+
         return ResponseEntity.ok(new JsonResponse(201, "addPlan", planIdx));
     }
 
     //일정 상세 조회 (for Android)
     @GetMapping("/plans/{planIdx}")
     public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx, HttpServletRequest httpServletRequest){
+        log.info("[API] getPlanDetail : getPlanDetailByPlanIdx");
+
         PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", res));
     }
@@ -68,6 +83,8 @@ public class PlanController {
     //해당 팀의 일정 리스트 조회 (Android & web)
     @GetMapping("/teams/{teamIdx}/plans")
     public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
+        log.info("[API] getPlanList : getPlanListByTeam");
+
         PlanResponse.planListRes res = planService.getPlanList(teamIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", res));
     }
@@ -75,6 +92,8 @@ public class PlanController {
     //일정 삭제
     @DeleteMapping("/plans/{planIdx}")
     public ResponseEntity deletePlan(@PathVariable Long planIdx){
+        log.info("[API] deletePlan : deletePlanByPlanIdx");
+
         Long deletedPlanIdx = planService.deletePlan(planIdx);
         return ResponseEntity.ok(new JsonResponse(200, "deletePlan", deletedPlanIdx));
     }
@@ -82,8 +101,9 @@ public class PlanController {
     //일정 수정
     @PatchMapping("/plans/{planIdx}")
     public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
-        planService.updatePlan(planIdx, req, httpServletRequest);
+        log.info("[API] updatePlan : updatePlan API");
 
+        planService.updatePlan(planIdx, req, httpServletRequest);
         return ResponseEntity.ok(new JsonResponse(201, "updatePlan", null));
     }
 

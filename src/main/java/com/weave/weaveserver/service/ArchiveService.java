@@ -3,6 +3,7 @@ package com.weave.weaveserver.service;
 import com.weave.weaveserver.config.exception.ConflictException;
 import com.weave.weaveserver.config.exception.ForbiddenException;
 import com.weave.weaveserver.config.exception.NotFoundException;
+import com.weave.weaveserver.config.exception.UnAuthorizedException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.*;
@@ -30,13 +31,33 @@ public class ArchiveService {
     private TokenService tokenService;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private UserService userService;
 
-    public final UserRepository userRepository;
+//    public final UserRepository userRepository;
     public final TeamRepository teamRepository;
     public final BelongRepository belongRepository;
     public final CategoryRepository categoryRepository;
     public final ArchiveRepository archiveRepository;
     public final ImageRepository imageRepository;
+
+    // [외부사용] findByArchiveIdx
+    public Archive findByArchiveIdx(Long archiveIdx) {
+        log.info("[INFO] findByArchiveIdx : called");
+        return archiveRepository.findByArchiveIdx(archiveIdx);
+    }
+
+    //[외부사용] deleteByTeamIdx
+    public void deleteByTeamIdx(Team team) {
+        log.info("[INFO] deleteByTeamIdx : called");
+        List<Archive> archives = archiveRepository.findByTeam(team);
+        if(archives.isEmpty()) {
+            log.info("[INFO] deleteByTeamIdx : No archives to delete");
+        }
+        else {
+            archiveRepository.deleteByTeam(team);
+        }
+    }
 
 
     public void addArchive(ArchiveRequest.createRequest request,
@@ -48,8 +69,7 @@ public class ArchiveService {
         //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
         Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
         if(team == null){
-            log.error("addArchive : team == null");
-//            System.out.println("jh : team == null");
+            log.info("[REJECT] addArchive : team == null");
             throw new ConflictException("Team is not found by the teamIdx in request body");
         }
 
@@ -58,23 +78,21 @@ public class ArchiveService {
 //        Category category = categoryRepository.getReferenceById(request.getCategoryIdx()); //TODO : 동일
         Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
         if(category == null){
-            log.error("addArchive : category == null");
-//            System.out.println("jh : category == null");
+            log.info("[REJECT] addArchive : category == null");
             throw new ConflictException("Category is not found by the categoryIdx in request body");
         }
 
         if(request.getTitle().isBlank()){ //""인지 + 공백으로만 된 문자열인지 검사
-            log.error("addArchive : title is empty or blank");
-//            System.out.println("jh : title is empty or blank");
+            log.info("[REJECT] addArchive : title is empty or blank");
             throw new ConflictException("Title of archive cannot be empty or blank");
         }
 
         //이미지 유무 확인 및 업로드하여 url 받아오기
         String imgUrl = "";
         if(fileName == null || file == null){
-            log.error("addArchive : no file to upload");
-//            System.out.println("jh addArchive : no file to upload");
+            log.info("[INFO] addArchive : no file to upload");
         } else {
+            log.info("[INFO] addArchive : upload file");
             imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
         }
 
@@ -105,8 +123,7 @@ public class ArchiveService {
         //Team
         Team team = teamRepository.findByTeamIdx(teamIdx);
         if(team == null){
-            log.error("getArchiveList : team == null");
-//            System.out.println("jh : team == null");
+            log.info("[REJECT] getArchiveList : team == null");
             throw new NotFoundException("Team is not found by this teamIdx");
         }
 
@@ -184,8 +201,7 @@ public class ArchiveService {
 //        Archive archive = archiveRepository.findById(archiveIdx)
 //                .orElseThrow(() -> new NotFoundException("아카이브가 존재하지 않습니다... 같은 에러를 던짐"));
         if(archive == null){
-            log.error("getArchiveDetail : archive == null");
-//            System.out.println("jh : archive == null");
+            log.info("[REJECT] getArchiveDetail : archive == null");
             throw new NotFoundException("Archive is not found by this archiveIdx");
         }
 
@@ -230,8 +246,7 @@ public class ArchiveService {
 
         Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
         if(archive == null){
-            log.error("updateArchivePin : archive == null");
-//            System.out.println("jh : archive == null");
+            log.info("[REJECT] updateArchivePin : archive == null");
             throw new NotFoundException("Archive is not found by this archiveIdx");
         }
 
@@ -255,8 +270,7 @@ public class ArchiveService {
             archiveRepository.deleteByArchiveIdx(archiveIdx);
         }
         else {
-            log.warn("deleteArchive : archive == null");
-//            System.out.println("jh : archive == null. No delete");
+            log.info("[REJECT] deleteArchive : archive == null. Delete nothing");
             throw new NotFoundException("Archive is not found by this archiveIdx");
         }
 
@@ -275,20 +289,19 @@ public class ArchiveService {
     private User findUserByEmailInToken(HttpServletRequest servletRequest){
 //        System.out.println(servletRequest);
         if(servletRequest == null){
-            log.error("archive findUserByEmailInToken : servletRequest == null");
-//            System.out.println("jh : servletRequest == null");
+            log.info("[REJECT] archive findUserByEmailInToken : servletRequest == null");
+            throw new UnAuthorizedException("Unauthorized. HttpServletRequest is null");
         }
         String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
-        User clientUser = userRepository.findUserByEmail(userEmail);
+        User clientUser = userService.getUserByEmail(userEmail);
 
         return clientUser;
     }
 
     private void checkBelong(Long teamIdx, String email){
         Belong belong = belongRepository.findByTeamIdxAndUser(teamIdx, email);
-        if(belong == null){
-            log.error("archive checkBelong : belong == null");
-//            System.out.println("jh : belong == null");
+        if(belong == null){ //TODO : belong 사용방식 변경으로 수정 예정
+            log.info("[REJECT] archive checkBelong : belong == null");
             throw new ForbiddenException("Forbidden. User is not belong in the team");
         }
     }

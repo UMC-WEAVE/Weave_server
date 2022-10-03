@@ -40,6 +40,7 @@ public class Oauth2Controller {
     //response없음 -> 로그인 처리 후에 사용자의 정보를 oauth로 반환
     @GetMapping("/login/{oauthId}")
     public void oauthLogin(@PathVariable String oauthId, HttpServletResponse response)throws IOException {
+        log.info("[GET] oauthLogin");
         String redirect_uri = "http://wave-weave.shop/oauth2/authorization/"+oauthId;
 //        String redirect_uri = "http://localhost:8080/oauth2/authorization/"+oauthId;
         response.sendRedirect(redirect_uri);
@@ -49,6 +50,7 @@ public class Oauth2Controller {
     //소셜 로그인 성공시 redirect uri -> token처리를 위해 만듬
     @GetMapping("/token")
     public ResponseEntity<JsonResponse> home(@PathParam("token") String token){
+        log.info("[GET]redirectSocialLogin");
 //        response.sendRedirect("http://localhost:8080/hello",);
         Token accessToken = new Token(token);
         return ResponseEntity.ok(new JsonResponse(200,"loginSuccess",accessToken));
@@ -57,6 +59,7 @@ public class Oauth2Controller {
     //http://wave-weave.shop/login?error
     @GetMapping("/login")
     public ResponseEntity<?> loginError(@PathParam("error")String error){
+        log.error("[ERROR]webLoginError");
         throw new MethodNotAllowedException("로그인 실패");
     }
 
@@ -64,7 +67,7 @@ public class Oauth2Controller {
     //TODO : android
     @PostMapping("/android/login/{loginId}")
     public ResponseEntity<JsonResponse> androidLogin(@PathParam(value = "accessToken") String accessToken, @PathVariable String loginId) {
-
+        log.info("[POST]androidLogin");
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity(headers);
@@ -80,6 +83,7 @@ public class Oauth2Controller {
         UserRequest.join joinUser;
 
         if(loginId.equals("kakao")) {
+            log.info("[POST]kakaoLogin");
             headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
             redirect_uri="https://kapi.kakao.com/v2/user/me";
 
@@ -88,7 +92,7 @@ public class Oauth2Controller {
             try {
                 kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfile.class);
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                log.error("[ERROR]kakaoMapper error");
             }
             email=kakaoProfile.getKakao_account().getEmail();
             joinUser = UserRequest.join.builder()
@@ -100,6 +104,7 @@ public class Oauth2Controller {
 
             User user = userService.getUserByEmail(email);
             if(user==null){
+                log.info("kakao join : "+email);
                 userService.joinUser(joinUser);
             }else{
                 log.info("kakao login : "+email);
@@ -108,12 +113,13 @@ public class Oauth2Controller {
             return ResponseEntity.ok(new JsonResponse(200,"kakao login",token.getToken()));
         }
         if(loginId.equals("naver")) {
+            log.info("[POST]naverLogin");
             redirect_uri="https://openapi.naver.com/v1/nid/me";
             response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
             try {
                 naverProfile = objectMapper.readValue(response.getBody(), NaverProfile.class);
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                log.error("[ERROR]naverMapper error");
             }
             email=naverProfile.getResponse().getEmail();
             joinUser = UserRequest.join.builder()
@@ -125,6 +131,7 @@ public class Oauth2Controller {
 
             User user = userService.getUserByEmail(email);
             if(user==null){
+                log.info("naver join : "+email);
                 userService.joinUser(joinUser);
             }else{
                 log.info("naver login : "+email);
@@ -134,12 +141,13 @@ public class Oauth2Controller {
         }
 
         if(loginId.equals("google")){
+            log.info("[POST]googleLogin");
             redirect_uri="https://www.googleapis.com/oauth2/v1/userinfo";
             response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
             try {
                 googleProfile = objectMapper.readValue(response.getBody(), GoogleProfile.class);
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                log.error("[ERROR]googleMapper error");
             }
             email= googleProfile.getEmail();
             joinUser = UserRequest.join.builder()
@@ -150,6 +158,7 @@ public class Oauth2Controller {
 
             User user = userService.getUserByEmail(email);
             if(user==null){
+                log.info("google join : "+email);
                 userService.joinUser(joinUser);
             }else{
                 log.info("google login : "+email);

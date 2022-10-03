@@ -23,6 +23,7 @@ public class ArchiveController {
 
     @GetMapping("/log/archives")
     public ResponseEntity<Object> testLogger() {
+        log.info("[API] testLogger : called");
         log.error("test error");
         log.warn("test warn");
         log.info("test info");
@@ -36,42 +37,47 @@ public class ArchiveController {
                                                 @RequestPart("fileName") @Nullable String fileName,
                                                 @RequestPart("file") @Nullable MultipartFile file,
                                                 HttpServletRequest servletRequest) throws IOException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
-        log.info("createArchive : android MultipartFile test log");
+        log.info("[API] createArchive : android MultipartFile test log");
         //TODO : 어디까지 로그파일에 남겨도 되는 거지?? 아래 안드 테스트 코드는 굉장히 지저분한(자세한) 편인데 이런 것도 남기면 민폐인가?
-        System.out.println("jh request : "+request);
-        System.out.println("jh fileName : "+fileName);
+        log.info("jh request : "+request);
+        log.info("jh fileName : "+fileName);
         if(file != null){
-            System.out.println("jh file : "+file);
-            System.out.println("jh file.getContentType : "+file.getContentType());
-            System.out.println("jh file.getSize : "+file.getSize());
+            log.info("jh file : "+file);
+            log.info("jh file.getContentType : "+file.getContentType());
+            log.info("jh file.getSize : "+file.getSize());
         } else{
-            System.out.println("jh file : file == null");
+            log.info("jh file : file == null");
         }
 
+        log.info("[API] createArchive : call addArchive");
         archiveService.addArchive(request, fileName, file, servletRequest);
         return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
     }
 
     @GetMapping("/teams/{teamIdx}/archives")
     public ResponseEntity<Object> getArchiveList(@PathVariable Long teamIdx, HttpServletRequest servletRequest){
+        log.info("[API] getArchiveList : call getArchiveList");
         ArchiveResponse.archiveListResponseContainer archiveListContainer = archiveService.getArchiveList(teamIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveListContainer));
     }
 
     @GetMapping("/archives/{archiveIdx}")
     public ResponseEntity<Object> getArchiveDetail(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
+        log.info("[API] getArchiveDetail : call getArchiveDetail");
         ArchiveResponse.archiveResponse archiveDetail = archiveService.getArchiveDetail(archiveIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveDetail", archiveDetail));
     }
 
     @PatchMapping("/archives/{archiveIdx}/pin")
     public ResponseEntity<Object> updateArchivePin(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
+        log.info("[API] updateArchivePin : call updateArchivePin");
         archiveService.updateArchivePin(archiveIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(200, "success updateArchivePin", null));
     }
 
     @DeleteMapping("/archives/{archiveIdx}")
     public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
+        log.info("[API] deleteArchive : call deleteArchive");
         archiveService.deleteArchive(archiveIdx, servletRequest);
         return ResponseEntity.ok(new JsonResponse(204, "Archive successfully deleted", null));
     }
