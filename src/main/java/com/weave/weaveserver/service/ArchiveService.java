@@ -33,10 +33,11 @@ public class ArchiveService {
     private ImageService imageService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private TeamService teamService;
 
 //    public final UserRepository userRepository;
-    public final TeamRepository teamRepository;
-    public final BelongRepository belongRepository;
+//    public final TeamRepository teamRepository;
     public final CategoryRepository categoryRepository;
     public final ArchiveRepository archiveRepository;
     public final ImageRepository imageRepository;
@@ -121,7 +122,8 @@ public class ArchiveService {
         User clientUser = findUserByEmailInToken(servletRequest);
 
         //Team
-        Team team = teamRepository.findByTeamIdx(teamIdx);
+        Team team = teamService.findTeamByTeamIdx(teamIdx);
+
         if(team == null){
             log.info("[REJECT] getArchiveList : team == null");
             throw new NotFoundException("Team is not found by this teamIdx");
@@ -299,9 +301,10 @@ public class ArchiveService {
     }
 
     private void checkBelong(Long teamIdx, String email){
-        Belong belong = belongRepository.findByTeamIdxAndUser(teamIdx, email);
-        if(belong == null){ //TODO : belong 사용방식 변경으로 수정 예정
-            log.info("[REJECT] archive checkBelong : belong == null");
+        boolean isBelong = teamService.findByTeamIdxAndUser(teamIdx, email);
+
+        if(!isBelong){
+            log.info("[REJECT] archive checkBelong : isBelong == false ");
             throw new ForbiddenException("Forbidden. User is not belong in the team");
         }
     }
