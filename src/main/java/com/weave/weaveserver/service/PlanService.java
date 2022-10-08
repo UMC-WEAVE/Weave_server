@@ -273,9 +273,13 @@ public class PlanService {
             listRes.add(result);
         }
 
-
-
         return listRes;
     }
+
+    @Transactional
+    public void deleteAllPlan(Long teamIdx){
+        planRepository.deleteAllByTeamIdx(teamIdx);
+    }
+
 
 }
