@@ -107,4 +107,14 @@ public class PlanController {
         return ResponseEntity.ok(new JsonResponse(201, "updatePlan", null));
     }
 
+
+    //일정 삭제
+    @DeleteMapping("/teams/{teamIdx}/plans")
+    public ResponseEntity deleteAllPlan(@PathVariable Long teamIdx){
+        log.info("[API] deleteAllPlan : deleteAllPlanByTeamIdx");
+
+        planService.deleteAllPlan(teamIdx);
+        return ResponseEntity.ok(new JsonResponse(200, "deleteAllPlanByTeamIdx", null));
+    }
+
 }
