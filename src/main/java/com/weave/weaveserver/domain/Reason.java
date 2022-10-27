@@ -30,5 +30,5 @@ public class Reason extends BaseTime{
     private boolean item3;
 
     @Column(length = 300)
-    private String sub_item;
+    private String subItem;
 }
