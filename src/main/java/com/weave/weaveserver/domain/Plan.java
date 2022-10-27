@@ -32,7 +32,7 @@ public class Plan {
     private Team team;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "recent_user_idx")
+    @JoinColumn(name = "recent_user_idx")
     private User user;
 
     @Column(nullable = false)

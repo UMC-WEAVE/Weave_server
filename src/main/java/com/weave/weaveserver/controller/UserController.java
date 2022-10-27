@@ -4,7 +4,9 @@ import com.weave.weaveserver.config.exception.*;
 import com.weave.weaveserver.config.jwt.Token;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.dto.JsonResponse;
+import com.weave.weaveserver.dto.ReasonRequest;
 import com.weave.weaveserver.dto.UserResponse;
+import com.weave.weaveserver.service.QuitReasonService;
 import com.weave.weaveserver.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private QuitReasonService reasonService;
+
     @GetMapping("/hello")
     public String helloTest(){
         return "hello";
@@ -42,11 +47,12 @@ public class UserController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request){
+    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request, @RequestBody ReasonRequest reason){
         log.info("[DELETE] deleteUser");
+        reasonService.addQuitReason(reason);
         String email = tokenService.getUserEmail(request);
 //        userService.deleteUser(email);
-        return ResponseEntity.ok(new JsonResponse(200, "deleteUser",null));
+        return ResponseEntity.ok(new JsonResponse(200, "deleteUser",reason));
     }
 
 
