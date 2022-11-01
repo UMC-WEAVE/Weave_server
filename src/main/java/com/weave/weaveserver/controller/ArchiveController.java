@@ -32,27 +32,27 @@ public class ArchiveController {
         return ResponseEntity.ok(new JsonResponse(200, "Test log success", null));
     }
 
-    @PostMapping("/archives")
-    public ResponseEntity<Object> createArchive(@RequestPart ArchiveRequest.createRequest request,
-                                                @RequestPart("fileName") @Nullable String fileName,
-                                                @RequestPart("file") @Nullable MultipartFile file,
-                                                HttpServletRequest servletRequest) throws IOException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
-        log.info("[API] createArchive : android MultipartFile test log");
-        //TODO : 어디까지 로그파일에 남겨도 되는 거지?? 아래 안드 테스트 코드는 굉장히 지저분한(자세한) 편인데 이런 것도 남기면 민폐인가?
-        log.info("jh request : "+request);
-        log.info("jh fileName : "+fileName);
-        if(file != null){
-            log.info("jh file : "+file);
-            log.info("jh file.getContentType : "+file.getContentType());
-            log.info("jh file.getSize : "+file.getSize());
-        } else{
-            log.info("jh file : file == null");
-        }
-
-        log.info("[API] createArchive : call addArchive");
-        archiveService.addArchive(request, fileName, file, servletRequest);
-        return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
-    }
+//    @PostMapping("/archives")
+//    public ResponseEntity<Object> createArchive(@RequestPart ArchiveRequest.createRequest request,
+//                                                @RequestPart("fileName") @Nullable String fileName,
+//                                                @RequestPart("file") @Nullable MultipartFile file,
+//                                                HttpServletRequest servletRequest) throws IOException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
+//        log.info("[API] createArchive : android MultipartFile test log");
+//        //TODO : 어디까지 로그파일에 남겨도 되는 거지?? 아래 안드 테스트 코드는 굉장히 지저분한(자세한) 편인데 이런 것도 남기면 민폐인가?
+//        log.info("jh request : "+request);
+//        log.info("jh fileName : "+fileName);
+//        if(file != null){
+//            log.info("jh file : "+file);
+//            log.info("jh file.getContentType : "+file.getContentType());
+//            log.info("jh file.getSize : "+file.getSize());
+//        } else{
+//            log.info("jh file : file == null");
+//        }
+//
+//        log.info("[API] createArchive : call addArchive");
+//        archiveService.addArchive(request, fileName, file, servletRequest);
+//        return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
+//    }
 
     @GetMapping("/teams/{teamIdx}/archives")
     public ResponseEntity<Object> getArchiveList(@PathVariable Long teamIdx, HttpServletRequest servletRequest){

@@ -100,7 +100,8 @@ public class Oauth2Controller {
                     .email(email)
                     .loginId("kakao")
                     .name(kakaoProfile.getProperties().getNickname())
-                    .image(kakaoProfile.getProperties().getThumbnail_image()).build();
+                    .image(kakaoProfile.getProperties().getThumbnail_image())
+                    .oauthToken(accessToken).build();
             System.out.println(response.getBody());
 
             User user = userService.getUserByEmail(email);
@@ -127,7 +128,8 @@ public class Oauth2Controller {
                     .email(email)
                     .loginId("naver")
                     .name(naverProfile.getResponse().getName())
-                    .image(naverProfile.getResponse().getProfile_image()).build();
+                    .image(naverProfile.getResponse().getProfile_image())
+                    .oauthToken(accessToken).build();
             System.out.println("response.getBody() = " + response.getBody());
 
             User user = userService.getUserByEmail(email);
@@ -155,7 +157,8 @@ public class Oauth2Controller {
                     .email(email)
                     .loginId("google")
                     .name(googleProfile.getName())
-                    .image(googleProfile.getPicture()).build();
+                    .image(googleProfile.getPicture())
+                    .oauthToken(accessToken).build();
 
             User user = userService.getUserByEmail(email);
             if(user==null){

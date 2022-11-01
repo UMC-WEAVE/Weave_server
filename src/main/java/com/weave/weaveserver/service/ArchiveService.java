@@ -61,61 +61,61 @@ public class ArchiveService {
     }
 
 
-    public void addArchive(ArchiveRequest.createRequest request,
-                           String fileName,
-                           MultipartFile file,
-                           HttpServletRequest servletRequest) throws IOException {
-        User clientUser = findUserByEmailInToken(servletRequest);
-
-        //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
-        Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
-        if(team == null){
-            log.info("[REJECT] addArchive : team == null");
-            throw new ConflictException("Team is not found by the teamIdx in request body");
-        }
-
-        checkBelong(team.getTeamIdx(), clientUser.getEmail());
-
-//        Category category = categoryRepository.getReferenceById(request.getCategoryIdx()); //TODO : 동일
-        Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
-        if(category == null){
-            log.info("[REJECT] addArchive : category == null");
-            throw new ConflictException("Category is not found by the categoryIdx in request body");
-        }
-
-        if(request.getTitle().isBlank()){ //""인지 + 공백으로만 된 문자열인지 검사
-            log.info("[REJECT] addArchive : title is empty or blank");
-            throw new ConflictException("Title of archive cannot be empty or blank");
-        }
-
-        //이미지 유무 확인 및 업로드하여 url 받아오기
-        String imgUrl = "";
-        if(fileName == null || file == null){
-            log.info("[INFO] addArchive : no file to upload");
-        } else {
-            log.info("[INFO] addArchive : upload file");
-            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
-        }
-
-        Archive archive = Archive.builder()
-                .user(clientUser)
-                .team(team)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .url(request.getUrl())
-                .imageUrl(null) //TODO : 추후 DTO구조 수정, 컬럼 제거
-                .isPinned(false) //처음 생성 시 기본값
-                .category(category)
-                .build();
-        archiveRepository.save(archive);
-
-        //이미지는 이미지 테이블에 따로 저장. 위에서 저장한 아카이브를 참조함.
-        Image image = Image.builder()
-                .archive(archive)
-                .url(imgUrl)
-                .build();
-        imageRepository.save(image);
-    }
+//    public void addArchive(ArchiveRequest.createRequest request,
+//                           String fileName,
+//                           MultipartFile file,
+//                           HttpServletRequest servletRequest) throws IOException {
+//        User clientUser = findUserByEmailInToken(servletRequest);
+//
+//        //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
+//        Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
+//        if(team == null){
+//            log.info("[REJECT] addArchive : team == null");
+//            throw new ConflictException("Team is not found by the teamIdx in request body");
+//        }
+//
+//        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+//
+////        Category category = categoryRepository.getReferenceById(request.getCategoryIdx()); //TODO : 동일
+//        Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
+//        if(category == null){
+//            log.info("[REJECT] addArchive : category == null");
+//            throw new ConflictException("Category is not found by the categoryIdx in request body");
+//        }
+//
+//        if(request.getTitle().isBlank()){ //""인지 + 공백으로만 된 문자열인지 검사
+//            log.info("[REJECT] addArchive : title is empty or blank");
+//            throw new ConflictException("Title of archive cannot be empty or blank");
+//        }
+//
+//        //이미지 유무 확인 및 업로드하여 url 받아오기
+//        String imgUrl = "";
+//        if(fileName == null || file == null){
+//            log.info("[INFO] addArchive : no file to upload");
+//        } else {
+//            log.info("[INFO] addArchive : upload file");
+//            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
+//        }
+//
+//        Archive archive = Archive.builder()
+//                .user(clientUser)
+//                .team(team)
+//                .title(request.getTitle())
+//                .content(request.getContent())
+//                .url(request.getUrl())
+//                .imageUrl(null) //TODO : 추후 DTO구조 수정, 컬럼 제거
+//                .isPinned(false) //처음 생성 시 기본값
+//                .category(category)
+//                .build();
+//        archiveRepository.save(archive);
+//
+//        //이미지는 이미지 테이블에 따로 저장. 위에서 저장한 아카이브를 참조함.
+//        Image image = Image.builder()
+//                .archive(archive)
+//                .url(imgUrl)
+//                .build();
+//        imageRepository.save(image);
+//    }
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
     public ArchiveResponse.archiveListResponseContainer getArchiveList(Long teamIdx, HttpServletRequest servletRequest){
