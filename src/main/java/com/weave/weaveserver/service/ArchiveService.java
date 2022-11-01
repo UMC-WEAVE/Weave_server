@@ -68,7 +68,9 @@ public class ArchiveService {
         User clientUser = findUserByEmailInToken(servletRequest);
 
         //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
-        Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
+//        Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
+
+        Team team = teamService.findTeamByTeamIdx(request.getTeamIdx());
         if(team == null){
             log.info("[REJECT] addArchive : team == null");
             throw new ConflictException("Team is not found by the teamIdx in request body");
