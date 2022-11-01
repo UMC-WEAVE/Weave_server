@@ -35,8 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class PlanService {
-    public final TeamService teamService;
-    public final TokenService tokenService;
 
     public final UserRepository userRepository;
     public final TeamRepository teamRepository;
@@ -44,13 +42,9 @@ public class PlanService {
     public final ArchiveRepository archiveRepository;
 
     @Transactional
-    public Long addPlan(PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+    public Long addPlan(PlanRequest.createReq req, String userEmail){
         log.info("[INFO] addPlan");
-        if(httpServletRequest == null){
-            log.info("[REJECT] addPlan : user token 값이 없습니다.");
-            throw new GlobalException("user token값을 함께 넘겨주세요.");
-        }
-        String userEmail = tokenService.getUserEmail(httpServletRequest);
+
         User user = userRepository.findUserByEmail(userEmail);
         Team team = teamRepository.findByTeamIdx(req.getTeamIdx());
         if(team == null){
@@ -89,11 +83,7 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponse.planDetailRes getPlanDetail(Long planIdx, HttpServletRequest clientToken){
-        if(tokenService.getUserEmail(clientToken) == null){
-            log.info("[REJECT] getPlanDetail : user token값이 없습니다.");
-            throw new GlobalException("올바른 user의 접근이 아닙니다.");
-        }
+    public PlanResponse.planDetailRes getPlanDetail(Long planIdx){
         Plan plan = planRepository.findByPlanIdx(planIdx);
         if(plan == null){
             log.info("[REJECT] getPlanDetail : 해당 plan index 값이 없습니다.");
@@ -120,7 +110,7 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponse.planListRes getPlanList(Long teamIdx){
+    public PlanResponse.planListRes getPlanList(Long teamIdx, List<TeamResponse.getMemberList> memberList){
         //Team 정보 가져오기
         Team team = teamRepository.findByTeamIdx(teamIdx);
         if(team == null){
@@ -136,8 +126,6 @@ public class PlanService {
                 team.getImgUrl()
         );
 
-        //Team Member List 가져오기
-        List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
 
         List<Plan> planList = planRepository.findAllByTeamIdxOrderByDateAndStartTime(teamIdx);
 
@@ -196,13 +184,13 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planIdx, PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
+    public void updatePlan(Long planIdx, PlanRequest.updateReq req, String userEmail){
         Plan plan = planRepository.findByPlanIdx(planIdx);
         if(plan == null){
             log.info("[REJECT] deletePlan : 해당 plan index 값이 없습니다.");
             throw new BadRequestException("해당 일정이 존재하지 않습니다.");
         }
-        String userEmail = tokenService.getUserEmail(httpServletRequest);
+
         User user = userRepository.findUserByEmail(userEmail);
         plan.updatePlan(user,
                 req.getTitle(),
