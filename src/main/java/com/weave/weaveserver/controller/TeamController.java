@@ -1,16 +1,22 @@
 
 package com.weave.weaveserver.controller;
 
+import com.google.api.Http;
 import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.jwt.TokenService;
+import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
+import com.weave.weaveserver.service.ArchiveService;
 import com.weave.weaveserver.service.ImageService;
 import com.weave.weaveserver.service.TeamService;
+import com.weave.weaveserver.service.UserService;
 import com.weave.weaveserver.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRange;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,11 +32,22 @@ import java.util.List;
 public class TeamController {
 
     private final TeamService teamService;
+    private final UserService userService;
+    private final TokenService tokenService;
 
-    @Autowired
-    private ImageService imageService;
-    @Autowired
-    private FileUtils fileUtils;
+
+    private User findUserByToken(HttpServletRequest httpServletRequest){
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        log.info("[INFO] createTeam : 생성 요청자 email : " + userEmail);
+        User user = userService.getUserByEmail(userEmail);
+        return user;
+    }
+
+    private User findUserByEmail(String userEmail){
+        User user = userService.getUserByEmail(userEmail);
+        log.info("[INFO] findUserByEmail 호출 : " + user.getUserIdx());
+        return user;
+    }
 
     // CREATE TEAM
     @PostMapping("/teams/create")
@@ -52,18 +69,19 @@ public class TeamController {
         }
 
         log.info("[API] createTeam : 팀 생성");
-        Long teamIdx = teamService.createTeam(httpServletRequest, req, fileName, file);
+        Long teamIdx = teamService.createTeam(findUserByToken(httpServletRequest), req, fileName, file);
         return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",teamIdx));
     }
 
     // INVITE TEAM MEMBER
     @PostMapping("/teams/{teamIdx}/invite")
     public ResponseEntity<JsonResponse> addMember(@PathVariable("teamIdx") Long teamIdx,
-                                       @RequestBody TeamRequest.addMemberReq req,
+                                       @RequestBody TeamRequest.memberEmailReq req,
                                        HttpServletRequest httpServletRequest) {
 
         log.info("[API] addMember : 팀원 초대");
-        Long addUserIdx = teamService.addMember(teamIdx, req, httpServletRequest);
+        User invitedUser = findUserByEmail(req.getEmail());
+        Long addUserIdx = teamService.addMember(teamIdx, req, findUserByToken(httpServletRequest), invitedUser);
         return ResponseEntity.ok(new JsonResponse(200, "Success", addUserIdx));
     }
 
@@ -79,7 +97,7 @@ public class TeamController {
     @GetMapping("/teams")
     public ResponseEntity<JsonResponse> getMyTeams(HttpServletRequest httpServletRequest){
         log.info("[API] getMyTeams : 내가 속한 팀 조회");
-        List<TeamResponse.getMyTeams> teamList = teamService.getMyTeams(httpServletRequest);
+        List<TeamResponse.getMyTeams> teamList = teamService.getMyTeams(findUserByToken(httpServletRequest));
         return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 
@@ -87,7 +105,7 @@ public class TeamController {
     @DeleteMapping("/teams/{teamIdx}")
     public ResponseEntity<JsonResponse> deleteTeam(@PathVariable("teamIdx") Long teamIdx, HttpServletRequest httpServletRequest){
         log.info("[API] deleteTeam : 팀 삭제");
-        Long deleteTeamIdx = teamService.deleteTeam(teamIdx, httpServletRequest);
+        Long deleteTeamIdx = teamService.deleteTeam(teamIdx, findUserByToken(httpServletRequest));
         return ResponseEntity.ok(new JsonResponse(200, "Success", deleteTeamIdx));
     }
 
@@ -95,10 +113,11 @@ public class TeamController {
     // DELETE TEAM MEMBER
     @DeleteMapping("/teams/{teamIdx}/members")
     public ResponseEntity<JsonResponse> deleteMember(@PathVariable("teamIdx") Long teamIdx,
-                                          @RequestBody TeamRequest.deleteMemberReq req,
+                                          @RequestBody TeamRequest.memberEmailReq req,
                                           HttpServletRequest httpServletRequest){
         log.info("[API] deleteMember : 팀원 삭제(팀에서 접근)");
-        String deleteMember = teamService.deleteMember(teamIdx, req, httpServletRequest);
+        User deletedUser = findUserByEmail(req.getEmail());
+        String deleteMember = teamService.deleteMember(teamIdx, req, findUserByToken(httpServletRequest), deletedUser);
         return ResponseEntity.ok(new JsonResponse(200, "Success", deleteMember));
     }
 
@@ -111,7 +130,7 @@ public class TeamController {
                                         HttpServletRequest httpServletRequest) throws IOException{
 
         log.info("[API] updateTeam : 팀 정보 수정");
-        Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, httpServletRequest);
+        Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, findUserByToken(httpServletRequest));
         return ResponseEntity.ok(new JsonResponse(200, "Success", updateTeamIdx));
     }
 }
