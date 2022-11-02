@@ -2,10 +2,13 @@ package com.weave.weaveserver.controller;
 
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.GlobalException;
+import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.PlanRequest;
 import com.weave.weaveserver.dto.PlanResponse;
+import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.service.PlanService;
+import com.weave.weaveserver.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlanController {
     private final PlanService planService;
+    private final TokenService tokenService;
+    private final TeamService teamService;
 
     @GetMapping("/plan/hello")
     public String hello(){
@@ -66,7 +71,13 @@ public class PlanController {
                 throw new BadRequestException("archiveIdx가 필요합니다.");
             }
         }
-        Long planIdx = planService.addPlan(req, httpServletRequest);
+
+        if(httpServletRequest == null){
+            log.info("[REJECT] addPlan : user token 값이 없습니다.");
+            throw new GlobalException("user token값을 함께 넘겨주세요.");
+        }
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        Long planIdx = planService.addPlan(req, userEmail);
 
         return ResponseEntity.ok(new JsonResponse(201, "addPlan", planIdx));
     }
@@ -76,7 +87,11 @@ public class PlanController {
     public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx, HttpServletRequest httpServletRequest){
         log.info("[API] getPlanDetail : getPlanDetailByPlanIdx");
 
-        PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx, httpServletRequest);
+        if(tokenService.getUserEmail(httpServletRequest) == null){
+            log.info("[REJECT] getPlanDetail : user token값이 없습니다.");
+            throw new GlobalException("올바른 user의 접근이 아닙니다.");
+        }
+        PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", res));
     }
 
@@ -85,7 +100,8 @@ public class PlanController {
     public ResponseEntity<?> getPlanList(@PathVariable Long teamIdx){
         log.info("[API] getPlanList : getPlanListByTeam");
 
-        PlanResponse.planListRes res = planService.getPlanList(teamIdx);
+        List<TeamResponse.getMemberList> memberList = teamService.getMembers(teamIdx);
+        PlanResponse.planListRes res = planService.getPlanList(teamIdx, memberList);
         return ResponseEntity.ok(new JsonResponse(200, "getPlanList", res));
     }
 
@@ -103,7 +119,8 @@ public class PlanController {
     public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
         log.info("[API] updatePlan : updatePlan API");
 
-        planService.updatePlan(planIdx, req, httpServletRequest);
+        String userEmail = tokenService.getUserEmail(httpServletRequest);
+        planService.updatePlan(planIdx, req, userEmail);
         return ResponseEntity.ok(new JsonResponse(201, "updatePlan", null));
     }
 
