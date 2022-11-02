@@ -9,44 +9,13 @@ import java.util.List;
 
 public class TeamResponse {
 
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    @Data
-//    public static class createRes {
-//        private Long teamIdx;
-//        private String title;
-//    }
-
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    @Data
-//    public static class getListRes {
-//        private String title;
-//        private LocalDate startDate;
-//        private LocalDate endDate;
-//        //private LocalDateTime date;
-//        //private int recentUserIdx;
-//
-//    }
-
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    @Data
-//    public static class getTeamListRes {
-//        private String title;
-//        private LocalDate startDate;
-//        private LocalDate endDate;
-//        //private LocalDateTime date;
-//        //private int recentUserIdx;
-//
-//    }
-
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
     public static class getMemberList {
         private Long userIdx;
         private String userName;
+        private String userEmail;
         private String userImg;
     }
 

@@ -21,23 +21,8 @@ public class TeamRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class addMemberReq {
+    public static class memberEmailReq {
         private String email;
-    }
-
-//    @NoArgsConstructor
-//    @AllArgsConstructor
-//    @Data
-//    public static class getMemberReq {
-//        private Long teamIdx;
-//    }
-
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    public static class deleteMemberReq {
-        private Long userIdx;
     }
 
     @NoArgsConstructor
