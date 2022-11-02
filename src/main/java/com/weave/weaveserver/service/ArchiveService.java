@@ -28,16 +28,8 @@ import java.util.stream.Collectors;
 public class ArchiveService {
 
     @Autowired
-    private TokenService tokenService;
-    @Autowired
     private ImageService imageService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TeamService teamService;
 
-//    public final UserRepository userRepository;
-//    public final TeamRepository teamRepository;
     public final CategoryRepository categoryRepository;
     public final ArchiveRepository archiveRepository;
     public final ImageRepository imageRepository;
@@ -60,25 +52,13 @@ public class ArchiveService {
         }
     }
 
-
+//TODO : HttpServletRequest 등 인자 안쓰이는 것들 지우기
     public void addArchive(ArchiveRequest.createRequest request,
                            String fileName,
                            MultipartFile file,
-                           HttpServletRequest servletRequest) throws IOException {
-        User clientUser = findUserByEmailInToken(servletRequest);
+                           Team team,
+                           User clientUser) throws IOException {
 
-        //Team team = teamRepository.getReferenceById(request.getTeamIdx()); //TODO : team없을 때 이 에러 잡는 법 모르겠음!! SQL단위 에러인 듯
-//        Team team = teamRepository.findByTeamIdx(request.getTeamIdx());
-
-        Team team = teamService.findTeamByTeamIdx(request.getTeamIdx());
-        if(team == null){
-            log.info("[REJECT] addArchive : team == null");
-            throw new ConflictException("Team is not found by the teamIdx in request body");
-        }
-
-        checkBelong(team.getTeamIdx(), clientUser.getEmail());
-
-//        Category category = categoryRepository.getReferenceById(request.getCategoryIdx()); //TODO : 동일
         Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
         if(category == null){
             log.info("[REJECT] addArchive : category == null");
@@ -120,18 +100,7 @@ public class ArchiveService {
     }
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
-    public ArchiveResponse.archiveListResponseContainer getArchiveList(Long teamIdx, HttpServletRequest servletRequest){
-        User clientUser = findUserByEmailInToken(servletRequest);
-
-        //Team
-        Team team = teamService.findTeamByTeamIdx(teamIdx);
-
-        if(team == null){
-            log.info("[REJECT] getArchiveList : team == null");
-            throw new NotFoundException("Team is not found by this teamIdx");
-        }
-
-        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+    public ArchiveResponse.archiveListResponseContainer getArchiveList(Team team){
 
         List<LocalDate> dateList = team.getStartDate().datesUntil(team.getEndDate().plusDays(1))
                 .collect(Collectors.toList());
@@ -196,21 +165,8 @@ public class ArchiveService {
     }
 
 
-    @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
-    public ArchiveResponse.archiveResponse getArchiveDetail(Long archiveIdx, HttpServletRequest servletRequest){
-        User clientUser = findUserByEmailInToken(servletRequest);
-
-        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
-//        Optional<Archive> archive = archiveRepository.findById(archiveIdx);
-//        Archive archive = archiveRepository.findById(archiveIdx)
-//                .orElseThrow(() -> new NotFoundException("아카이브가 존재하지 않습니다... 같은 에러를 던짐"));
-        if(archive == null){
-            log.info("[REJECT] getArchiveDetail : archive == null");
-            throw new NotFoundException("Archive is not found by this archiveIdx");
-        }
-
-        Team team = archive.getTeam();
-        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+//    @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
+    public ArchiveResponse.archiveResponse getArchiveDetail(Archive archive){
 
         //User
         User archiveUser = archive.getUser();
@@ -220,7 +176,7 @@ public class ArchiveService {
         );
 
         //ImageList
-        List<Image> imageList = imageRepository.findByArchiveIdx(archiveIdx);
+        List<Image> imageList = imageRepository.findByArchiveIdx(archive.getArchiveIdx());
         List<ImageResponse.imageResponse> imageResponseList = new ArrayList();
         for(Image i : imageList){
             ImageResponse.imageResponse imageResponse = new ImageResponse.imageResponse(
@@ -245,70 +201,21 @@ public class ArchiveService {
         return response;
     }
 
-    public void updateArchivePin(Long archiveIdx, HttpServletRequest servletRequest){
-        User clientUser = findUserByEmailInToken(servletRequest);
-
-        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
-        if(archive == null){
-            log.info("[REJECT] updateArchivePin : archive == null");
-            throw new NotFoundException("Archive is not found by this archiveIdx");
-        }
-
-        Team team = archive.getTeam();
-        checkBelong(team.getTeamIdx(), clientUser.getEmail());
-
+    public void updateArchivePin(Archive archive){
         archive.updateArchive(false);
         archiveRepository.save(archive);
     }
 
     @Transactional
-    public void deleteArchive(Long archiveIdx, HttpServletRequest servletRequest){
-        User clientUser = findUserByEmailInToken(servletRequest);
-
-        Archive archive = archiveRepository.findByArchiveIdx(archiveIdx);
-        if(archive != null) { //archiveIdx에 해당하는 archive가 존재할 때만 belong체크와 삭제 실행
-            Team team = archive.getTeam();
-            checkBelong(team.getTeamIdx(), clientUser.getEmail());
-
-//        imageRepository.deleteByArchive(archive);
-            archiveRepository.deleteByArchiveIdx(archiveIdx);
-        }
-        else {
-            log.info("[REJECT] deleteArchive : archive == null. Delete nothing");
-            throw new NotFoundException("Archive is not found by this archiveIdx");
-        }
-
+    public void deleteArchive(Archive archive){
+        archiveRepository.delete(archive);
     }
 
 
     //TODO : 휘영이 이거 써서 아카이브들 삭제하면 됩니다~!!
     @Transactional
-    public void deleteAllArchiveByUserIdx(HttpServletRequest servletRequest){
-        User user = findUserByEmailInToken(servletRequest);
-
+    public void deleteAllArchiveByUserIdx(User user){
         archiveRepository.deleteAllByUserIdx(user.getUserIdx());
-    }
-
-
-    private User findUserByEmailInToken(HttpServletRequest servletRequest){
-//        System.out.println(servletRequest);
-        if(servletRequest == null){
-            log.info("[REJECT] archive findUserByEmailInToken : servletRequest == null");
-            throw new UnAuthorizedException("Unauthorized. HttpServletRequest is null");
-        }
-        String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
-        User clientUser = userService.getUserByEmail(userEmail);
-
-        return clientUser;
-    }
-
-    private void checkBelong(Long teamIdx, String email){
-        boolean isBelong = teamService.findByTeamIdxAndUser(teamIdx, email);
-
-        if(!isBelong){
-            log.info("[REJECT] archive checkBelong : isBelong == false ");
-            throw new ForbiddenException("Forbidden. User is not belong in the team");
-        }
     }
 
 }
