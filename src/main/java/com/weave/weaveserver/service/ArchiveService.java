@@ -52,7 +52,16 @@ public class ArchiveService {
         }
     }
 
-//TODO : HttpServletRequest 등 인자 안쓰이는 것들 지우기
+    //[외부사용] setUserNullByUser
+    public void setUserNullByUser(User deleteUser) {
+        log.info("[INFO] setUserNullByUser : called");
+        List<Archive> archiveList = archiveRepository.findByUser(deleteUser);
+        for(Archive a : archiveList){
+            a.setUserNull();
+        }
+        archiveRepository.saveAll(archiveList);
+    }
+
     public void addArchive(ArchiveRequest.createRequest request,
                            String fileName,
                            MultipartFile file,
@@ -211,11 +220,10 @@ public class ArchiveService {
         archiveRepository.delete(archive);
     }
 
-
-    //TODO : 휘영이 이거 써서 아카이브들 삭제하면 됩니다~!!
-    @Transactional
-    public void deleteAllArchiveByUserIdx(User user){
-        archiveRepository.deleteAllByUserIdx(user.getUserIdx());
-    }
+//    //TODO : 휘영이 이거 써서 아카이브들 삭제하면 됩니다~!!
+//    @Transactional
+//    public void deleteAllArchiveByUserIdx(User user){
+//        archiveRepository.deleteAllByUserIdx(user.getUserIdx());
+//    }
 
 }

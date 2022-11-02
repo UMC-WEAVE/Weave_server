@@ -51,12 +51,14 @@ public class Archive {
 
     public void activatePin() {
         this.isPinned = true;
-
     }
 
     public void updateArchive(boolean isPinned) {
         this.isPinned = isPinned;
+    }
 
+    public void setUserNull(){
+        this.user = null;
     }
 
     //TODO : 이부분 바꿈!!

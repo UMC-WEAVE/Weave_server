@@ -2,6 +2,7 @@ package com.weave.weaveserver.repository;
 
 import com.weave.weaveserver.domain.Archive;
 import com.weave.weaveserver.domain.Team;
+import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.ArchiveResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,15 +20,16 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
 //    @Query(value = "SELECT a from Archive a where a.team.teamIdx = :teamIdx") //이 경우 @Param("teamIdx") Long teamIdx 이런식으로 명시해줘야 함
     List<Archive> findByTeam(Team team);
+    List<Archive> findByUser(User user);
 
-    void deleteByArchiveIdx(Long archiveIdx);
+//    void deleteByArchiveIdx(Long archiveIdx);
 
     void deleteByTeam(Team team);
 
-    @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM Archive a WHERE a.user.userIdx=?1")
-    void deleteAllByUserIdx(Long userIdx);
+//    @Modifying
+//    @Transactional
+//    @Query(value = "DELETE FROM Archive a WHERE a.user.userIdx=?1")
+//    void deleteAllByUserIdx(Long userIdx);
 
     @Query(value = "SELECT a FROM Archive a WHERE a.user.userIdx = ?1")
     Optional<List<Archive>> findAllByUserIdx(Long userIdx);
