@@ -1,8 +1,8 @@
-
 package com.weave.weaveserver.controller;
 
 import com.google.api.Http;
 import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.JsonResponse;
@@ -31,21 +31,34 @@ import java.util.List;
 @Slf4j
 public class TeamController {
 
-    private final TeamService teamService;
-    private final UserService userService;
-    private final TokenService tokenService;
+    @Autowired
+    private TeamService teamService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private TokenService tokenService;
 
 
     private User findUserByToken(HttpServletRequest httpServletRequest){
         String userEmail = tokenService.getUserEmail(httpServletRequest);
-        log.info("[INFO] createTeam : 생성 요청자 email : " + userEmail);
+        log.info("[INFO] findUserByToken 호출 : " + userEmail);
+
         User user = userService.getUserByEmail(userEmail);
+
+        if(user == null){
+            log.info("[REJECT] findUserByToken : 해당 이메일을 가진 유저가 존재하지 않음");
+            throw new NotFoundException("초대하려는 팀원이 존재하지 않습니다.");
+        }
         return user;
     }
 
     private User findUserByEmail(String userEmail){
         User user = userService.getUserByEmail(userEmail);
-        log.info("[INFO] findUserByEmail 호출 : " + user.getUserIdx());
+        if(user == null){
+            log.info("[REJECT] findUserByEmail : 해당 이메일을 가진 유저가 존재하지 않음");
+            throw new NotFoundException("초대하려는 팀원이 존재하지 않습니다.");
+        }
+        log.info("[INFO] findUserByEmail 호출 : " + userEmail);
         return user;
     }
 
@@ -76,12 +89,13 @@ public class TeamController {
     // INVITE TEAM MEMBER
     @PostMapping("/teams/{teamIdx}/invite")
     public ResponseEntity<JsonResponse> addMember(@PathVariable("teamIdx") Long teamIdx,
-                                       @RequestBody TeamRequest.memberEmailReq req,
-                                       HttpServletRequest httpServletRequest) {
+                                                  @RequestBody TeamRequest.memberEmailReq req,
+                                                  HttpServletRequest httpServletRequest) {
 
         log.info("[API] addMember : 팀원 초대");
+        User inviter = findUserByToken(httpServletRequest);
         User invitedUser = findUserByEmail(req.getEmail());
-        Long addUserIdx = teamService.addMember(teamIdx, req, findUserByToken(httpServletRequest), invitedUser);
+        Long addUserIdx = teamService.addMember(teamIdx, req, inviter, invitedUser);
         return ResponseEntity.ok(new JsonResponse(200, "Success", addUserIdx));
     }
 
@@ -113,9 +127,10 @@ public class TeamController {
     // DELETE TEAM MEMBER
     @DeleteMapping("/teams/{teamIdx}/members")
     public ResponseEntity<JsonResponse> deleteMember(@PathVariable("teamIdx") Long teamIdx,
-                                          @RequestBody TeamRequest.memberEmailReq req,
-                                          HttpServletRequest httpServletRequest){
+                                                     @RequestBody TeamRequest.memberEmailReq req,
+                                                     HttpServletRequest httpServletRequest){
         log.info("[API] deleteMember : 팀원 삭제(팀에서 접근)");
+        System.out.println(req.getEmail());
         User deletedUser = findUserByEmail(req.getEmail());
         String deleteMember = teamService.deleteMember(teamIdx, req, findUserByToken(httpServletRequest), deletedUser);
         return ResponseEntity.ok(new JsonResponse(200, "Success", deleteMember));
@@ -124,10 +139,10 @@ public class TeamController {
     // MODIFY TEAM INFO
     @PatchMapping("/teams/{teamIdx}/modify")
     public ResponseEntity<JsonResponse> updateTeam(@PathVariable("teamIdx") Long teamIdx,
-                                        @RequestPart TeamRequest.updateTeamReq req,
-                                        @RequestPart ("fileName") @Nullable String fileName,
-                                        @RequestPart ("file") @Nullable MultipartFile file,
-                                        HttpServletRequest httpServletRequest) throws IOException{
+                                                   @RequestPart TeamRequest.updateTeamReq req,
+                                                   @RequestPart ("fileName") @Nullable String fileName,
+                                                   @RequestPart ("file") @Nullable MultipartFile file,
+                                                   HttpServletRequest httpServletRequest) throws IOException{
 
         log.info("[API] updateTeam : 팀 정보 수정");
         Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, findUserByToken(httpServletRequest));
