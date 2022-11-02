@@ -1,17 +1,29 @@
 package com.weave.weaveserver.controller;
 
+import com.weave.weaveserver.config.exception.ConflictException;
+import com.weave.weaveserver.config.exception.ForbiddenException;
+import com.weave.weaveserver.config.exception.NotFoundException;
+import com.weave.weaveserver.config.exception.UnAuthorizedException;
+import com.weave.weaveserver.config.jwt.TokenService;
+import com.weave.weaveserver.domain.Archive;
+import com.weave.weaveserver.domain.Team;
+import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.ArchiveRequest;
 import com.weave.weaveserver.dto.ArchiveResponse;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.service.ArchiveService;
+import com.weave.weaveserver.service.TeamService;
+import com.weave.weaveserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,6 +32,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArchiveController {
     private final ArchiveService archiveService;
+    private final TokenService tokenService;
+    private final UserService userService;
+    private final TeamService teamService;
 
     @GetMapping("/log/archives")
     public ResponseEntity<Object> testLogger() {
@@ -50,36 +65,119 @@ public class ArchiveController {
         }
 
         log.info("[API] createArchive : call addArchive");
-        archiveService.addArchive(request, fileName, file, servletRequest);
+
+        User clientUser = findUserByEmailInToken(servletRequest);
+
+        Team team = teamService.findTeamByTeamIdx(request.getTeamIdx());
+        if(team == null){
+            log.info("[REJECT] addArchive : team == null");
+            throw new ConflictException("Team is not found by the teamIdx in request body");
+        }
+
+        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+
+        archiveService.addArchive(request, fileName, file, team, clientUser);
         return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
     }
 
     @GetMapping("/teams/{teamIdx}/archives")
     public ResponseEntity<Object> getArchiveList(@PathVariable Long teamIdx, HttpServletRequest servletRequest){
         log.info("[API] getArchiveList : call getArchiveList");
-        ArchiveResponse.archiveListResponseContainer archiveListContainer = archiveService.getArchiveList(teamIdx, servletRequest);
+
+        User clientUser = findUserByEmailInToken(servletRequest);
+
+        //Team
+        Team team = teamService.findTeamByTeamIdx(teamIdx);
+        if(team == null){
+            log.info("[REJECT] getArchiveList : team == null");
+            throw new NotFoundException("Team is not found by this teamIdx");
+        }
+
+        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+
+        ArchiveResponse.archiveListResponseContainer archiveListContainer = archiveService.getArchiveList(team);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveList", archiveListContainer));
     }
 
+    @Transactional //TODO : 여기에 이걸 붙여야 Service단에서 archive.getUser()할 때 LAZY관련 에러가 안남.. JPA공부 필요
     @GetMapping("/archives/{archiveIdx}")
     public ResponseEntity<Object> getArchiveDetail(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
         log.info("[API] getArchiveDetail : call getArchiveDetail");
-        ArchiveResponse.archiveResponse archiveDetail = archiveService.getArchiveDetail(archiveIdx, servletRequest);
+
+        User clientUser = findUserByEmailInToken(servletRequest);
+
+        Archive archive = archiveService.findByArchiveIdx(archiveIdx);
+        if(archive == null){
+            log.info("[REJECT] getArchiveDetail : archive == null");
+            throw new NotFoundException("Archive is not found by this archiveIdx");
+        }
+        Team team = archive.getTeam();
+        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+
+        ArchiveResponse.archiveResponse archiveDetail = archiveService.getArchiveDetail(archive);
         return ResponseEntity.ok(new JsonResponse(200, "success getArchiveDetail", archiveDetail));
     }
 
     @PatchMapping("/archives/{archiveIdx}/pin")
     public ResponseEntity<Object> updateArchivePin(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
         log.info("[API] updateArchivePin : call updateArchivePin");
-        archiveService.updateArchivePin(archiveIdx, servletRequest);
+
+        User clientUser = findUserByEmailInToken(servletRequest);
+
+        Archive archive = archiveService.findByArchiveIdx(archiveIdx);
+        if(archive == null){
+            log.info("[REJECT] updateArchivePin : archive == null");
+            throw new NotFoundException("Archive is not found by this archiveIdx");
+        }
+        Team team = archive.getTeam();
+        checkBelong(team.getTeamIdx(), clientUser.getEmail());
+
+        archiveService.updateArchivePin(archive);
         return ResponseEntity.ok(new JsonResponse(200, "success updateArchivePin", null));
     }
 
     @DeleteMapping("/archives/{archiveIdx}")
     public ResponseEntity<Object> deleteArchive(@PathVariable Long archiveIdx, HttpServletRequest servletRequest){
         log.info("[API] deleteArchive : call deleteArchive");
-        archiveService.deleteArchive(archiveIdx, servletRequest);
+        User clientUser = findUserByEmailInToken(servletRequest);
+
+        Archive archive = archiveService.findByArchiveIdx(archiveIdx);
+        if(archive != null) { //archiveIdx에 해당하는 archive가 존재할 때만 belong체크와 삭제 실행
+            Team team = archive.getTeam();
+            checkBelong(team.getTeamIdx(), clientUser.getEmail());
+
+        }
+        else {
+            log.info("[REJECT] deleteArchive : archive == null. Delete nothing");
+            throw new NotFoundException("Archive is not found by this archiveIdx");
+        }
+
+        archiveService.deleteArchive(archive);
         return ResponseEntity.ok(new JsonResponse(204, "Archive successfully deleted", null));
+    }
+
+
+/////////-- API 외 메서드 --////////////
+
+    private User findUserByEmailInToken(HttpServletRequest servletRequest){
+        if(servletRequest == null){
+            log.info("[REJECT] archive findUserByEmailInToken : servletRequest == null");
+            throw new UnAuthorizedException("Unauthorized. HttpServletRequest is null");
+        }
+        String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
+        User clientUser = userService.getUserByEmail(userEmail);
+
+        return clientUser;
+    }
+    
+
+    private void checkBelong(Long teamIdx, String email){
+        boolean isBelong = teamService.findByTeamIdxAndUser(teamIdx, email);
+
+        if(!isBelong){
+            log.info("[REJECT] archive checkBelong : isBelong == false ");
+            throw new ForbiddenException("Forbidden. User is not belong in the team");
+        }
     }
 
 }
