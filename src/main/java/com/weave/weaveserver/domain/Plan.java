@@ -94,4 +94,8 @@ public class Plan {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public void deleteAuthor(){
+        this.user = null;
+    }
 }
