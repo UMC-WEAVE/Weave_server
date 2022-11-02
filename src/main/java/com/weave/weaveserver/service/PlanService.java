@@ -180,7 +180,8 @@ public class PlanService {
             log.info("[REJECT] deletePlan : 해당 plan index 값이 없습니다.");
             throw new GlobalException("해당 일정이 존재하지 않습니다.");
         }
-        planRepository.deleteById(planIdx); return planIdx;
+        planRepository.deleteById(planIdx);
+        return planIdx;
     }
 
     @Transactional
@@ -203,12 +204,14 @@ public class PlanService {
                 req.getCost());
     }
 
-    //user 탈퇴시 -> plan 삭제
-    //team 삭제시 -> plan 삭제
     @Transactional
-    public void deletePlanByUserIdx(Long userIdx){
-        log.info("[INFO] deletePlanByUserIdx : 해당 유저가 쓴 일정 모두 지우기.");
-        planRepository.deleteAllByUserIdx(userIdx);
+    public void deleteAuthorByUserIdx(Long userIdx){
+        //TODO: 해당 유저의 게시글의 작성자를 모두 null값으로 바꿔치기
+        log.info("[INFO] deleteAuthorByUserIdx : 해당 유저가 쓴 일정 모두 지우기.");
+        List<Plan> anonymousPlanList = planRepository.findALLByUserIdx(userIdx).orElseThrow();
+        for (int i = 0; i < anonymousPlanList.size(); i++) {
+            anonymousPlanList.get(i).deleteAuthor();
+        }
 
     }
 
