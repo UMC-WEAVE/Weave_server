@@ -35,17 +35,25 @@ public class ArchiveController {
     private final TokenService tokenService;
     private final UserService userService;
     private final TeamService teamService;
+    
+    //테스트용으로 작성했던 코드들
+//    @GetMapping("/log/archives")
+//    public ResponseEntity<Object> testLogger() {
+//        log.info("[API] testLogger : called");
+//        log.error("test error");
+//        log.warn("test warn");
+//        log.info("test info");
+//        log.debug("test debug"); //이 레벨 부터는 출력 안되게 설정되어있음
+//        log.trace("test trace");
+//        return ResponseEntity.ok(new JsonResponse(200, "Test log success", null));
+//    }
 
-    @GetMapping("/log/archives")
-    public ResponseEntity<Object> testLogger() {
-        log.info("[API] testLogger : called");
-        log.error("test error");
-        log.warn("test warn");
-        log.info("test info");
-        log.debug("test debug"); //이 레벨 부터는 출력 안되게 설정되어있음
-        log.trace("test trace");
-        return ResponseEntity.ok(new JsonResponse(200, "Test log success", null));
-    }
+//    @PatchMapping("/archives/test/set-user-null")
+//    public ResponseEntity<Object> testSetUserNull(HttpServletRequest servletRequest){
+//        User clientUser = findUserByEmailInToken(servletRequest);
+//        archiveService.setUserNullByUser(clientUser);
+//        return ResponseEntity.ok(new JsonResponse(200, "testSetUserNull success", null));
+//    }
 
     @PostMapping("/archives")
     public ResponseEntity<Object> createArchive(@RequestPart ArchiveRequest.createRequest request,
