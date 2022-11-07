@@ -22,8 +22,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final BelongRepository belongRepository;
-
-    private final PlanService planService;
+//    private final PlanService planService;
 
     @Transactional
     public void joinUser(UserRequest.join joinUser) {
@@ -33,7 +32,11 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findUserByEmail(email);
+        try{
+            return userRepository.findUserByEmail(email);
+        }catch (NullPointerException e){
+            throw new BadRequestException("등록되지 않은 유저입니다.");
+        }
     }
 
 
@@ -47,30 +50,7 @@ public class UserService {
                 .build();
     }
 
-
-//    @Transactional
-//    public void deleteUser(String email) {
-//        //TODO : test 12번 유저
-//        try {
-//            User user = userRepository.findUserByEmail(email);
-//        }catch (NullPointerException e){
-//            throw new BadRequestException("이미 삭제된 유저");
-//        }
-//        User user = userRepository.findUserByEmail(email);
-//        if(user==null){
-//            throw new BadRequestException("존재하지 않는 token입니다.");
-//        }
-//        try{
-//            deleteTeamByLeaderIdx(user.getUserIdx());
-//            deletePlanByUserIdx(user.getUserIdx());
-//            deleteArchiveByUserIdx(user.getUserIdx());
-//
-//        }catch (BadRequestException e){
-//            System.out.println("등록되지 않은 팀이래요~~");
-//        }
-//        userRepository.delete(user);
-//        System.out.println(user.getUserIdx()+"번째 유저 삭제 완료");
-//    }
-
-
+    public void loginUser(User user) {
+        userRepository.save(user);
+    }
 }

@@ -222,10 +222,10 @@ public class ArchiveService {
         archiveRepository.delete(archive);
     }
 
-//    //TODO : 휘영이 이거 써서 아카이브들 삭제하면 됩니다~!!
-//    @Transactional
-//    public void deleteAllArchiveByUserIdx(User user){
-//        archiveRepository.deleteAllByUserIdx(user.getUserIdx());
-//    }
+    //TODO : 휘영이 이거 써서 아카이브들 삭제하면 됩니다~!! 감사합니당 :)
+    @Transactional
+    public void deleteAllArchiveByUserIdx(User user){
+        archiveRepository.deleteAllByUserIdx(user.getUserIdx());
+    }
 
 }

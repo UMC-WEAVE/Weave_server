@@ -1,36 +1,38 @@
 package com.weave.weaveserver.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weave.weaveserver.config.exception.*;
-import com.weave.weaveserver.config.jwt.Token;
 import com.weave.weaveserver.config.jwt.TokenService;
+import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.ReasonRequest;
 import com.weave.weaveserver.dto.UserResponse;
 import com.weave.weaveserver.service.QuitReasonService;
+import com.weave.weaveserver.service.UserProvider;
 import com.weave.weaveserver.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
-import java.io.IOException;
 
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/user")
-@Slf4j
 public class UserController {
 
-    @Autowired
-    private TokenService tokenService;
+    private final TokenService tokenService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private QuitReasonService reasonService;
+    private final UserProvider userProvider;
+
+    private final QuitReasonService reasonService;
+
+    private final ObjectMapper objectMapper;
+
 
     @GetMapping("/hello")
     public String helloTest(){
@@ -40,18 +42,25 @@ public class UserController {
 
     @GetMapping("/mypage")
     public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request){
-        log.info("[GET] deleteUser");
+        log.info("[API] deleteUser");
         String email = tokenService.getUserEmail(request);
         UserResponse.myPage data = userService.loadMyPage(email);
         return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
     }
 
     @DeleteMapping("")
-    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest request, @RequestBody ReasonRequest reason){
-        log.info("[DELETE] deleteUser");
+    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest req, @RequestBody ReasonRequest reason){
+        log.info("[API] deleteUser");
+        try{
+            String email = tokenService.getUserEmail(req);
+            User user = userService.getUserByEmail(email);
+            userProvider.deleteUser(email);
+        }catch (NullPointerException e){
+            log.info("[REJECT]삭제된 유저");
+            throw new BadRequestException("등록되지 않은 유저입니다.");
+        }
+
         reasonService.addQuitReason(reason);
-        String email = tokenService.getUserEmail(request);
-//        userService.deleteUser(email);
         return ResponseEntity.ok(new JsonResponse(200, "deleteUser",reason));
     }
 

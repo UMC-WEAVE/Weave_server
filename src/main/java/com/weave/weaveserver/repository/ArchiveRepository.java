@@ -26,10 +26,10 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
 
     void deleteByTeam(Team team);
 
-//    @Modifying
-//    @Transactional
-//    @Query(value = "DELETE FROM Archive a WHERE a.user.userIdx=?1")
-//    void deleteAllByUserIdx(Long userIdx);
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM Archive a WHERE a.user.userIdx=?1")
+    void deleteAllByUserIdx(Long userIdx);
 
     @Query(value = "SELECT a FROM Archive a WHERE a.user.userIdx = ?1")
     Optional<List<Archive>> findAllByUserIdx(Long userIdx);

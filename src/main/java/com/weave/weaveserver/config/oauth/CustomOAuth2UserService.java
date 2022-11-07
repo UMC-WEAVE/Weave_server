@@ -1,6 +1,7 @@
 package com.weave.weaveserver.config.oauth;
 
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.UserRequest;
 import com.weave.weaveserver.repository.UserRepository;
@@ -45,7 +46,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes){
+
         User user = userRepository.findUserByEmail(attributes.getEmail());
+
 
         if(user==null){
             log.info(attributes.getLoginId()+" join : "+attributes.getEmail());
