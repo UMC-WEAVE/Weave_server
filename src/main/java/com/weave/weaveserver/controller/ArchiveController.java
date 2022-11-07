@@ -55,6 +55,7 @@ public class ArchiveController {
 //        return ResponseEntity.ok(new JsonResponse(200, "testSetUserNull success", null));
 //    }
 
+
     @PostMapping("/archives")
     public ResponseEntity<Object> createArchive(@RequestPart ArchiveRequest.createRequest request,
                                                 @RequestPart("fileName") @Nullable String fileName,
@@ -87,6 +88,7 @@ public class ArchiveController {
         archiveService.addArchive(request, fileName, file, team, clientUser);
         return ResponseEntity.ok(new JsonResponse(201, "Archive successfully created", null));
     }
+
 
     @GetMapping("/teams/{teamIdx}/archives")
     public ResponseEntity<Object> getArchiveList(@PathVariable Long teamIdx, HttpServletRequest servletRequest){

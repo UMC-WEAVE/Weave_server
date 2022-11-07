@@ -62,6 +62,7 @@ public class ArchiveService {
         archiveRepository.saveAll(archiveList);
     }
 
+
     public void addArchive(ArchiveRequest.createRequest request,
                            String fileName,
                            MultipartFile file,
@@ -107,6 +108,7 @@ public class ArchiveService {
                 .build();
         imageRepository.save(image);
     }
+
 
     @Transactional // 왜 이걸 붙이면 LAZY 관련 에러가 해결되는 거지?
     public ArchiveResponse.archiveListResponseContainer getArchiveList(Team team){

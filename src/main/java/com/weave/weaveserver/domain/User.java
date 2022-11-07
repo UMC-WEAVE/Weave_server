@@ -15,9 +15,6 @@ public class User {
     @Column(name = "user_idx")
     private Long userIdx;
 
-    @Column(name = "refresh_token")
-    private String refreshToken;
-
     @Column(nullable = false)
     private String name;
 
@@ -30,12 +27,18 @@ public class User {
     @Column(nullable = true)
     private String image;
 
+    @Column(name = "refresh_token",nullable = false)
+    private String accessToken;
+
+
+
     @Builder
-    public User(String name, String email, String loginId, String image) {
+    public User(String name, String email, String loginId, String image, String accessToken) {
         this.name = name;
         this.email = email;
         this.loginId=loginId;
         this.image = image;
+        this.accessToken = accessToken;
     }
 
     public void setImage(String image) {
@@ -45,7 +48,7 @@ public class User {
     public static User joinUser(UserRequest.join joinUser){
         return User.builder()
                 .name(joinUser.getName()).email(joinUser.getEmail()).loginId(joinUser.getLoginId()).image(joinUser.getImage())
-                .build();
+                .accessToken(joinUser.getOauthToken()).build();
     }
 
 }
