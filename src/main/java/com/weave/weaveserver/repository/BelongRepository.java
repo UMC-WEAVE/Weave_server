@@ -44,4 +44,5 @@ public interface BelongRepository extends JpaRepository<Belong, Long> {
     Long countMemberByTeam(Long teamIdx);
 
 
+    void deleteByUser(User user);
 }

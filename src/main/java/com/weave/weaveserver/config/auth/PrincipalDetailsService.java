@@ -1,5 +1,6 @@
 package com.weave.weaveserver.config.auth;
 
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.repository.UserRepository;
 import com.weave.weaveserver.service.UserService;
@@ -29,7 +30,12 @@ public class PrincipalDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("username : "+username);
 //        User user = userService.getUserByEmail(username);
-        User user = userRepository.findUserByEmail(username);
+        User user = null;
+        try{
+            user = userRepository.findUserByEmail(username);
+        }catch (NullPointerException e){
+            throw new BadRequestException("등록되지 않은 유저입니다.");
+        }
 
         if(user != null) {
             System.out.println(user);

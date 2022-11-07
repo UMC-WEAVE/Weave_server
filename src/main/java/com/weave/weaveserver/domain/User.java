@@ -28,17 +28,17 @@ public class User {
     private String image;
 
     @Column(name = "refresh_token",nullable = false)
-    private String accessToken;
+    private String oauthToken;
 
 
 
     @Builder
-    public User(String name, String email, String loginId, String image, String accessToken) {
+    public User(String name, String email, String loginId, String image, String oauthToken) {
         this.name = name;
         this.email = email;
         this.loginId=loginId;
         this.image = image;
-        this.accessToken = accessToken;
+        this.oauthToken = oauthToken;
     }
 
     public void setImage(String image) {
@@ -48,7 +48,10 @@ public class User {
     public static User joinUser(UserRequest.join joinUser){
         return User.builder()
                 .name(joinUser.getName()).email(joinUser.getEmail()).loginId(joinUser.getLoginId()).image(joinUser.getImage())
-                .accessToken(joinUser.getOauthToken()).build();
+                .oauthToken(joinUser.getOauthToken()).build();
     }
 
+    public void setOauthToken(String oauthToken) {
+        this.oauthToken = oauthToken;
+    }
 }

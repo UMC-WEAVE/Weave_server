@@ -19,10 +19,12 @@ public class UserRequest {
         private String oauthToken;
     }
 
+
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
-    public static class kakao_access_token{
+    public static class login {
         private String accessToken;
+        private String refreshToken;
     }
 }

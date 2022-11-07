@@ -67,8 +67,10 @@ public class Oauth2Controller {
     //TODO : android login
     //10/4 : 탈퇴로직 구현시 refToken, accessToken 필요할 수도!!
     @PostMapping("/android/login/{loginId}")
-    public ResponseEntity<JsonResponse> androidLogin(@PathParam(value = "accessToken") String accessToken, @PathVariable String loginId) {
+    public ResponseEntity<JsonResponse> androidLogin(@RequestBody UserRequest.login login, @PathVariable String loginId) {
         log.info("[API]androidLogin");
+        String refreshToken = login.getRefreshToken();
+        String accessToken = login.getAccessToken();
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity(headers);
@@ -101,14 +103,16 @@ public class Oauth2Controller {
                     .loginId("kakao")
                     .name(kakaoProfile.getProperties().getNickname())
                     .image(kakaoProfile.getProperties().getThumbnail_image())
-                    .oauthToken(accessToken).build();
-            System.out.println(response.getBody());
+                    .oauthToken(refreshToken).build();
+//            System.out.println(response.getBody());
 
             User user = userService.getUserByEmail(email);
             if(user==null){
                 log.info("kakao join : "+email);
                 userService.joinUser(joinUser);
             }else{
+                user.setOauthToken(refreshToken);
+                userService.loginUser(user);
                 log.info("kakao login : "+email);
             }
             Token token = tokenService.generateToken(email);
@@ -129,14 +133,16 @@ public class Oauth2Controller {
                     .loginId("naver")
                     .name(naverProfile.getResponse().getName())
                     .image(naverProfile.getResponse().getProfile_image())
-                    .oauthToken(accessToken).build();
-            System.out.println("response.getBody() = " + response.getBody());
+                    .oauthToken(refreshToken).build();
+//            System.out.println("response.getBody() = " + response.getBody());
 
             User user = userService.getUserByEmail(email);
             if(user==null){
                 log.info("naver join : "+email);
                 userService.joinUser(joinUser);
             }else{
+                user.setOauthToken(refreshToken);
+                userService.loginUser(user);
                 log.info("naver login : "+email);
             }
             Token token = tokenService.generateToken(email);
@@ -158,16 +164,18 @@ public class Oauth2Controller {
                     .loginId("google")
                     .name(googleProfile.getName())
                     .image(googleProfile.getPicture())
-                    .oauthToken(accessToken).build();
+                    .oauthToken(refreshToken).build();
 
             User user = userService.getUserByEmail(email);
             if(user==null){
                 log.info("google join : "+email);
                 userService.joinUser(joinUser);
             }else{
+                user.setOauthToken(refreshToken);
+                userService.loginUser(user);
                 log.info("google login : "+email);
             }
-            System.out.println(googleProfile);
+//            System.out.println(googleProfile);
             Token token = tokenService.generateToken(email);
             return ResponseEntity.ok(new JsonResponse(200,"google login",token.getToken()));
         }

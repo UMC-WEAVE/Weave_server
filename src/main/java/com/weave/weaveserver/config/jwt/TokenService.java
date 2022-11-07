@@ -66,10 +66,15 @@ public class TokenService{
             throw new UnAuthorizedException("UNAUTHORIZED");
         }
 //        String findUser = userService.getUserByEmail(email).getEmail();
-        String findUser = userRepository.findUserByEmail(email).getEmail();
-        if(!findUser.equals(email)){
-            throw new BadRequestException("유저의 정보를 찾을 수 없음");
+        try{
+            String findUser = userRepository.findUserByEmail(email).getEmail();
+            if(!findUser.equals(email)){
+                throw new BadRequestException("유저의 정보를 찾을 수 없음");
+            }
+        }catch (NullPointerException e){
+            throw new BadRequestException("등록되지 않은 유저입니다.");
         }
+
         return email;
     }
 
