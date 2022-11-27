@@ -1,5 +1,6 @@
 package com.weave.weaveserver.service;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.config.exception.ConflictException;
 import com.weave.weaveserver.config.exception.ForbiddenException;
 import com.weave.weaveserver.config.exception.NotFoundException;
@@ -27,8 +28,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArchiveService {
 
-    @Autowired
-    private ImageService imageService;
+//    @Autowired
+//    private ImageService imageService;
+    private final FireBaseService fireBaseService;
 
     public final CategoryRepository categoryRepository;
     public final ArchiveRepository archiveRepository;
@@ -67,7 +69,7 @@ public class ArchiveService {
                            String fileName,
                            MultipartFile file,
                            Team team,
-                           User clientUser) throws IOException {
+                           User clientUser) throws IOException, FirebaseAuthException {
 
         Category category = categoryRepository.findByCategoryIdx(request.getCategoryIdx());
         if(category == null){
@@ -86,7 +88,8 @@ public class ArchiveService {
             log.info("[INFO] addArchive : no file to upload");
         } else {
             log.info("[INFO] addArchive : upload file");
-            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
+            imgUrl = fireBaseService.uploadFiles(fileName, file);  //이미지 업로드 후 url받아오기!!
+//            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
         }
 
         Archive archive = Archive.builder()

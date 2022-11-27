@@ -1,5 +1,6 @@
 package com.weave.weaveserver.controller;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.config.exception.ConflictException;
 import com.weave.weaveserver.config.exception.ForbiddenException;
 import com.weave.weaveserver.config.exception.NotFoundException;
@@ -60,7 +61,7 @@ public class ArchiveController {
     public ResponseEntity<Object> createArchive(@RequestPart ArchiveRequest.createRequest request,
                                                 @RequestPart("fileName") @Nullable String fileName,
                                                 @RequestPart("file") @Nullable MultipartFile file,
-                                                HttpServletRequest servletRequest) throws IOException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
+                                                HttpServletRequest servletRequest) throws IOException, FirebaseAuthException { //RequestBody 에 입력값들을 담고, Header 에 유저의 토큰을 담아 보냄.
         log.info("[API] createArchive : android MultipartFile test log");
         //TODO : 어디까지 로그파일에 남겨도 되는 거지?? 아래 안드 테스트 코드는 굉장히 지저분한(자세한) 편인데 이런 것도 남기면 민폐인가?
         log.info("jh request : "+request);
