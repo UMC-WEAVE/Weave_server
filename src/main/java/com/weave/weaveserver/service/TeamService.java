@@ -1,6 +1,7 @@
 package com.weave.weaveserver.service;
 
 import com.google.api.Http;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.ForbiddenException;
 import com.weave.weaveserver.config.exception.NotFoundException;
@@ -27,8 +28,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamService {
 
+//    @Autowired
+//    private ImageService imageService;
     @Autowired
-    private ImageService imageService;
+    private FireBaseService imageService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -76,7 +79,7 @@ public class TeamService {
 
     @Transactional
     public Long createTeam(User leader, TeamRequest.createReq req,
-                           String fileName, MultipartFile file) throws IOException{
+                           String fileName, MultipartFile file) throws IOException, FirebaseAuthException {
 
         String imgUrl = "";
 
@@ -85,7 +88,7 @@ public class TeamService {
             log.info("[INFO] createTeam : 팀 이미지를 업로드하지 않음(기본이미지 사용)");
             imgUrl = "null";
         } else {
-            imgUrl = imageService.uploadToStorage("team", fileName, file);
+            imgUrl = imageService.uploadFiles(fileName, file);
         }
         Team team = Team.builder()
                 .leader(leader)
@@ -293,7 +296,7 @@ public class TeamService {
     @Transactional
     public Long updateTeam(Long teamIdx, TeamRequest.updateTeamReq req,
                            String fileName, MultipartFile file, User requester)
-            throws IOException{
+            throws IOException, FirebaseAuthException{
 
         // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
         Team team = teamRepository.findById(teamIdx)
@@ -328,12 +331,12 @@ public class TeamService {
                         log.info("[INFO] updateTeam : 기존 팀 이미지와 동일, 이미지 업데이트 없음");
                     } else {
                         log.info("[INFO] updateTeam : 기존 팀 이미지와 다름, 이미지 업데이트");
-                        imgUrl = imageService.uploadToStorage("team", fileName, file);
+                        imgUrl = imageService.uploadFiles(fileName, file);
                     }
                 } else {
                     // image 필드가 null 일 경우 비교 없이 바로 업로드
                     log.info("[INFO] updateTeam : 팀 이미지 업로드");
-                    imgUrl = imageService.uploadToStorage("team", fileName, file);
+                    imgUrl = imageService.uploadFiles(fileName, file);
                 }
 
             }
