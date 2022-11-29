@@ -88,10 +88,15 @@ public class TeamService {
     }
 
     public void deleteTeamImage(Team team){
-        imageService.deleteFiles("team"+team.getTeamIdx().toString());
-        log.info("[INFO] deleteTeamImage : firebase 팀 이미지 삭제 - " + "team" + team.getTeamIdx().toString());
-    }
 
+        System.out.println(team.getImgUrl());
+        if(team.getImgUrl().equals("null")){
+            log.info("[INFO] deleteTeamImage : 삭제 할 이미지가 존재하지 않음");
+        } else {
+            imageService.deleteFiles("team" + team.getTeamIdx().toString());
+            log.info("[INFO] deleteTeamImage : firebase 팀 이미지 삭제 - " + "team" + team.getTeamIdx().toString());
+        }
+    }
 
     @Transactional
     public Long createTeam(User leader, TeamRequest.createReq req,
