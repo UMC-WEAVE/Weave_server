@@ -1,6 +1,7 @@
 package com.weave.weaveserver.controller;
 
 import com.google.api.Http;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.config.jwt.TokenService;
@@ -9,7 +10,6 @@ import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.service.ArchiveService;
-import com.weave.weaveserver.service.ImageService;
 import com.weave.weaveserver.service.TeamService;
 import com.weave.weaveserver.service.UserService;
 import com.weave.weaveserver.util.FileUtils;
@@ -67,7 +67,7 @@ public class TeamController {
     public ResponseEntity<JsonResponse> createTeam(HttpServletRequest httpServletRequest,
                                                    @RequestPart TeamRequest.createReq req,
                                                    @RequestPart("fileName") @Nullable String fileName,
-                                                   @RequestPart("file") @Nullable MultipartFile file) throws IOException {
+                                                   @RequestPart("file") @Nullable MultipartFile file) throws IOException, FirebaseAuthException {
         if(req.getTitle() == null){
             log.info("[REJECT] createTeam : 팀의 title이 존재하지 않음");
             throw new BadRequestException("title이 존재하지 않습니다.");
@@ -142,7 +142,7 @@ public class TeamController {
                                                    @RequestPart TeamRequest.updateTeamReq req,
                                                    @RequestPart ("fileName") @Nullable String fileName,
                                                    @RequestPart ("file") @Nullable MultipartFile file,
-                                                   HttpServletRequest httpServletRequest) throws IOException{
+                                                   HttpServletRequest httpServletRequest) throws IOException, FirebaseAuthException{
 
         log.info("[API] updateTeam : 팀 정보 수정");
         Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, findUserByToken(httpServletRequest));

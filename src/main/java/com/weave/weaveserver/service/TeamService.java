@@ -1,10 +1,9 @@
 package com.weave.weaveserver.service;
 
-import com.google.api.Http;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.ForbiddenException;
 import com.weave.weaveserver.config.exception.NotFoundException;
-import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.*;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Collections;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
 public class TeamService {
 
     @Autowired
-    private ImageService imageService;
+    private FireBaseService imageService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -74,28 +72,55 @@ public class TeamService {
     }
 
 
+    public void uploadTeamImage(Team team, String fileName, MultipartFile file) throws IOException, FirebaseAuthException {
+
+        if(fileName == null || file.isEmpty()) {
+            log.info("[INFO] uploadTeamImage : 팀 이미지를 업로드하지 않음(기본이미지 사용)");
+            team.uploadImage("null");
+            return;
+        }
+        String teamId = "team" + team.getTeamIdx().toString();
+        System.out.println(teamId);
+
+        String imageUrl = imageService.uploadFiles(teamId, file);
+        team.uploadImage(imageUrl);
+        log.info("[INFO] uploadTeamImage : 팀 이미지 업로드 성공 - "+ imageUrl);
+    }
+
+    public void deleteTeamImage(Team team){
+
+        System.out.println(team.getImgUrl());
+        if(team.getImgUrl().equals("null")){
+            log.info("[INFO] deleteTeamImage : 삭제 할 이미지가 존재하지 않음");
+        } else {
+            imageService.deleteFiles("team" + team.getTeamIdx().toString());
+            log.info("[INFO] deleteTeamImage : firebase 팀 이미지 삭제 - " + "team" + team.getTeamIdx().toString());
+        }
+    }
+
     @Transactional
     public Long createTeam(User leader, TeamRequest.createReq req,
-                           String fileName, MultipartFile file) throws IOException{
+                           String fileName, MultipartFile file) throws IOException, FirebaseAuthException {
 
-        String imgUrl = "";
-
-        if(fileName == null || file == null) {
-            //System.out.println("파일 없음");
-            log.info("[INFO] createTeam : 팀 이미지를 업로드하지 않음(기본이미지 사용)");
-            imgUrl = "null";
-        } else {
-            imgUrl = imageService.uploadToStorage("team", fileName, file);
-        }
-        Team team = Team.builder()
+//        String imgUrl = "";
+//
+//        if(fileName == null || file == null) {
+//            //System.out.println("파일 없음");
+//            log.info("[INFO] createTeam : 팀 이미지를 업로드하지 않음(기본이미지 사용)");
+//            imgUrl = "null";
+//        } else {
+//            imgUrl = imageService.uploadFiles(fileName, file);
+//        }
+        Team createTeam = Team.builder()
                 .leader(leader)
                 .title(req.getTitle())
                 .startDate(req.getStartDate())
                 .endDate(req.getEndDate())
-                .imgUrl(imgUrl)
                 .isEmpty(true)
                 .build();
-        Long teamIdx = teamRepository.save(team).getTeamIdx();
+        Team team = teamRepository.save(createTeam);
+
+        uploadTeamImage(team, fileName, file);
 
         Belong belong = Belong.builder()
                 .user(leader)
@@ -103,8 +128,8 @@ public class TeamService {
                 .build();
         belongRepository.save(belong);
 
-        log.info("[INFO] createTeam : 팀 생성 성공, create team idx: " + teamIdx);
-        return teamIdx;
+        log.info("[INFO] createTeam : 팀 생성 성공, create team idx: " + team.getTeamIdx());
+        return team.getTeamIdx();
 
     }
 
@@ -255,6 +280,8 @@ public class TeamService {
             archiveService.deleteByTeamIdx(team);
             log.info("[INFO] deleteTeam : 팀과 연결된 Archive 모두 삭제");
 
+            // 팀 이미지 삭제
+            deleteTeamImage(team);
             // 팀 삭제
             teamRepository.deleteByTeamIdx(teamIdx);
             log.info("[INFO] deleteTeam : 팀 삭제 성공, deleted team idx: "+teamIdx);
@@ -293,7 +320,7 @@ public class TeamService {
     @Transactional
     public Long updateTeam(Long teamIdx, TeamRequest.updateTeamReq req,
                            String fileName, MultipartFile file, User requester)
-            throws IOException{
+            throws IOException, FirebaseAuthException{
 
         // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
         Team team = teamRepository.findById(teamIdx)
@@ -309,36 +336,43 @@ public class TeamService {
             //요청 사용자와 팀짱이 동일
             log.info("[INFO] updateTeam : 요청 사용자가 팀의 팀짱과 일치함(권한ㅇ)");
 
-            // 지금 DB에 있는 fileName 과 동일한지 확인 필요
-            String imgUrl = team.getImgUrl();
+//            // 지금 DB에 있는 fileName 과 동일한지 확인 필요
+//            String imgUrl = team.getImgUrl();
+//
+//            //null 로 보낼 경우 -> 이미지 삭제 처리
+//            if(fileName == null || file == null){
+//                log.info("[INFO] updateTeam : 팀 이미지 삭제(기본이미지로 변경)");
+//                imgUrl = "null";
+//            } else {
+//
+//                if(imgUrl != null){
+//                    // image 가 null 이 아닐 때 저장된 경로에서 fileName 을 찾아냄
+//                    String existFile = imgUrl.replaceAll("https://storage.googleapis.com/weave_bucket/", "");
+//
+//                    // 만약 넘어온 fileName 과 기존의 fileName 이 동일하다면 같은 이미지(업데이트 X) 로 판단
+//                    // 동일하지 않다면 새로운 이미지(업데이트 O) 로 판단
+//                    if(existFile.equals(fileName)) {
+//                        log.info("[INFO] updateTeam : 기존 팀 이미지와 동일, 이미지 업데이트 없음");
+//                    } else {
+//                        log.info("[INFO] updateTeam : 기존 팀 이미지와 다름, 이미지 업데이트");
+//                        imgUrl = imageService.uploadFiles(fileName, file);
+//                    }
+//                } else {
+//                    // image 필드가 null 일 경우 비교 없이 바로 업로드
+//                    log.info("[INFO] updateTeam : 팀 이미지 업로드");
+//                    imgUrl = imageService.uploadFiles(fileName, file);
+//                }
+//            }
 
-            //null 로 보낼 경우 -> 이미지 삭제 처리
-            if(fileName == null || file == null){
-                log.info("[INFO] updateTeam : 팀 이미지 삭제(기본이미지로 변경)");
-                imgUrl = "null";
-            } else {
-
-                if(imgUrl != null){
-                    // image 가 null 이 아닐 때 저장된 경로에서 fileName 을 찾아냄
-                    String existFile = imgUrl.replaceAll("https://storage.googleapis.com/weave_bucket/", "");
-
-                    // 만약 넘어온 fileName 과 기존의 fileName 이 동일하다면 같은 이미지(업데이트 X) 로 판단
-                    // 동일하지 않다면 새로운 이미지(업데이트 O) 로 판단
-                    if(existFile.equals(fileName)) {
-                        log.info("[INFO] updateTeam : 기존 팀 이미지와 동일, 이미지 업데이트 없음");
-                    } else {
-                        log.info("[INFO] updateTeam : 기존 팀 이미지와 다름, 이미지 업데이트");
-                        imgUrl = imageService.uploadToStorage("team", fileName, file);
-                    }
-                } else {
-                    // image 필드가 null 일 경우 비교 없이 바로 업로드
-                    log.info("[INFO] updateTeam : 팀 이미지 업로드");
-                    imgUrl = imageService.uploadToStorage("team", fileName, file);
-                }
-
+            // null이면 firebase 이미지 삭제
+            if(fileName == null || file.isEmpty()){
+                deleteTeamImage(team);
             }
-            //업데이트
-            team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate(), imgUrl);
+            // 팀 이미지 정보 업데이트
+            uploadTeamImage(team, fileName, file);
+
+            // 팀 정보 업데이트
+            team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate());
             log.info("[INFO] updateTeam : 팀 정보 업데이트 성공, updated team idx: "+teamIdx);
             return teamIdx;
 
@@ -365,13 +399,15 @@ public class TeamService {
 
                 // 다른 팀원이 존재하지 않는다면
                 if(teamUsers.size() == 1 && checkSameUser(teamUsers.get(0), deleteMember)){
-                    //delete Team
+                    // 팀 이미지 삭제
+                    deleteTeamImage(team);
+                    // 팀 삭제
                     teamRepository.delete(team);
                     log.info("[INFO] deleteBelongMember : 팀에 더이상 팀원이 존재하지 않음, 팀 삭제");
                     return "더 이상 팀원이 존재하지 않음, 팀 삭제";
 
                 } else {
-                    User randomUser = teamUsers.get(1);
+                    User randomUser;
 
                     do {
                         Collections.shuffle(teamUsers);
@@ -440,10 +476,8 @@ public class TeamService {
 
     //team 삭제시 plan, archive 전부 삭제 => teamIdx
     @Transactional
-    public void deleteBelongTeam(String userEmail){
+    public void deleteBelongTeam(User user){
         log.info("[API] deleteBelongTeam : 사용자가 속한 팀 정보 모두 삭제(유저탈퇴접근)");
-
-        User user = findUserByEmail(userEmail);
 
         //belong 에서 내가 속한 팀을 찾고, 그 팀의 teamIdx 로 접근해서 내가 리더인지 아닌지 확인
         List<Team> belongTeamList = belongRepository.findAllByUserIdx(user.getUserIdx());
