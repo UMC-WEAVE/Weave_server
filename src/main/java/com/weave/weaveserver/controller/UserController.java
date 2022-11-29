@@ -1,6 +1,7 @@
 package com.weave.weaveserver.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.weave.weaveserver.config.andOauth.SecurityProperties;
 import com.weave.weaveserver.config.exception.*;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.User;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,16 +56,14 @@ public class UserController {
         try{
             String email = tokenService.getUserEmail(req);
             User user = userService.getUserByEmail(email);
-            userProvider.deleteUser(email);
+            userProvider.deleteUser(email, user.getLoginId());
         }catch (NullPointerException e){
             log.info("[REJECT]삭제된 유저");
             throw new BadRequestException("등록되지 않은 유저입니다.");
         }
-
         reasonService.addQuitReason(reason);
         return ResponseEntity.ok(new JsonResponse(200, "deleteUser",reason));
     }
-
 
     ////throw error example
     @GetMapping("/error/{errorCode}")

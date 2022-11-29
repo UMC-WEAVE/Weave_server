@@ -2,7 +2,7 @@ package com.weave.weaveserver.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.weave.weaveserver.config.andOauth.GetKakao;
+import com.weave.weaveserver.config.andOauth.GetAcToken;
 import com.weave.weaveserver.config.andOauth.SecurityProperties;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.UnAuthorizedException;
@@ -34,7 +34,7 @@ public class UserProvider {
 
 
     @Transactional
-    public void deleteUser(String email) {
+    public void deleteUser(String email, String loginId) {
         User user;
         //TODO : test 12번 유저
         try {
@@ -44,18 +44,29 @@ public class UserProvider {
         }
 
         try{
-            teamService.deleteTeamByLeaderIdx(user.getUserIdx());
+            teamService.deleteBelongTeam(user.getEmail());
             planService.deleteAuthorByUserIdx(user.getUserIdx());
             archiveService.deleteAllArchiveByUserIdx(user);
-            belongRepository.deleteByUser(user);
-            userRepository.deleteById(user.getUserIdx());
+            if(belongRepository.countTeamByUser(user.getUserIdx())>0){
+                belongRepository.deleteByUser(user);
+            }
+//            userRepository.deleteById(user.getUserIdx());
 
-        }catch (BadRequestException e){
-            System.out.println("등록되지 않은 팀이래요~~");
+        }catch (NullPointerException e){
+            System.out.println("deleteUser error");
         }
-        userRepository.delete(user);
-        String accessToken = getAcTokenByRefToken(user.getOauthToken(),user.getLoginId());
-        unlinkKakao(accessToken);
+
+//        userRepository.delete(user);
+
+        String refToken = getAcTokenByRefToken(user.getOauthToken(),user.getLoginId());
+
+
+        switch (loginId){
+            case "kakao":
+                unlinkKakao(refToken);break;
+            case "naver":
+                unlinkNaver(refToken);break;
+        }
 
         System.out.println(user.getUserIdx()+"번째 유저 삭제 완료");
     }
@@ -66,6 +77,7 @@ public class UserProvider {
         ResponseEntity<String> response;
 
 
+        //unlink kakao
         if (loginId.equals("kakao")) {
 
             String host = "https://kauth.kakao.com/oauth/token";
@@ -87,15 +99,46 @@ public class UserProvider {
 
             System.out.println(response);
 
-            GetKakao kakaoProfile = null;
+            GetAcToken kakaoProfile = null;
             try {
-                kakaoProfile = objectMapper.readValue(response.getBody(), GetKakao.class);
+                kakaoProfile = objectMapper.readValue(response.getBody(), GetAcToken.class);
             } catch (JsonProcessingException e) {
                 log.info("[REJECT]kakaoMapper error");
             }
             return kakaoProfile.getAccess_token();
         }
-        throw new BadRequestException("잘못된 플랫폼입니다.");
+
+        //unlink naver
+        if(loginId.equals("naver")){
+
+            System.out.println("getAcTokenByRefToken");
+
+            String host = "https://nid.naver.com/oauth2.0/token";
+
+            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("client_id", SecurityProperties.naver_client_id);
+            params.add("client_secret", SecurityProperties.naver_client_secret);
+            params.add("grant_type", "refresh_token");
+            params.add("refresh_token", refreshToken);
+
+            HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(params, headers);
+
+            try {
+                response = restTemplate.exchange(host, HttpMethod.POST, naverRequest, String.class);
+            } catch (Exception e) {
+                throw new BadRequestException("이미 만료된 사용자");
+            }
+            GetAcToken naverProfile = null;
+            try {
+                naverProfile = objectMapper.readValue(response.getBody(), GetAcToken.class);
+            } catch (JsonProcessingException e) {
+                log.info("[REJECT]naverMapper error");
+            }
+            return naverProfile.getAccess_token();
+        }
+        throw new BadRequestException("[REJECT]unlink platform error.");
     }
 
 
@@ -115,7 +158,39 @@ public class UserProvider {
         try{
             response=restTemplate.exchange(host, HttpMethod.POST,request,String.class);
         }catch (Exception e){
-            throw new UnAuthorizedException("kakaoUnlink fail");
+            throw new UnAuthorizedException("[REJECT]kakaoUnlink fail");
+        }
+        System.out.println(response);
+    }
+
+    public void unlinkNaver(String accessToken){
+        System.out.println("accessToken = "+accessToken);
+        System.out.println("unlinkNaver");
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> response;
+
+        String host = "https://nid.naver.com/oauth2.0/token";
+
+//        if(accessToken.replaceAll("+").){
+//            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+//        }
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", SecurityProperties.naver_client_id);
+        params.add("client_secret", SecurityProperties.naver_client_secret);
+        params.add("grant_type", "delete");
+        params.add("access_token", accessToken);
+        params.add("service_provider", "NAVER");
+
+
+        HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(params, headers);
+
+        try {
+            response = restTemplate.exchange(host, HttpMethod.GET, naverRequest, String.class);
+        } catch (Exception e) {
+            throw new BadRequestException("이미 만료된 사용자");
         }
         System.out.println(response);
     }

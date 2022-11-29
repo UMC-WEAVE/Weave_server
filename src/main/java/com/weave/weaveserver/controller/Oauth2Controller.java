@@ -159,6 +159,12 @@ public class Oauth2Controller {
                 log.error("[REJECT]googleMapper error");
             }
             email= googleProfile.getEmail();
+
+            User user = userService.getUserByEmail(email);
+            if(login.getRefreshToken().length()<1){
+                refreshToken = user.getOauthToken();
+            }
+
             joinUser = UserRequest.join.builder()
                     .email(email)
                     .loginId("google")
@@ -166,7 +172,6 @@ public class Oauth2Controller {
                     .image(googleProfile.getPicture())
                     .oauthToken(refreshToken).build();
 
-            User user = userService.getUserByEmail(email);
             if(user==null){
                 log.info("google join : "+email);
                 userService.joinUser(joinUser);
@@ -182,16 +187,5 @@ public class Oauth2Controller {
         log.info("[REJECT]wrong platform");
         throw new MethodNotAllowedException("로그인 플랫폼이 잘못됨");
     }
-
-
-//
-//    @GetMapping("/log")
-//    public void logTest(){
-//        log.info("info Test");
-//        log.error("error Test");
-//        log.debug("debug Test");
-//        log.warn("Warning Test");
-//    }
-
 
 }

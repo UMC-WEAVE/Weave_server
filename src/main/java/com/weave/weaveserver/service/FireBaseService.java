@@ -7,6 +7,7 @@ import com.google.cloud.storage.Storage;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.cloud.StorageClient;
 import com.weave.weaveserver.config.exception.NotFoundException;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,8 @@ public class FireBaseService {
     @Value("${app.firebase-bucket}")
     private String firebaseBucket;
 
+    //archive : file name + random code
+    //team : team + teamIdx
     public String uploadFiles(String fileName, MultipartFile file) throws IOException, FirebaseAuthException {
         Bucket bucket = StorageClient.getInstance().bucket(firebaseBucket);
         InputStream content = new ByteArrayInputStream(file.getBytes());
@@ -37,5 +40,9 @@ public class FireBaseService {
         }catch (Exception e){
             throw new NotFoundException("file 삭제 실패");
         }
+    }
+
+    public String randomCode(){
+        return RandomStringUtils.random(6,33,125,true,false);
     }
 }
