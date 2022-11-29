@@ -10,7 +10,6 @@ import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.service.ArchiveService;
-import com.weave.weaveserver.service.ImageService;
 import com.weave.weaveserver.service.TeamService;
 import com.weave.weaveserver.service.UserService;
 import com.weave.weaveserver.util.FileUtils;

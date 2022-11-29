@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -42,15 +40,15 @@ public class Team {
 
     private boolean isEmpty; //boolean 은 bit(1)로 저장, 1(true)는 속한 팀원이 없음 / 0(false)는 속한 팀원이 있음
 
+    public void uploadImage(String imgUrl) { this.imgUrl = imgUrl; }
     public void updateEmpty(){
         this.isEmpty = false;
     }
 
-    public void updateTeam(String title, LocalDate startDate, LocalDate endDate, String imgUrl){
+    public void updateTeam(String title, LocalDate startDate, LocalDate endDate){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.imgUrl = imgUrl;
     }
 
     public void changeLeader(User user){
