@@ -222,6 +222,21 @@ public class ArchiveService {
 
     @Transactional
     public void deleteArchive(Archive archive){
+        //아카이브에 연결된 이미지 먼저 이미지서버에서 삭제
+        List<Image> imageList = imageRepository.findByArchiveIdx(archive.getArchiveIdx());
+
+        for(Image i : imageList){
+            //파일 url에서 파일이름만 분리
+            String url = i.getUrl();
+            int startIndex = url.lastIndexOf("/") + 1; // 이 위치포함 시작
+            int endIndex = url.lastIndexOf("?"); // 이 위치 직전까지만 포함
+            String fileName = url.substring(startIndex, endIndex);
+
+            //파일이름으로 파일 삭제
+            fireBaseService.deleteFiles(fileName);
+        }
+
+        //아카이브 삭제
         archiveRepository.delete(archive);
     }
 
