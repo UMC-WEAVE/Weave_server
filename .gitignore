@@ -35,6 +35,7 @@ out/
 **/main/java/com/weave/weaveserver/service/ImageService.java
 **/main/resources/civil-treat-360317-cea5f2d8ef7c.json
 **/main/java/com/weave/weaveserver/util/FileUtils.java
+src/main/java/com/weave/weaveserver/service/testImage.java
 src/main/resources/serviceAccountKey.json
 /logs/**
 
