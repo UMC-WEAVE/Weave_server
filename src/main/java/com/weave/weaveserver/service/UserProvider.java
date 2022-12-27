@@ -44,7 +44,7 @@ public class UserProvider {
         }
 
         try{
-            teamService.deleteBelongTeam(user.getEmail());
+            teamService.deleteBelongTeam(user);
             planService.deleteAuthorByUserIdx(user.getUserIdx());
             archiveService.deleteAllArchiveByUserIdx(user);
             if(belongRepository.countTeamByUser(user.getUserIdx())>0){
