@@ -88,7 +88,7 @@ public class ArchiveService {
             log.info("[INFO] addArchive : no file to upload");
         } else {
             log.info("[INFO] addArchive : upload file");
-            imgUrl = fireBaseService.uploadFiles(fileName, file);  //이미지 업로드 후 url받아오기!!
+            imgUrl = fireBaseService.uploadFiles("archive", fileName, file);  //이미지 업로드 후 url받아오기!!
 //            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
         }
 
