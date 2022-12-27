@@ -51,21 +51,23 @@ public class UserProvider {
                 belongRepository.deleteByUser(user);
             }
 //            userRepository.deleteById(user.getUserIdx());
+            userRepository.delete(user);
+
 
         }catch (NullPointerException e){
             System.out.println("deleteUser error");
         }
 
-//        userRepository.delete(user);
 
-        String refToken = getAcTokenByRefToken(user.getOauthToken(),user.getLoginId());
+        String acToken = getAcTokenByRefToken(user.getOauthToken(),user.getLoginId());
 
 
         switch (loginId){
             case "kakao":
-                unlinkKakao(refToken);break;
+                unlinkKakao(acToken);break;
             case "naver":
-                unlinkNaver(refToken);break;
+                System.out.println(acToken);
+                unlinkNaver(acToken);break;
         }
 
         System.out.println(user.getUserIdx()+"번째 유저 삭제 완료");
@@ -178,9 +180,9 @@ public class UserProvider {
 //        }
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "delete");
         params.add("client_id", SecurityProperties.naver_client_id);
         params.add("client_secret", SecurityProperties.naver_client_secret);
-        params.add("grant_type", "delete");
         params.add("access_token", accessToken);
         params.add("service_provider", "NAVER");
 
@@ -188,7 +190,7 @@ public class UserProvider {
         HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(params, headers);
 
         try {
-            response = restTemplate.exchange(host, HttpMethod.GET, naverRequest, String.class);
+            response = restTemplate.exchange(host, HttpMethod.POST, naverRequest, String.class);
         } catch (Exception e) {
             throw new BadRequestException("이미 만료된 사용자");
         }
