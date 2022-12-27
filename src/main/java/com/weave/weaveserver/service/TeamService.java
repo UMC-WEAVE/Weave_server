@@ -82,7 +82,7 @@ public class TeamService {
         String teamId = "team" + team.getTeamIdx().toString();
         System.out.println(teamId);
 
-        String imageUrl = imageService.uploadFiles(teamId, file);
+        String imageUrl = imageService.uploadFiles("team", teamId, file);
         team.uploadImage(imageUrl);
         log.info("[INFO] uploadTeamImage : 팀 이미지 업로드 성공 - "+ imageUrl);
     }
