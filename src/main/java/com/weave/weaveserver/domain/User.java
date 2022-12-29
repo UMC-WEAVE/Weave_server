@@ -1,6 +1,7 @@
 package com.weave.weaveserver.domain;
 
 import com.weave.weaveserver.dto.UserRequest;
+import com.weave.weaveserver.util.UuidUtil;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,6 +15,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_idx")
     private Long userIdx;
+
+    @Column(nullable = false)
+    private String uuid;
 
     @Column(nullable = false)
     private String name;
@@ -33,11 +37,12 @@ public class User {
 
 
     @Builder
-    public User(String name, String email, String loginId, String image, String oauthToken) {
+    public User(String name, String email, String loginId, String image, String oauthToken, String uuid) {
         this.name = name;
         this.email = email;
         this.loginId=loginId;
         this.image = image;
+        this.uuid = uuid;
         this.oauthToken = oauthToken;
     }
 
@@ -47,7 +52,7 @@ public class User {
 
     public static User joinUser(UserRequest.join joinUser){
         return User.builder()
-                .name(joinUser.getName()).email(joinUser.getEmail()).loginId(joinUser.getLoginId()).image(joinUser.getImage())
+                .name(joinUser.getName()).email(joinUser.getEmail()).loginId(joinUser.getLoginId()).image(joinUser.getImage()).uuid(UuidUtil.generateType1UUID())
                 .oauthToken(joinUser.getOauthToken()).build();
     }
 

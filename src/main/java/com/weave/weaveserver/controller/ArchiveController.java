@@ -36,7 +36,7 @@ public class ArchiveController {
     private final TokenService tokenService;
     private final UserService userService;
     private final TeamService teamService;
-    
+
     //테스트용으로 작성했던 코드들
 //    @GetMapping("/log/archives")
 //    public ResponseEntity<Object> testLogger() {
@@ -180,7 +180,7 @@ public class ArchiveController {
 
         return clientUser;
     }
-    
+
 
     private void checkBelong(Long teamIdx, String email){
         boolean isBelong = teamService.findByTeamIdxAndUser(teamIdx, email);

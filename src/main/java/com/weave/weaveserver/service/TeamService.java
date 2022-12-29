@@ -27,8 +27,8 @@ public class TeamService {
 
     @Autowired
     private FireBaseService imageService;
-    @Autowired
-    private UserService userService;
+//    @Autowired
+//    private UserService userService;
     @Autowired
     private ArchiveService archiveService;
     @Autowired
