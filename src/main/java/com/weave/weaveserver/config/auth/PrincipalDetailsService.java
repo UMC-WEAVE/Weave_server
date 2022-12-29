@@ -32,7 +32,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 //        User user = userService.getUserByEmail(username);
         User user = null;
         try{
-            user = userRepository.findUserByEmail(username);
+            user = userRepository.findUserByUuid(username);
         }catch (NullPointerException e){
             throw new BadRequestException("등록되지 않은 유저입니다.");
         }
