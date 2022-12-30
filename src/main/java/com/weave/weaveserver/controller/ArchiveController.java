@@ -14,6 +14,7 @@ import com.weave.weaveserver.dto.ArchiveResponse;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.service.ArchiveService;
 import com.weave.weaveserver.service.TeamService;
+import com.weave.weaveserver.service.UserProvider;
 import com.weave.weaveserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +35,10 @@ import java.util.List;
 public class ArchiveController {
     private final ArchiveService archiveService;
     private final TokenService tokenService;
+    private final UserProvider userProvider;
     private final UserService userService;
     private final TeamService teamService;
-    
+
     //테스트용으로 작성했던 코드들
 //    @GetMapping("/log/archives")
 //    public ResponseEntity<Object> testLogger() {
@@ -175,12 +177,18 @@ public class ArchiveController {
             log.info("[REJECT] archive findUserByEmailInToken : servletRequest == null");
             throw new UnAuthorizedException("Unauthorized. HttpServletRequest is null");
         }
-        String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
-        User clientUser = userService.getUserByEmail(userEmail);
+
+        // (구) email 로 사용자 찾음
+//        String userEmail = tokenService.getUserEmail(servletRequest); // 토큰으로부터 user 이메일 가져오기
+//        User clientUser = userService.getUserByEmail(userEmail);
+
+        // uuid 로 사용자 찾음
+        String userUuid = tokenService.getUserUuid(); // 토큰으로부터 user 이메일 가져오기
+        User clientUser = userProvider.getUserByUuid(userUuid);
 
         return clientUser;
     }
-    
+
 
     private void checkBelong(Long teamIdx, String email){
         boolean isBelong = teamService.findByTeamIdxAndUser(teamIdx, email);

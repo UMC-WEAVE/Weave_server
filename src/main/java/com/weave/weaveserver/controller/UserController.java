@@ -1,8 +1,6 @@
 package com.weave.weaveserver.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.weave.weaveserver.config.andOauth.SecurityProperties;
-import com.weave.weaveserver.config.exception.*;
+import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.jwt.TokenService;
 import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.JsonResponse;
@@ -15,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,7 +28,6 @@ public class UserController {
 
     private final QuitReasonService reasonService;
 
-    private final ObjectMapper objectMapper;
 
 
     @GetMapping("/hello")
@@ -43,20 +37,20 @@ public class UserController {
 
 
     @GetMapping("/mypage")
-    public ResponseEntity<JsonResponse> loadMyPage(HttpServletRequest request){
-        log.info("[API] deleteUser");
-        String email = tokenService.getUserEmail(request);
-        UserResponse.myPage data = userService.loadMyPage(email);
+    public ResponseEntity<JsonResponse> loadMyPage(){
+        log.info("[API] getUser");
+        String uuid = tokenService.getUserUuid();
+        UserResponse.myPage data = userService.loadMyPage(uuid);
         return ResponseEntity.ok(new JsonResponse(200, "loadMyPage",data));
     }
 
     @DeleteMapping("")
-    public ResponseEntity<JsonResponse> deleteUser(HttpServletRequest req, @RequestBody ReasonRequest reason){
+    public ResponseEntity<JsonResponse> deleteUser(@RequestBody ReasonRequest reason){
         log.info("[API] deleteUser");
         try{
-            String email = tokenService.getUserEmail(req);
-            User user = userService.getUserByEmail(email);
-            userProvider.deleteUser(email, user.getLoginId());
+            String uuid = tokenService.getUserUuid();
+            User user = userProvider.getUserByUuid(uuid);
+            userService.deleteUser(uuid, user.getLoginId());
         }catch (NullPointerException e){
             log.info("[REJECT]삭제된 유저");
             throw new BadRequestException("등록되지 않은 유저입니다.");
@@ -64,25 +58,5 @@ public class UserController {
         reasonService.addQuitReason(reason);
         return ResponseEntity.ok(new JsonResponse(200, "deleteUser",reason));
     }
-
-    ////throw error example
-    @GetMapping("/error/{errorCode}")
-    public void errorTest(@PathVariable int errorCode){
-        switch (errorCode){
-            case 400: throw new BadRequestException("400 : BadRequestException");
-            case 403: throw new ForbiddenException("403 : ForbiddenException");
-            case 404: throw new NotFoundException("404 : 유저를 찾을 수 없음");
-            case 405: throw new MethodNotAllowedException("405 : MethodNotAllowedException");
-            case 500: throw new GlobalException("505 : GlobalException");
-        }
-    }
-
-    ////resolve Token example
-    @GetMapping("/getToken")
-    public String getUserEmail(HttpServletRequest request){
-        String userEmail = tokenService.getUserEmail(request);
-        return userEmail;
-    }
-
 
 }

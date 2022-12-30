@@ -1,12 +1,9 @@
 package com.weave.weaveserver.config.jwt;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.UnAuthorizedException;
 import com.weave.weaveserver.config.exception.jwt.ExceptionCode;
 import com.weave.weaveserver.repository.UserRepository;
-import com.weave.weaveserver.service.UserService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +45,7 @@ public class TokenService{
         String acToken = Jwts.builder()
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + JwtProperties.TEST_EXPIRATION_TIME)) // set Expire Time
+                .setExpiration(new Date(now.getTime() + JwtProperties.EXPIRATION_TIME)) // set Expire Time
                 .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
@@ -54,28 +53,28 @@ public class TokenService{
         return new Token(acToken);
     }
 
-    public String getUserEmail(HttpServletRequest request){
+    public String getUserUuid(){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String token = request.getHeader(JwtProperties.ACCESS_HEADER_STRING);
-        String email;
+        String uuid;
         try{
-            email = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
+            uuid = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
         }catch (NullPointerException e){
             System.out.println("NullPointerException");
-            email = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
+            uuid = Jwts.parser().setSigningKey(JwtProperties.SECRET.getBytes()).parseClaimsJws(token).getBody().getSubject();
         }catch (SignatureException e){
             throw new UnAuthorizedException("UNAUTHORIZED");
         }
-//        String findUser = userService.getUserByEmail(email).getEmail();
         try{
-            String findUser = userRepository.findUserByEmail(email).getEmail();
-            if(!findUser.equals(email)){
+            String findUser = userRepository.findUserByUuid(uuid).getUuid();
+            if(!findUser.equals(uuid)){
                 throw new BadRequestException("유저의 정보를 찾을 수 없음");
             }
         }catch (NullPointerException e){
             throw new BadRequestException("등록되지 않은 유저입니다.");
         }
 
-        return email;
+        return uuid;
     }
 
     //jwt토큰에서 인증정보 조회
