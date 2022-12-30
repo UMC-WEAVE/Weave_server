@@ -55,12 +55,11 @@ public class TeamService {
         }
     }
 
-
-    private User findUserByEmail(String userEmail){
-        User user = userService.getUserByEmail(userEmail);
-        log.info("[INFO] findUserByEmail 호출 : " + user.getUserIdx());
-        return user;
-    }
+//    private User findUserByEmail(String userEmail){
+//        User user = userService.getUserByEmail(userEmail);
+//        log.info("[INFO] findUserByEmail 호출 : " + user.getUserIdx());
+//        return user;
+//    }
 
     public boolean checkSameUser(User check1, User check2){
         log.info("[INFO] checkSameUser 호출");
