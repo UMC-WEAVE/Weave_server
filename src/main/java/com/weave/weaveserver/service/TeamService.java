@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -223,12 +224,11 @@ public class TeamService {
     }
 
     @Transactional
-    public List<TeamResponse.getMyTeams> getMyTeams(User user){
+    public TeamResponse.showMyTeamList getMyTeams(User user){
 
         List<Team> teams = belongRepository.findAllByUserIdx(user.getUserIdx());
 
         List<TeamResponse.getMyTeams> teamList = teams.stream().map(team -> new TeamResponse.getMyTeams(
-                user.getName(),
                 team.getTeamIdx(),
                 team.getTitle(),
                 team.getStartDate(),
@@ -242,8 +242,13 @@ public class TeamService {
 //            return teamList;
 //        }
 
+        TeamResponse.showMyTeamList showMyTeamLists = new TeamResponse.showMyTeamList(
+                user.getName(),
+                teamList
+        );
+
         log.info("[INFO] getMyTeams : 나의 팀 조회 성공");
-        return teamList;
+        return showMyTeamLists;
     }
 
     @Transactional

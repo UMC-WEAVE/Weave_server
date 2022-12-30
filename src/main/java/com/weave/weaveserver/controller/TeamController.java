@@ -111,7 +111,7 @@ public class TeamController {
     @GetMapping("/teams")
     public ResponseEntity<JsonResponse> getMyTeams(HttpServletRequest httpServletRequest){
         log.info("[API] getMyTeams : 내가 속한 팀 조회");
-        List<TeamResponse.getMyTeams> teamList = teamService.getMyTeams(findUserByToken(httpServletRequest));
+        TeamResponse.showMyTeamList teamList = teamService.getMyTeams(findUserByToken(httpServletRequest));
         return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 
