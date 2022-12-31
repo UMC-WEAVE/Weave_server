@@ -35,14 +35,15 @@ public class PlanController {
 
     //일정 추가
     @PostMapping("/plans")
-    public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req, HttpServletRequest httpServletRequest){
+    public ResponseEntity createPlan(@RequestBody PlanRequest.createReq req){
         log.info("[API] createPlan : createPlan API");
 
         //user token값 없을 때
-        if(httpServletRequest == null){
-            log.info("[REJECT] createPlan : user token 값 없음");
-            throw new GlobalException("user token값을 함께 넘겨주세요.");
-        }
+//        if(httpServletRequest == null){
+//            log.info("[REJECT] createPlan : user token 값 없음");
+//            throw new GlobalException("user token값을 함께 넘겨주세요.");
+//        }
+
         //team Idx가 없을 때
         if(req.getTeamIdx() == null){
             log.info("[REJECT] createPlan : team index 값 없음");
@@ -72,25 +73,22 @@ public class PlanController {
             }
         }
 
-        if(httpServletRequest == null){
-            log.info("[REJECT] addPlan : user token 값이 없습니다.");
-            throw new GlobalException("user token값을 함께 넘겨주세요.");
-        }
-        String userEmail = tokenService.getUserEmail(httpServletRequest);
-        Long planIdx = planService.addPlan(req, userEmail);
+//        if(httpServletRequest == null){
+//            log.info("[REJECT] addPlan : user token 값이 없습니다.");
+//            throw new GlobalException("user token값을 함께 넘겨주세요.");
+//        }
+
+        String userId = tokenService.getUserUuid();
+        Long planIdx = planService.addPlan(req, userId);
 
         return ResponseEntity.ok(new JsonResponse(201, "addPlan", planIdx));
     }
 
     //일정 상세 조회 (for Android)
     @GetMapping("/plans/{planIdx}")
-    public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx, HttpServletRequest httpServletRequest){
+    public ResponseEntity<?> getPlanDetail(@PathVariable Long planIdx){
         log.info("[API] getPlanDetail : getPlanDetailByPlanIdx");
 
-        if(tokenService.getUserEmail(httpServletRequest) == null){
-            log.info("[REJECT] getPlanDetail : user token값이 없습니다.");
-            throw new GlobalException("올바른 user의 접근이 아닙니다.");
-        }
         PlanResponse.planDetailRes res = planService.getPlanDetail(planIdx);
         return ResponseEntity.ok(new JsonResponse(200, "getPlan", res));
     }
@@ -116,11 +114,11 @@ public class PlanController {
 
     //일정 수정
     @PatchMapping("/plans/{planIdx}")
-    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req, HttpServletRequest httpServletRequest){
+    public ResponseEntity<?> updatePlan(@PathVariable Long planIdx, @RequestBody PlanRequest.updateReq req){
         log.info("[API] updatePlan : updatePlan API");
 
-        String userEmail = tokenService.getUserEmail(httpServletRequest);
-        planService.updatePlan(planIdx, req, userEmail);
+        String userId = tokenService.getUserUuid();
+        planService.updatePlan(planIdx, req, userId);
         return ResponseEntity.ok(new JsonResponse(201, "updatePlan", null));
     }
 
