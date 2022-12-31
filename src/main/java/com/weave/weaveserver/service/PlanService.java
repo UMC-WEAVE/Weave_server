@@ -36,16 +36,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PlanService {
 
+    public final UserProvider userProvider;
     public final UserRepository userRepository;
     public final TeamRepository teamRepository;
     public final PlanRepository planRepository;
     public final ArchiveRepository archiveRepository;
 
     @Transactional
-    public Long addPlan(PlanRequest.createReq req, String userEmail){
+    public Long addPlan(PlanRequest.createReq req, String userId){
         log.info("[INFO] addPlan");
 
-        User user = userRepository.findUserByEmail(userEmail);
+        User user = userProvider.getUserByUuid(userId);
         Team team = teamRepository.findByTeamIdx(req.getTeamIdx());
         if(team == null){
             log.info("[REJECT] addPlan : 해당 team이 존재하지 않습니다.");
@@ -185,14 +186,14 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planIdx, PlanRequest.updateReq req, String userEmail){
+    public void updatePlan(Long planIdx, PlanRequest.updateReq req, String userId){
         Plan plan = planRepository.findByPlanIdx(planIdx);
         if(plan == null){
             log.info("[REJECT] deletePlan : 해당 plan index 값이 없습니다.");
             throw new BadRequestException("해당 일정이 존재하지 않습니다.");
         }
 
-        User user = userRepository.findUserByEmail(userEmail);
+        User user = userProvider.getUserByUuid(userId);
         plan.updatePlan(user,
                 req.getTitle(),
                 req.getDate(),
