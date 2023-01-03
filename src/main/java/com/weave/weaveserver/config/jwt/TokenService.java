@@ -113,6 +113,7 @@ public class TokenService{
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token. at validation Token");
             request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getStatus());
+            return false;
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT token.");
             request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getStatus());

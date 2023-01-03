@@ -1,10 +1,12 @@
 package com.weave.weaveserver.config.jwt;
 
+import com.nimbusds.jose.shaded.json.JSONObject;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.jwt.ExceptionCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -44,6 +46,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("ExpiredJwt at JWT Filter");
         }catch (ClassCastException e){
             log.info("ClassCastException");
+            setResponse(response, ExceptionCode.EXPIRED_TOKEN);
         }
+    }
+
+    private void setResponse(HttpServletResponse response, ExceptionCode exceptionCode) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        log.info("exception Entry point enter");
+        JSONObject responseJson = new JSONObject();
+        responseJson.put("timeStamp", exceptionCode.getTimeStamp());
+        responseJson.put("isSuccess",exceptionCode.isSuccess());
+        responseJson.put("status",exceptionCode.getStatus());
+        responseJson.put("message", exceptionCode.getMessage());
+
+        response.getWriter().print(responseJson);
     }
 }
