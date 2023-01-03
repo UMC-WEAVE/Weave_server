@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -90,13 +91,16 @@ public class UserService {
             headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
             redirect_uri="https://kapi.kakao.com/v2/user/me";
 
-            response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
-
-            try {
+            try{
+                response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
                 kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfile.class);
-            } catch (JsonProcessingException e) {
+            }catch (HttpClientErrorException e){
+                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                throw new BadRequestException("잘못된 플랫폼으로 접근");
+            }catch (JsonProcessingException e){
                 log.info("[REJECT]kakaoMapper error");
             }
+
             email=kakaoProfile.getKakao_account().getEmail();
             joinUser = UserRequest.join.builder()
                     .email(email)
@@ -117,9 +121,12 @@ public class UserService {
             }
         } else if(loginId.equals("naver")) {
             redirect_uri="https://openapi.naver.com/v1/nid/me";
-            response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
             try {
+                response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
                 naverProfile = objectMapper.readValue(response.getBody(), NaverProfile.class);
+            }catch (HttpClientErrorException e){
+                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                throw new BadRequestException("잘못된 플랫폼으로 접근");
             } catch (JsonProcessingException e) {
                 log.info("[REJECT]naverMapper error");
             }
@@ -143,14 +150,19 @@ public class UserService {
             }
         } else if(loginId.equals("google")){
             redirect_uri="https://www.googleapis.com/oauth2/v1/userinfo";
-            response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
             try {
+                response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
+                System.out.println(response);
                 googleProfile = objectMapper.readValue(response.getBody(), GoogleProfile.class);
+                System.out.println(googleProfile);
+            }catch (HttpClientErrorException e){
+                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                throw new BadRequestException("잘못된 플랫폼으로 접근");
             } catch (JsonProcessingException e) {
                 log.error("[REJECT]googleMapper error");
             }
             email= googleProfile.getEmail();
-
+            System.out.println(email + "구글이메일임");
             User user = userProvider.getUserByEmail(email);
             if(login.getRefreshToken().length()<1){
                 refreshToken = user.getOauthToken();
@@ -174,7 +186,7 @@ public class UserService {
 
         }else{
             log.info("[REJECT]wrong platform");
-            throw new BadRequestException("[REJECT]wrong platform");
+            throw new BadRequestException("잘못된 플랫폼으로 접근");
         }
 
         token = tokenService.generateToken(uuid);
