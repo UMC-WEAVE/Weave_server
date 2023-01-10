@@ -55,6 +55,15 @@ public class ExceptionAdvice {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false,status,msg));
     }
 
+    //406 : login error response
+    @ExceptionHandler(LoginPlatformException.class)
+    public ResponseEntity<Object> LoginPlatformException(LoginPlatformException e){
+//        String msg = "찾을 수 없음";
+        String msg = e.getMessage();
+        int status = 406;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(false,status,msg));
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Object> conflictExceptionHandler(ConflictException e){
         String msg = e.getMessage();

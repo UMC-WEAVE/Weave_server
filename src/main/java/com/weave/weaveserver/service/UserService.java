@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weave.weaveserver.config.andOauth.*;
 import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.exception.LoginPlatformException;
 import com.weave.weaveserver.config.exception.UnAuthorizedException;
 import com.weave.weaveserver.config.jwt.Token;
 import com.weave.weaveserver.config.jwt.TokenService;
@@ -58,7 +59,10 @@ public class UserService {
                 .build();
     }
 
-    public String loginUser(User user) {
+
+    @Transactional
+    public String loginUser(User user, String loginId) {
+        if(!user.getLoginId().equals(loginId)) throw new LoginPlatformException(user.getLoginId());
         userRepository.save(user);
         return user.getUuid();
     }
@@ -116,7 +120,7 @@ public class UserService {
                 uuid = joinUser(joinUser);
             }else{
                 user.setOauthToken(refreshToken);
-                uuid = loginUser(user);
+                uuid = loginUser(user, loginId);
                 log.info("kakao login : "+email);
             }
         } else if(loginId.equals("naver")) {
@@ -145,7 +149,7 @@ public class UserService {
                 uuid = joinUser(joinUser);
             }else{
                 user.setOauthToken(refreshToken);
-                uuid = loginUser(user);
+                uuid = loginUser(user, loginId);
                 log.info("naver login : "+email);
             }
         } else if(loginId.equals("google")){
@@ -180,7 +184,7 @@ public class UserService {
                 uuid = joinUser(joinUser);
             }else{
                 user.setOauthToken(refreshToken);
-                uuid = loginUser(user);
+                uuid = loginUser(user, loginId);
                 log.info("google login : "+email);
             }
 
