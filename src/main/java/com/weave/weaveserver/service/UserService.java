@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weave.weaveserver.config.andOauth.*;
 import com.weave.weaveserver.config.exception.BadRequestException;
+import com.weave.weaveserver.config.exception.LoginPlatformException;
 import com.weave.weaveserver.config.exception.UnAuthorizedException;
 import com.weave.weaveserver.config.jwt.Token;
 import com.weave.weaveserver.config.jwt.TokenService;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -45,8 +47,6 @@ public class UserService {
         return user.getUuid();
     }
 
-
-
     @Transactional
     public UserResponse.myPage loadMyPage(String uuid) {
         User user = userRepository.findUserByUuid(uuid);
@@ -57,7 +57,10 @@ public class UserService {
                 .build();
     }
 
-    public String loginUser(User user) {
+
+    @Transactional
+    public String loginUser(User user, String loginId) {
+        if(!user.getLoginId().equals(loginId)) throw new LoginPlatformException(user.getLoginId());
         userRepository.save(user);
         return user.getUuid();
     }
@@ -90,13 +93,16 @@ public class UserService {
             headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
             redirect_uri="https://kapi.kakao.com/v2/user/me";
 
-            response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
-
-            try {
+            try{
+                response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
                 kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfile.class);
-            } catch (JsonProcessingException e) {
+            }catch (HttpClientErrorException e){
+                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                throw new BadRequestException("잘못된 플랫폼으로 접근");
+            }catch (JsonProcessingException e){
                 log.info("[REJECT]kakaoMapper error");
             }
+
             email=kakaoProfile.getKakao_account().getEmail();
             joinUser = UserRequest.join.builder()
                     .email(email)
@@ -112,14 +118,17 @@ public class UserService {
                 uuid = joinUser(joinUser);
             }else{
                 user.setOauthToken(refreshToken);
-                uuid = loginUser(user);
+                uuid = loginUser(user, loginId);
                 log.info("kakao login : "+email);
             }
         } else if(loginId.equals("naver")) {
             redirect_uri="https://openapi.naver.com/v1/nid/me";
-            response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
             try {
+                response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
                 naverProfile = objectMapper.readValue(response.getBody(), NaverProfile.class);
+            }catch (HttpClientErrorException e){
+                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                throw new BadRequestException("잘못된 플랫폼으로 접근");
             } catch (JsonProcessingException e) {
                 log.info("[REJECT]naverMapper error");
             }
@@ -138,19 +147,23 @@ public class UserService {
                 uuid = joinUser(joinUser);
             }else{
                 user.setOauthToken(refreshToken);
-                uuid = loginUser(user);
+                uuid = loginUser(user, loginId);
                 log.info("naver login : "+email);
             }
         } else if(loginId.equals("google")){
             redirect_uri="https://www.googleapis.com/oauth2/v1/userinfo";
-            response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
             try {
+                response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
                 googleProfile = objectMapper.readValue(response.getBody(), GoogleProfile.class);
+            }catch (HttpClientErrorException e){
+                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                log.info(e.getMessage());
+                throw new BadRequestException("잘못된 플랫폼으로 접근");
             } catch (JsonProcessingException e) {
                 log.error("[REJECT]googleMapper error");
             }
             email= googleProfile.getEmail();
-
+            System.out.println(email + "구글이메일임");
             User user = userProvider.getUserByEmail(email);
             if(login.getRefreshToken().length()<1){
                 refreshToken = user.getOauthToken();
@@ -168,13 +181,13 @@ public class UserService {
                 uuid = joinUser(joinUser);
             }else{
                 user.setOauthToken(refreshToken);
-                uuid = loginUser(user);
+                uuid = loginUser(user, loginId);
                 log.info("google login : "+email);
             }
 
         }else{
             log.info("[REJECT]wrong platform");
-            throw new BadRequestException("[REJECT]wrong platform");
+            throw new BadRequestException("잘못된 플랫폼으로 접근");
         }
 
         token = tokenService.generateToken(uuid);
@@ -217,11 +230,10 @@ public class UserService {
             case "kakao":
                 unlinkKakao(acToken);break;
             case "naver":
-                System.out.println(acToken);
                 unlinkNaver(acToken);break;
         }
 
-        System.out.println(user.getUserIdx()+"번째 유저 삭제 완료");
+        System.out.println(user.getEmail()+" 유저 삭제 완료");
     }
 
     public String getAcTokenByRefToken(String refreshToken, String loginId) {
@@ -249,8 +261,6 @@ public class UserService {
             } catch (Exception e) {
                 throw new BadRequestException("이미 만료된 사용자");
             }
-
-            System.out.println(response);
 
             GetAcToken kakaoProfile = null;
             try {
@@ -313,7 +323,6 @@ public class UserService {
         }catch (Exception e){
             throw new UnAuthorizedException("[REJECT]kakaoUnlink fail");
         }
-        System.out.println(response);
     }
 
     public void unlinkNaver(String accessToken){
@@ -345,6 +354,5 @@ public class UserService {
         } catch (Exception e) {
             throw new BadRequestException("이미 만료된 사용자");
         }
-        System.out.println(response);
     }
 }

@@ -43,11 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().access("hasRole('ROLE_USER')")
                 .and()
                 .logout()
-                .logoutSuccessUrl("/")
-                .and()
-                .oauth2Login()
-                .userInfoEndpoint().userService(customOAuth2UserService)
-                .and().successHandler(oAuth2SuccessHandler);
+                .logoutSuccessUrl("/");
 
         http.exceptionHandling().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 .and()

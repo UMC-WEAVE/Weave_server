@@ -2,7 +2,7 @@ package com.weave.weaveserver.controller;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.service.FireBaseService;
-import com.weave.weaveserver.service.testImage;
+//import com.weave.weaveserver.service.testImage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RestController
 public class FirebaseController {
-    private final testImage fireBaseService;
+    private final FireBaseService fireBaseService;
 
     @PostMapping("/test/firebase")
     public String uploadFile(@RequestPart("file") MultipartFile file, @RequestPart("name") String name) {

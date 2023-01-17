@@ -1,6 +1,5 @@
 package com.weave.weaveserver.controller;
 
-import com.google.api.Http;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.NotFoundException;
@@ -9,14 +8,11 @@ import com.weave.weaveserver.domain.User;
 import com.weave.weaveserver.dto.JsonResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
-import com.weave.weaveserver.service.ArchiveService;
 import com.weave.weaveserver.service.TeamService;
-import com.weave.weaveserver.service.UserService;
-import com.weave.weaveserver.util.FileUtils;
+import com.weave.weaveserver.service.UserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRange;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,26 +30,27 @@ public class TeamController {
     @Autowired
     private TeamService teamService;
     @Autowired
-    private UserService userService;
+    private UserProvider userProvider;
     @Autowired
     private TokenService tokenService;
 
 
     private User findUserByToken(HttpServletRequest httpServletRequest){
-        String userEmail = tokenService.getUserEmail(httpServletRequest);
-        log.info("[INFO] findUserByToken 호출 : " + userEmail);
+        String userUuid = tokenService.getUserUuid();
+        log.info("[INFO] findUserByToken 호출 : " + userUuid);
 
-        User user = userService.getUserByEmail(userEmail);
+        User user = userProvider.getUserByUuid(userUuid);
 
         if(user == null){
-            log.info("[REJECT] findUserByToken : 해당 이메일을 가진 유저가 존재하지 않음");
-            throw new NotFoundException("초대하려는 팀원이 존재하지 않습니다.");
+            log.info("[REJECT] findUserByToken : 해당 유저가 존재하지 않음");
+            throw new NotFoundException("해당 uuid 사용자가 존재하지 않음");
         }
         return user;
     }
 
+    // 팀원 초대, 삭제 시 사용되는 메서드
     private User findUserByEmail(String userEmail){
-        User user = userService.getUserByEmail(userEmail);
+        User user = userProvider.getUserByEmail(userEmail);
         if(user == null){
             log.info("[REJECT] findUserByEmail : 해당 이메일을 가진 유저가 존재하지 않음");
             throw new NotFoundException("초대하려는 팀원이 존재하지 않습니다.");
@@ -111,7 +108,7 @@ public class TeamController {
     @GetMapping("/teams")
     public ResponseEntity<JsonResponse> getMyTeams(HttpServletRequest httpServletRequest){
         log.info("[API] getMyTeams : 내가 속한 팀 조회");
-        List<TeamResponse.getMyTeams> teamList = teamService.getMyTeams(findUserByToken(httpServletRequest));
+        TeamResponse.showMyTeamList teamList = teamService.getMyTeams(findUserByToken(httpServletRequest));
         return ResponseEntity.ok(new JsonResponse(200, "Success", teamList));
     }
 

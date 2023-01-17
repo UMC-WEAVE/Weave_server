@@ -35,12 +35,19 @@ public class TeamResponse {
     @AllArgsConstructor
     @Data
     public static class getMyTeams {
-        private String userName;
         private Long teamIdx;
         private String title;
         private LocalDate startDate;
         private LocalDate endDate;
         private String imgUrl;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class showMyTeamList{
+        private String userName;
+        private List<getMyTeams> myTeams;
     }
 
     @NoArgsConstructor
