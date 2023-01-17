@@ -47,8 +47,6 @@ public class UserService {
         return user.getUuid();
     }
 
-
-
     @Transactional
     public UserResponse.myPage loadMyPage(String uuid) {
         User user = userRepository.findUserByUuid(uuid);
@@ -156,11 +154,10 @@ public class UserService {
             redirect_uri="https://www.googleapis.com/oauth2/v1/userinfo";
             try {
                 response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
-                System.out.println(response);
                 googleProfile = objectMapper.readValue(response.getBody(), GoogleProfile.class);
-                System.out.println(googleProfile);
             }catch (HttpClientErrorException e){
                 log.info("[REJECT]잘못된 플랫폼으로 접근");
+                log.info(e.getMessage());
                 throw new BadRequestException("잘못된 플랫폼으로 접근");
             } catch (JsonProcessingException e) {
                 log.error("[REJECT]googleMapper error");
@@ -233,11 +230,10 @@ public class UserService {
             case "kakao":
                 unlinkKakao(acToken);break;
             case "naver":
-                System.out.println(acToken);
                 unlinkNaver(acToken);break;
         }
 
-        System.out.println(user.getUserIdx()+"번째 유저 삭제 완료");
+        System.out.println(user.getEmail()+" 유저 삭제 완료");
     }
 
     public String getAcTokenByRefToken(String refreshToken, String loginId) {
@@ -265,8 +261,6 @@ public class UserService {
             } catch (Exception e) {
                 throw new BadRequestException("이미 만료된 사용자");
             }
-
-            System.out.println(response);
 
             GetAcToken kakaoProfile = null;
             try {
@@ -329,7 +323,6 @@ public class UserService {
         }catch (Exception e){
             throw new UnAuthorizedException("[REJECT]kakaoUnlink fail");
         }
-        System.out.println(response);
     }
 
     public void unlinkNaver(String accessToken){
@@ -361,6 +354,5 @@ public class UserService {
         } catch (Exception e) {
             throw new BadRequestException("이미 만료된 사용자");
         }
-        System.out.println(response);
     }
 }
