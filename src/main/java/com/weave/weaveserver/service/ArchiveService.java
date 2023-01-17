@@ -82,16 +82,6 @@ public class ArchiveService {
             throw new ConflictException("Title of archive cannot be empty or blank");
         }
 
-        //이미지 유무 확인 및 업로드하여 url 받아오기
-        String imgUrl = "";
-        if(fileName == null || file == null){
-            log.info("[INFO] addArchive : no file to upload");
-        } else {
-            log.info("[INFO] addArchive : upload file");
-            imgUrl = fireBaseService.uploadFiles("archive", fileName, file);  //이미지 업로드 후 url받아오기!!
-//            imgUrl = imageService.uploadToStorage("archive", fileName, file); //이미지 업로드 후 url받아오기!!
-        }
-
         Archive archive = Archive.builder()
                 .user(clientUser)
                 .team(team)
@@ -104,12 +94,22 @@ public class ArchiveService {
                 .build();
         archiveRepository.save(archive);
 
-        //이미지는 이미지 테이블에 따로 저장. 위에서 저장한 아카이브를 참조함.
-        Image image = Image.builder()
-                .archive(archive)
-                .url(imgUrl)
-                .build();
-        imageRepository.save(image);
+        //이미지 유무 확인 및 업로드하여 url 받아오기
+        String imgUrl = "";
+        if(fileName == null || file == null){
+            log.info("[INFO] addArchive : no file to upload");
+        } else {
+            log.info("[INFO] addArchive : upload file");
+            imgUrl = fireBaseService.uploadFiles("archive", fileName, file);  //이미지 업로드 후 url받아오기!!
+
+            //이미지는 이미지 테이블에 따로 저장. 위에서 저장한 아카이브를 참조함.
+            Image image = Image.builder()
+                    .archive(archive)
+                    .url(imgUrl)
+                    .build();
+            imageRepository.save(image);
+        }
+
     }
 
 
@@ -225,15 +225,17 @@ public class ArchiveService {
         //아카이브에 연결된 이미지 먼저 이미지서버에서 삭제
         List<Image> imageList = imageRepository.findByArchiveIdx(archive.getArchiveIdx());
 
-        for(Image i : imageList){
-            //파일 url에서 파일이름만 분리
-            String url = i.getUrl();
-            int startIndex = url.lastIndexOf("/") + 1; // 이 위치포함 시작
-            int endIndex = url.lastIndexOf("?"); // 이 위치 직전까지만 포함
-            String fileName = url.substring(startIndex, endIndex);
+        if(imageList != null && imageList.size() > 0){
+            for(Image i : imageList){
+                //파일 url에서 파일이름만 분리
+                String url = i.getUrl();
+                int startIndex = url.lastIndexOf("/") + 1; // 이 위치포함 시작
+                int endIndex = url.lastIndexOf("?"); // 이 위치 직전까지만 포함
+                String fileName = url.substring(startIndex, endIndex);
 
-            //파일이름으로 파일 삭제
-            fireBaseService.deleteFiles(fileName);
+                //파일이름으로 파일 삭제
+                fireBaseService.deleteFiles(fileName);
+            }
         }
 
         //아카이브 삭제

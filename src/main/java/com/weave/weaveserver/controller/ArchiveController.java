@@ -183,7 +183,7 @@ public class ArchiveController {
 //        User clientUser = userService.getUserByEmail(userEmail);
 
         // uuid 로 사용자 찾음
-        String userUuid = tokenService.getUserUuid(); // 토큰으로부터 user 이메일 가져오기
+        String userUuid = tokenService.getUserUuid(); // 토큰으로부터 user uuid 가져오기
         User clientUser = userProvider.getUserByUuid(userUuid);
 
         return clientUser;
