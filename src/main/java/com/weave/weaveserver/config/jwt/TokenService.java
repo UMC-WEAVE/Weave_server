@@ -102,6 +102,7 @@ public class TokenService{
     public boolean validateToken(String jwtToken,HttpServletRequest request){
         try{
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+            System.out.println(claims.getBody().getExpiration());
             return !claims.getBody().getExpiration().before(new Date());
         }catch (SecurityException e) {
             log.info("Invalid JWT signature.");
@@ -112,12 +113,16 @@ public class TokenService{
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token. at validation Token");
             request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getStatus());
+            return false;
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT token.");
             request.setAttribute("exception", ExceptionCode.WRONG_TYPE_TOKEN.getStatus());
         } catch (IllegalArgumentException e) {
             log.info("JWT token compact of handler are invalid.");
             request.setAttribute("exception", ExceptionCode.UNSUPPORTED_TOKEN.getStatus());
+        } catch (ClassCastException e){
+            log.info("jwt token service ClassCastException");
+            request.setAttribute("exception", ExceptionCode.EXPIRED_TOKEN.getStatus());
         } catch (Exception e) {
             log.error("any exception");
             request.setAttribute("exception", ExceptionCode.UNSUPPORTED_TOKEN.getStatus());
