@@ -97,8 +97,8 @@ public class UserService {
                 response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
                 kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfile.class);
             }catch (HttpClientErrorException e){
-                log.info("[REJECT]잘못된 플랫폼으로 접근");
-                throw new BadRequestException("잘못된 플랫폼으로 접근");
+                log.info("[REJECT]kakao login error");
+                throw new BadRequestException("[REJECT]kakao login error");
             }catch (JsonProcessingException e){
                 log.info("[REJECT]kakaoMapper error");
             }
@@ -127,8 +127,8 @@ public class UserService {
                 response=restTemplate.exchange(redirect_uri, HttpMethod.POST,request,String.class);
                 naverProfile = objectMapper.readValue(response.getBody(), NaverProfile.class);
             }catch (HttpClientErrorException e){
-                log.info("[REJECT]잘못된 플랫폼으로 접근");
-                throw new BadRequestException("잘못된 플랫폼으로 접근");
+                log.info("[REJECT]naver login error");
+                throw new BadRequestException("[REJECT]naver login error");
             } catch (JsonProcessingException e) {
                 log.info("[REJECT]naverMapper error");
             }
@@ -156,9 +156,9 @@ public class UserService {
                 response=restTemplate.exchange(redirect_uri, HttpMethod.GET,request,String.class);
                 googleProfile = objectMapper.readValue(response.getBody(), GoogleProfile.class);
             }catch (HttpClientErrorException e){
-                log.info("[REJECT]잘못된 플랫폼으로 접근");
+                log.info("[REJECT]google login error");
                 log.info(e.getMessage());
-                throw new BadRequestException("잘못된 플랫폼으로 접근");
+                throw new BadRequestException("[REJECT]google login error");
             } catch (JsonProcessingException e) {
                 log.error("[REJECT]googleMapper error");
             }
@@ -215,22 +215,23 @@ public class UserService {
                 belongRepository.deleteByUser(user);
             }
 //            userRepository.deleteById(user.getUserIdx());
-            userRepository.delete(user);
 
+
+            userRepository.delete(user);
 
         }catch (NullPointerException e){
             System.out.println("deleteUser error");
         }
 
-
         String acToken = getAcTokenByRefToken(user.getOauthToken(),user.getLoginId());
-
 
         switch (loginId){
             case "kakao":
                 unlinkKakao(acToken);break;
             case "naver":
                 unlinkNaver(acToken);break;
+            case "google":
+                unlinkGoogle(acToken);break;
         }
 
         System.out.println(user.getEmail()+" 유저 삭제 완료");
@@ -252,7 +253,6 @@ public class UserService {
             params.add("grant_type", "refresh_token");
             params.add("client_id", SecurityProperties.kakao_client_id);
             params.add("refresh_token", refreshToken);
-
 
             HttpEntity<MultiValueMap<String, String>> kakaoRequest = new HttpEntity<>(params, headers);
 
@@ -300,6 +300,39 @@ public class UserService {
                 log.info("[REJECT]naverMapper error");
             }
             return naverProfile.getAccess_token();
+        }
+        if(loginId.equals("google")){
+            System.out.println("unlink google");
+
+            String url = "https://www.googleapis.com/oauth2/v4/token";
+            headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+            HttpEntity<MultiValueMap<String, String>> googleProfile = new HttpEntity<>(params, headers);
+
+            params.add("client_id", SecurityProperties.google_client_id);
+            params.add("client_secret", SecurityProperties.google_client_secret);
+            params.add("refresh_token", refreshToken);
+            params.add("grant_type", "refresh_token");
+
+            try {
+                response = restTemplate.exchange(url, HttpMethod.POST, googleProfile, String.class);
+            } catch (Exception e) {
+                throw new BadRequestException("이미 만료된 사용자");
+            }
+
+            GetGoogleAcToken googleAcToken = null;
+            try {
+                googleAcToken = objectMapper.readValue(response.getBody(), GetGoogleAcToken.class);
+            } catch (JsonProcessingException e) {
+                log.info("[REJECT]naverMapper error");
+            }
+
+//            String result = restTemplate.postForObject(url, params, String.class);
+//            System.out.println("google actoken = "+googleAcToken.getAccess_token());
+            return googleAcToken.getAccess_token();
         }
         throw new BadRequestException("[REJECT]unlink platform error.");
     }
@@ -355,4 +388,34 @@ public class UserService {
             throw new BadRequestException("이미 만료된 사용자");
         }
     }
+
+    public void unlinkGoogle(String accessToken){
+        System.out.println("unlintk google");
+        System.out.println("accessToken = "+accessToken);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        ResponseEntity<String> response;
+
+        String host = "https://oauth2.googleapis.com/revoke";
+
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("token", accessToken);
+
+
+
+        HttpEntity<MultiValueMap<String, String>> naverRequest = new HttpEntity<>(params, headers);
+
+        try {
+            response = restTemplate.exchange(host, HttpMethod.POST, naverRequest, String.class);
+            System.out.println(response);
+        } catch (Exception e) {
+            throw new BadRequestException("이미 만료된 사용자");
+        }
+    }
+
+
 }
