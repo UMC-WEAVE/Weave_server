@@ -28,7 +28,7 @@ public class Plan {
     private Long planIdx;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "team_idx")
+    @JoinColumn(name = "team_idx")
     private Team team;
 
     @ManyToOne
