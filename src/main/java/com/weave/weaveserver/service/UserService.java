@@ -210,7 +210,7 @@ public class UserService {
         try{
             teamService.deleteBelongTeam(user);
             planService.deleteAuthorByUserIdx(user.getUserIdx());
-            archiveService.deleteAllArchiveByUserIdx(user);
+            archiveService.setUserNullByUser(user);
             if(belongRepository.countTeamByUser(user.getUserIdx())>0){
                 belongRepository.deleteByUser(user);
             }
