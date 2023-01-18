@@ -180,7 +180,9 @@ public class UserService {
                 log.info("google join : "+email);
                 uuid = joinUser(joinUser);
             }else{
-                user.setOauthToken(refreshToken);
+                if(refreshToken!=null){
+                    user.setOauthToken(refreshToken);
+                }
                 uuid = loginUser(user, loginId);
                 log.info("google login : "+email);
             }
