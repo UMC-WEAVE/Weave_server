@@ -5,6 +5,7 @@ import com.weave.weaveserver.config.exception.BadRequestException;
 import com.weave.weaveserver.config.exception.ForbiddenException;
 import com.weave.weaveserver.config.exception.NotFoundException;
 import com.weave.weaveserver.domain.*;
+import com.weave.weaveserver.dto.PlanResponse;
 import com.weave.weaveserver.dto.TeamRequest;
 import com.weave.weaveserver.dto.TeamResponse;
 import com.weave.weaveserver.repository.*;
@@ -38,6 +39,8 @@ public class TeamService {
     public final TeamRepository teamRepository;
 
     public final BelongRepository belongRepository;
+
+    private final PlanRepository planRepository;
 
 
     // [외부사용] findByTeamIdx -> plan, archive
@@ -407,6 +410,16 @@ public class TeamService {
                     deleteTeamImage(team);
                     // 팀 삭제
                     teamRepository.delete(team);
+
+                    // 연결된 PLAN 모두 끊기
+                    planService.deleteAllPlan(team.getTeamIdx());
+                    log.info("[INFO] deleteTeam : 팀과 연결된 Plan 모두 삭제");
+
+                    // 연결된 archive 모두 끊기
+                    archiveService.deleteByTeamIdx(team);
+                    log.info("[INFO] deleteTeam : 팀과 연결된 Archive 모두 삭제");
+
+
                     log.info("[INFO] deleteBelongMember : 팀에 더이상 팀원이 존재하지 않음, 팀 삭제");
                     return "더 이상 팀원이 존재하지 않음, 팀 삭제";
 
