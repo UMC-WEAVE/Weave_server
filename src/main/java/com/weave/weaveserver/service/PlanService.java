@@ -142,7 +142,7 @@ public class PlanService {
                         plan.getLatitude(),
                         plan.getLongitude(),
                         plan.getCost(),
-                        plan.getUser().getName(),
+                        (plan.getUser() == null ? "익명" : plan.getUser().getName()),
                         plan.isModified()
                 )
         ).collect(Collectors.toList());
