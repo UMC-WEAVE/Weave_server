@@ -406,6 +406,16 @@ public class TeamService {
 
                 // 다른 팀원이 존재하지 않는다면
                 if(teamUsers.size() == 1 && checkSameUser(teamUsers.get(0), deleteMember)){
+
+                    // 연결된 PLAN 모두 끊기
+                    planService.deleteAllPlan(team.getTeamIdx());
+                    log.info("[INFO] deleteTeam : 팀과 연결된 Plan 모두 삭제");
+
+                    // 연결된 archive 모두 끊기
+                    archiveService.deleteByTeamIdx(team);
+                    log.info("[INFO] deleteTeam : 팀과 연결된 Archive 모두 삭제");
+
+
                     // 팀 이미지 삭제
                     deleteTeamImage(team);
                     // 팀 삭제
