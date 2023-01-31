@@ -205,6 +205,7 @@ public class TeamService {
 
     @Transactional
     public List<TeamResponse.getMemberList> getMembers(Long teamIdx){
+        //TODO: leader가 제일 맨 앞 순위로 오게!!
 
         // 해당 팀 IDX 가 존재하지 않는 경우에 대한 예외 처리
         Team team = teamRepository.findById(teamIdx)
@@ -212,6 +213,7 @@ public class TeamService {
                     log.info("[REJECT] getMembers : 요청한 팀이 존재하지 않음");
                     return new NotFoundException("요청한 팀이 존재하지 않습니다.");
                 });
+
 
         List<User> userList = belongRepository.findAllByTeamIdx(team.getTeamIdx());
 
@@ -221,8 +223,20 @@ public class TeamService {
                 user.getEmail(),
                 user.getImage()
         )).collect(Collectors.toList());
+
+        List<TeamResponse.getMemberList> memberListOfTopLeader = new ArrayList<>();
+        for(TeamResponse.getMemberList m : memberList){
+            if(m.getUserIdx() == team.getLeader().getUserIdx()) {
+                memberListOfTopLeader.add(m);
+                memberList.remove(m);
+            }
+
+        }
+
+        memberListOfTopLeader.addAll(memberList);
+
         log.info("[INFO] getMembers : 팀원 조회 성공");
-        return memberList;
+        return memberListOfTopLeader;
     }
 
     @Transactional
