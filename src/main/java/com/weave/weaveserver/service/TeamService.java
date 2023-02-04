@@ -223,6 +223,7 @@ public class TeamService {
             if(m.getUserIdx() == team.getLeader().getUserIdx()) {
                 memberListOfTopLeader.add(m);
                 memberList.remove(m);
+                break;
             }
         }
 
