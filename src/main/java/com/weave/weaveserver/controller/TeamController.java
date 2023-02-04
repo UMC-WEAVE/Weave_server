@@ -79,8 +79,8 @@ public class TeamController {
         }
 
         log.info("[API] createTeam : 팀 생성");
-        Long teamIdx = teamService.createTeam(findUserByToken(httpServletRequest), req, fileName, file);
-        return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",teamIdx));
+        String team = teamService.createTeam(findUserByToken(httpServletRequest), req, fileName, file);
+        return ResponseEntity.ok(new JsonResponse(200, "Success, createTeam",team));
     }
 
     // INVITE TEAM MEMBER
