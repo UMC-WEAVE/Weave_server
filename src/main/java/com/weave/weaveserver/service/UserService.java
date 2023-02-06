@@ -180,7 +180,9 @@ public class UserService {
                 log.info("google join : "+email);
                 uuid = joinUser(joinUser);
             }else{
-                user.setOauthToken(refreshToken);
+                if(refreshToken!=null){
+                    user.setOauthToken(refreshToken);
+                }
                 uuid = loginUser(user, loginId);
                 log.info("google login : "+email);
             }
@@ -210,7 +212,7 @@ public class UserService {
         try{
             teamService.deleteBelongTeam(user);
             planService.deleteAuthorByUserIdx(user.getUserIdx());
-            archiveService.deleteAllArchiveByUserIdx(user);
+            archiveService.setUserNullByUser(user);
             if(belongRepository.countTeamByUser(user.getUserIdx())>0){
                 belongRepository.deleteByUser(user);
             }
