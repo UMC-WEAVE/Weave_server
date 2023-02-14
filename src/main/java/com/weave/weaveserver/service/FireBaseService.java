@@ -35,10 +35,10 @@ public class FireBaseService {
             img_url = "https://firebasestorage.googleapis.com/v0/b/wave-weave.appspot.com/o/"
                     +fileName.toString()+"%2F"+randomCode+"?alt=media";
         }else{
-            Blob blob = bucket.create(fileName.toString()+fileName.toString(), content, file.getContentType());
+            Blob blob = bucket.create(fileName.toString(), content, file.getContentType());
             //https://firebasestorage.googleapis.com/v0/b/wave-weave.appspot.com/o/test1?alt=media
             img_url = "https://firebasestorage.googleapis.com/v0/b/wave-weave.appspot.com/o/"
-                    +fileName+fileName+"?alt=media";
+                    +fileName+"?alt=media";
         }
 
         return img_url;
