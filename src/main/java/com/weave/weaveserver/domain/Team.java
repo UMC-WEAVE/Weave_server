@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Getter
@@ -38,9 +39,15 @@ public class Team {
     @Column
     private String imgUrl;
 
+    @Column
+    private Long imgUploadTime;
+
     private boolean isEmpty; //boolean 은 bit(1)로 저장, 1(true)는 속한 팀원이 없음 / 0(false)는 속한 팀원이 있음
 
-    public void uploadImage(String imgUrl) { this.imgUrl = imgUrl; }
+    public void uploadImage(String imgUrl, Long imgUploadTime) {
+        this.imgUrl = imgUrl;
+        this.imgUploadTime = imgUploadTime;
+    }
     public void updateEmpty(){
         this.isEmpty = false;
     }

@@ -142,7 +142,7 @@ public class TeamController {
                                                    HttpServletRequest httpServletRequest) throws IOException, FirebaseAuthException{
 
         log.info("[API] updateTeam : 팀 정보 수정");
-        Long updateTeamIdx = teamService.updateTeam(teamIdx, req, fileName, file, findUserByToken(httpServletRequest));
-        return ResponseEntity.ok(new JsonResponse(200, "Success", updateTeamIdx));
+        String updateTeam = teamService.updateTeam(teamIdx, req, fileName, file, findUserByToken(httpServletRequest));
+        return ResponseEntity.ok(new JsonResponse(200, "Success", updateTeam));
     }
 }
