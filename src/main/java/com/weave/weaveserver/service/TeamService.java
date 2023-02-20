@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +73,10 @@ public class TeamService {
 
     public String uploadTeamImage(Team team, String fileName, MultipartFile file) throws IOException, FirebaseAuthException {
 
+        // 기존 이미지 삭제
+        if(team.getImgUrl()!=null || team.getImgUploadTime()!=null)
+            deleteTeamImage(team);
+
         if(file.isEmpty()){
             if(fileName == null || !fileName.equals("default")){
                 throw new BadRequestException("팀 이미지가 정상적으로 전달되지 않았습니다.");
@@ -80,16 +86,18 @@ public class TeamService {
                 log.info("[INFO] uploadTeamImage : 기본이미지 사용");
                 // 팀 이미지 삭제
                 deleteTeamImage(team);
-                team.uploadImage(null);
+                team.uploadImage(null, null);
                 return "기본 이미지";
             }
         }
 
-        String teamId = "team" + team.getTeamIdx().toString();
-        //System.out.println(teamId);
+        long imgUploadTime = Timestamp.valueOf(LocalDateTime.now()).getTime();
+        String uploadFileName = "team" + team.getTeamIdx().toString() + imgUploadTime;
 
-        String imageUrl = imageService.uploadFiles("team", teamId, file);
-        team.uploadImage(imageUrl);
+        log.info(uploadFileName);
+
+        String imageUrl = imageService.uploadFiles("team", uploadFileName, file);
+        team.uploadImage(imageUrl, imgUploadTime);
         log.info("[INFO] uploadTeamImage : 팀 이미지 업로드 성공 - "+ imageUrl);
         return imageUrl;
     }
@@ -99,7 +107,8 @@ public class TeamService {
         if(team.getImgUrl() == null){
             log.info("[INFO] deleteTeamImage : 삭제 할 이미지가 존재하지 않음");
         } else {
-            imageService.deleteFiles("team" + team.getTeamIdx().toString());
+            String deleteFileName = "team" + team.getTeamIdx().toString() + team.getImgUploadTime().toString();
+            imageService.deleteFiles(deleteFileName);
             log.info("[INFO] deleteTeamImage : firebase 팀 이미지 삭제 - " + "team" + team.getTeamIdx().toString());
         }
     }
@@ -336,7 +345,7 @@ public class TeamService {
     }
 
     @Transactional
-    public Long updateTeam(Long teamIdx, TeamRequest.updateTeamReq req,
+    public String updateTeam(Long teamIdx, TeamRequest.updateTeamReq req,
                            String fileName, MultipartFile file, User requester)
             throws IOException, FirebaseAuthException{
 
@@ -365,7 +374,7 @@ public class TeamService {
             // 팀 정보 업데이트
             team.updateTeam(req.getTitle(), req.getStartDate(), req.getEndDate());
             log.info("[INFO] updateTeam : 팀 정보 업데이트 성공, updated team idx: "+teamIdx);
-            return teamIdx;
+            return team.getImgUrl();
 
         } else {
             //요청 사용자와 팀짱이 동일하지 않음
