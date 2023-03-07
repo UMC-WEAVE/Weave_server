@@ -138,12 +138,18 @@ public class ArchiveService {
             Long archiveIdx = a.getArchiveIdx();
 
             //User
-            User archiveUser = a.getUser();
-            UserResponse.userResponse userResponse = new UserResponse.userResponse(
-                    archiveUser.getName(),
-                    archiveUser.getEmail()
-            );
-            userList.put(archiveIdx, userResponse);
+            Optional<User> archiveUserOp = Optional.ofNullable(a.getUser());
+            if(archiveUserOp.isPresent()){
+                User archiveUser = archiveUserOp.get();
+                UserResponse.userResponse userResponse = new UserResponse.userResponse(
+                        archiveUser.getName(),
+                        archiveUser.getEmail()
+                );
+                userList.put(archiveIdx, userResponse);
+            }else{
+                UserResponse.userResponse userResponse = new UserResponse.userResponse("", "");
+                userList.put(archiveIdx, userResponse);
+            }
 
             //Image
             Image image = imageRepository.findTop1ByArchiveOrderByImageIdxAsc(a);
