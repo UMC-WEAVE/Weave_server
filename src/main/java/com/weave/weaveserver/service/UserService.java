@@ -178,6 +178,11 @@ public class UserService {
 
             if(user==null){
                 log.info("google join : "+email);
+                //회원가입 시에는 refresh token이 필수임
+                if(user.getOauthToken()==null){
+                    log.info("[REJECT]join -> refresh token is null ");
+                    throw new BadRequestException("구글 회원가입 실패");
+                }
                 uuid = joinUser(joinUser);
             }else{
                 if(refreshToken!=null){
