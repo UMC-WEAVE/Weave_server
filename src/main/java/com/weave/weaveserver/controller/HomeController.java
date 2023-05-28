@@ -21,4 +21,14 @@ public class HomeController {
 
         return mav;
     }
+
+    @RequestMapping("/service")
+    public ModelAndView goService() {
+        return new ModelAndView("content/service");
+    }
+
+    @RequestMapping("/manual")
+    public ModelAndView goManual() {
+        return new ModelAndView("content/manual");
+    }
 }
