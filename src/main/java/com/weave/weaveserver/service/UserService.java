@@ -169,6 +169,12 @@ public class UserService {
                 refreshToken = user.getOauthToken();
             }
 
+            System.out.println("googleProfile = "+googleProfile.toString());
+            System.out.println("email = "+googleProfile.getEmail());
+            System.out.println("name = " +googleProfile.getName());
+            System.out.println("picture = " + googleProfile.getPicture());
+            System.out.println("token = "+ refreshToken);
+
             joinUser = UserRequest.join.builder()
                     .email(email)
                     .loginId("google")
@@ -176,10 +182,12 @@ public class UserService {
                     .image(googleProfile.getPicture())
                     .oauthToken(refreshToken).build();
 
+            System.out.println(joinUser.toString());
             if(user==null){
                 log.info("google join : "+email);
+                System.out.println("뭐가 문제지?");
                 //회원가입 시에는 refresh token이 필수임
-                if(user.getOauthToken()==null){
+                if(joinUser.getOauthToken()==null){
                     log.info("[REJECT]join -> refresh token is null ");
                     throw new BadRequestException("구글 회원가입 실패");
                 }
