@@ -169,11 +169,6 @@ public class UserService {
                 refreshToken = user.getOauthToken();
             }
 
-            System.out.println("googleProfile = "+googleProfile.toString());
-            System.out.println("email = "+googleProfile.getEmail());
-            System.out.println("name = " +googleProfile.getName());
-            System.out.println("picture = " + googleProfile.getPicture());
-            System.out.println("token = "+ refreshToken);
 
             joinUser = UserRequest.join.builder()
                     .email(email)
