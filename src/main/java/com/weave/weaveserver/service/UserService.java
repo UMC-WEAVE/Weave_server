@@ -164,8 +164,15 @@ public class UserService {
             }
             email= googleProfile.getEmail();
             System.out.println(email + "구글이메일임");
+
+            System.out.println("login.getRefreshToken() : "+login.getRefreshToken());
+
+
+
             User user = userProvider.getUserByEmail(email);
-            if(login.getRefreshToken().length()<1){
+
+
+            if(login.getRefreshToken()==null){
                 refreshToken = user.getOauthToken();
             }
 
@@ -180,7 +187,6 @@ public class UserService {
             System.out.println(joinUser.toString());
             if(user==null){
                 log.info("google join : "+email);
-                System.out.println("뭐가 문제지?");
                 //회원가입 시에는 refresh token이 필수임
                 if(joinUser.getOauthToken()==null){
                     log.info("[REJECT]join -> refresh token is null ");
@@ -205,6 +211,7 @@ public class UserService {
 
         return token;
     }
+
 
 
     @Transactional
@@ -337,7 +344,7 @@ public class UserService {
             try {
                 googleAcToken = objectMapper.readValue(response.getBody(), GetGoogleAcToken.class);
             } catch (JsonProcessingException e) {
-                log.info("[REJECT]naverMapper error");
+                log.info("[REJECT]googleMapper error");
             }
 
 //            String result = restTemplate.postForObject(url, params, String.class);
