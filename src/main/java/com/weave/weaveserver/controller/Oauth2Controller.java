@@ -24,6 +24,11 @@ public class Oauth2Controller {
     private final UserService userService;
     private final TokenService tokenService;
 
+    @GetMapping("/health")
+    public String healthCheck(){
+        return "healthCheck success";
+    }
+
 
     //TODO : web
     //response없음 -> 로그인 처리 후에 사용자의 정보를 oauth로 반환
